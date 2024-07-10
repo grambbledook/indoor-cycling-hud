@@ -1,0 +1,99 @@
+#pragma once
+#include <string>
+
+namespace StyleSheets {
+    inline std::string SCALE_MEDIUM = R"MEDIUM(
+                                    QListWidget {
+                                        font-weight: bold;
+                                        font-size: 20px;
+                                        text-align: center;
+                                    }
+                                    TextLabel {
+                                        font: bold center "Hurmit Nerd Font Mono";
+                                        font-size: 10px;
+                                        text-align: center;
+                                    }
+                                    TextLabel#small {
+                                        font-size: 16px;
+                                    }
+                                    TextLabel#medium {
+                                        font-size: 24px;
+                                    }
+                                    TextLabel#large {
+                                        font-size: 30px;
+                                    }
+                                    ButtonLabel:hover {
+                                        color: red;
+                                        text-decoration: underline;
+                                    }
+                                    ButtonLabel {
+                                        font-size: 16px;
+                                        font-weight: bold;
+                                    }
+                                    ButtonLabel#with_borders {
+                                        padding: 3px 15px 1px 14px;
+                                        border-radius: 7px;
+                                    }
+                                    QFrame#frame_with_borders {
+                                        padding: 2px 1px -10px 1px;
+                                        border-radius: 10px;
+                                    }
+                                    ClickableLabel {
+                                        padding: 7px 17px 7px 17px;
+                                        border-radius: 10px;
+                                    })MEDIUM";
+
+    inline std::string THEME_DARK = R"DARK(
+                                    QListWidget {
+                                        background-color: transparent;
+                                        color: black;
+                                        font-weight: bold;
+                                        font-size: 20px;
+                                        text-align: center;
+                                    }
+                                    QFrame#frame_with_borders {
+                                        border: 1px solid black;
+                                    }
+                                    QListWidget::item {
+                                        background-color: transparent;
+                                    }
+                                    QListWidget::item:selected {
+                                        background-color: #808080;
+                                    }
+                                    QLabel {
+                                        color: black;
+                                    }
+                                    ButtonLabel#with_borders {
+                                        border: 2px solid black;
+                                    }
+                                    ClickableLabel {
+                                        border: 1px solid black;
+                                    })DARK";
+
+    inline std::string THEME_BRIGHT = R"BRIGHT(
+                                    QListWidget {
+                                        background-color: transparent;
+                                        color: black;
+                                        font-weight: bold;
+                                        font-size: 20px;
+                                        text-align: center;
+                                    }
+                                    QFrame#frame_with_borders {
+                                        border: 1px solid black;
+                                    }
+                                    QListWidget::item {
+                                        background-color: transparent;
+                                    }
+                                    QListWidget::item:selected {
+                                        background-color: #808080;
+                                    }
+                                    QLabel {
+                                        color: black;
+                                    }
+                                    ButtonLabel#with_borders {
+                                        border: 2px solid black;
+                                    }
+                                    ClickableLabel {
+                                        border: 1px solid black;
+                                    })BRIGHT";
+}
