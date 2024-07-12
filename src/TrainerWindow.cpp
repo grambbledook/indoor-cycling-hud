@@ -15,7 +15,7 @@ TrainerWindow::TrainerWindow(QWidget *parent): AppWindow(parent) {
         this
     );
 
-    const auto nextLabel = new ButtonLabel("Next", true, this);
+    const auto nextLabel = new ButtonLabel(Constants::Buttons::NEXT, true, this);
 
     layout->addWidget(trainer_panel, 0, 0, Qt::AlignCenter);
     layout->addWidget(nextLabel, 1, 0, Qt::AlignCenter);

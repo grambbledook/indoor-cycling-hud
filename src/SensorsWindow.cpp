@@ -32,8 +32,8 @@ SensorsWindow::SensorsWindow(QWidget *parent): AppWindow(parent) {
         this
     );
 
-    const auto prevLabel = new ButtonLabel("Prev", true, this);
-    const auto nextLabel = new ButtonLabel("Next", true, this);
+    const auto prevLabel = new ButtonLabel(Constants::Buttons::PREV, true, this);
+    const auto nextLabel = new ButtonLabel(Constants::Buttons::NEXT, true, this);
 
     auto *layout = new QGridLayout(this);
     layout->addWidget(heart_rate_monitor_panel, 0, 0, Qt::AlignCenter);

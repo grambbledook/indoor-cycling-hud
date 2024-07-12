@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "Constants.h"
 #include "StyleSheets.h"
 
 const LabelSize LabelSize::SMALL = LabelSize("small");
@@ -60,6 +61,6 @@ ButtonLabel::ButtonLabel(std::string text, const bool borders, QWidget *parent):
     std::move(text), LabelSize::SMALL, parent
 ) {
     if (borders) {
-        setObjectName("with_borders");
+        setObjectName(Constants::Classes::WITH_BORDERS);
     }
 }

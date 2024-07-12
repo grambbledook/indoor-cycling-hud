@@ -6,13 +6,15 @@
 
 #include <QGridLayout>
 
+#include "Constants.h"
+
 MetricsPanel::MetricsPanel(std::string text, QWidget *parent): QWidget(parent), text(std::move(text)) {
     auto const panel_layout = new QVBoxLayout(this);
     auto const button_layout = new QHBoxLayout(this);
     auto const value_layout = new QGridLayout(this);
 
-    auto const left_button = new ButtonLabel("<", false, this);
-    auto const right_button = new ButtonLabel(">", false, this);
+    auto const left_button = new ButtonLabel(Constants::Buttons::LEFT, false, this);
+    auto const right_button = new ButtonLabel(Constants::Buttons::RIGHT, false, this);
 
     auto const label = new TextLabel(this->text, LabelSize::SMALL, this);
     auto const value_label = new ValueLabel("0", LabelSize::LARGE, this);
@@ -29,7 +31,7 @@ MetricsPanel::MetricsPanel(std::string text, QWidget *parent): QWidget(parent), 
     panel_layout->addLayout(button_layout);
     auto const panel = new QFrame(this);
     panel->setLayout(panel_layout);
-    panel->setObjectName("frame_with_borders");
+    panel->setObjectName(Constants::Classes::FRAME_WITH_BORDERS);
 
     auto const main_layout = new QVBoxLayout(this);
     main_layout->addWidget(panel);

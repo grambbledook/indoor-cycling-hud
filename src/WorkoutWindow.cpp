@@ -6,13 +6,15 @@
 
 #include <QGridLayout>
 
-WorkoutWindow::WorkoutWindow(QWidget *parent): AppWindow(parent) {
-    const auto heart_rate_monitor_panel = new MetricsPanel("Heart Rate", this);
-    const auto cadence_sensor_panel = new MetricsPanel("Cadence", this);
-    const auto power_meter_panel = new MetricsPanel("Instant Power", this);
-    const auto speed_sensor_panel = new MetricsPanel("Speed", this);
+#include "Constants.h"
 
-    const auto finishLabel = new ButtonLabel("Finish", this);
+WorkoutWindow::WorkoutWindow(QWidget *parent): AppWindow(parent) {
+    const auto heart_rate_monitor_panel = new MetricsPanel(Constants::Labels::HEART_RATE, this);
+    const auto cadence_sensor_panel = new MetricsPanel(Constants::Labels::CADENCE, this);
+    const auto power_meter_panel = new MetricsPanel(Constants::Labels::INSTANT_POWER, this);
+    const auto speed_sensor_panel = new MetricsPanel(Constants::Labels::SPEED, this);
+
+    const auto finishLabel = new ButtonLabel(Constants::Buttons::FINISH, this);
 
     const auto layout = new QGridLayout(this);
     const auto centralWidget = new QWidget(this);

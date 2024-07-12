@@ -18,4 +18,28 @@ namespace Constants {
         const std::string SPEED_SENSOR = "assets/spd.png";
         const std::string SPEED_SENSOR_HOVER = "assets/spd_high.png";
     }
+
+    namespace Buttons {
+        const std::string PREV = "Back";
+        const std::string FINISH = "Finish";
+        const std::string NEXT = "Next";
+        const std::string OK = "Ok";
+
+        const std::string LEFT = "<";
+        const std::string RIGHT = ">";
+    }
+
+    namespace Labels {
+        const std::string HEART_RATE = "Heart Rate";
+        const std::string CADENCE = "Cadence";
+        const std::string INSTANT_POWER = "Instant Power";
+        const std::string SPEED = "Speed";
+    }
+
+    namespace Classes {
+        const std::string WITH_BORDERS = "with_borders";
+        const std::string FRAME_WITH_BORDERS = "frame_with_borders";
+
+        const std::string APP_WINDOW = "AppWindow";
+    }
 }
