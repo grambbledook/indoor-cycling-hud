@@ -41,6 +41,10 @@ class ButtonLabel final : public TextLabel {
 
 public:
     explicit ButtonLabel(std::string text, bool borders = true, QWidget *parent = nullptr);
+
+    void mousePressEvent(QMouseEvent *event) override;
+signals:
+    void clicked();
 };
 
 class ClickableLabel final : public QLabel {
@@ -56,6 +60,11 @@ public:
     void enterEvent(QEnterEvent *event) override;
 
     void leaveEvent(QEvent *event) override;
+
+    void mousePressEvent(QMouseEvent *event) override;
+
+signals:
+    void clicked();
 
 private:
     static std::shared_ptr<QPixmap> pixmap(const std::string &path);

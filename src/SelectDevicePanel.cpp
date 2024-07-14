@@ -3,12 +3,18 @@
 #include <QWidget>
 #include <QSpacerItem>
 #include <QSizePolicy>
-#include <QToolTip>
 
-// #include "DeviceDialog.h"
 #include "Labels.h"
 #include "SelectDevicePanel.h"
+
+#include <iostream>
+
 #include "StyleSheets.h"
+
+#include <iostream>
+#include <qboxlayout.h>
+#include <qevent.h>
+#include <QListWidget>
 
 SelectDevicePanel::SelectDevicePanel(
     const std::string &normal_icon_path,
@@ -17,6 +23,7 @@ SelectDevicePanel::SelectDevicePanel(
 ) : QMainWindow(parent) {
     const auto selectIcon = new ClickableLabel(normal_icon_path, highlighted_icon_path, this);
     selectIcon->setToolTip("No device selected");
+    connect(selectIcon, &ClickableLabel::clicked, this, &SelectDevicePanel::showDeviceDialog);
 
     const auto metricLabel = new ValueLabel("--/--", LabelSize::MEDIUM, this);
     metricLabel->setToolTip("No device selected");
@@ -35,11 +42,9 @@ SelectDevicePanel::SelectDevicePanel(
     setStyleSheet((StyleSheets::THEME_BRIGHT + StyleSheets::SCALE_MEDIUM).data());
 }
 
-// public
-// slots:
-// void showSelectDeviceDialog();
-
-// void populate_device_list(const QList<Device>& devices);
-// void deviceSelected(const Device& device);
-// void updateDevice(const QString& value);
-// void updateMetrics(const QString& value);
+void SelectDevicePanel::showDeviceDialog() {
+    std::cout << "SelectDevicePanel::show_device_dialog()" << std::endl;
+    dialog = std::make_shared<DeviceDialog>(this);
+    dialog->show();
+    dialog->setFocus();
+}
