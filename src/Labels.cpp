@@ -26,6 +26,10 @@ void ClickableLabel::leaveEvent(QEvent *event) {
     setPixmap(*normal);
 }
 
+void ClickableLabel::mousePressEvent(QMouseEvent *event) {
+    emit clicked();
+}
+
 std::shared_ptr<QPixmap> ClickableLabel::pixmap(const std::string &path) {
     const auto pixmap = std::make_unique<QPixmap>(QString::fromStdString(path));
     auto image = pixmap->toImage();
@@ -63,4 +67,8 @@ ButtonLabel::ButtonLabel(std::string text, const bool borders, QWidget *parent):
     if (borders) {
         setObjectName(Constants::Classes::WITH_BORDERS);
     }
+}
+
+void ButtonLabel::mousePressEvent(QMouseEvent *event) {
+    emit clicked();
 }

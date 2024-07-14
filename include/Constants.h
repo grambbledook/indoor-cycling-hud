@@ -20,7 +20,7 @@ namespace Constants {
     }
 
     namespace Buttons {
-        const std::string PREV = "Back";
+        const std::string BACK = "Back";
         const std::string FINISH = "Finish";
         const std::string NEXT = "Next";
         const std::string OK = "Ok";

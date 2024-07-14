@@ -1,6 +1,11 @@
 #pragma once
 #include <QMainWindow>
 #include <QWidget>
+#include <QDialog>
+
+#include "DeviceDialog.h"
+
+class DeviceDialog;
 
 class SelectDevicePanel final : public QMainWindow {
     Q_OBJECT
@@ -13,13 +18,15 @@ public:
     );
 
     //
-    // public slots:
-    //     void showSelectDeviceDialog();
+public slots:
+    void show_device_dialog();
+
     //
-    // private:
-    //     // DeviceDialogog *dialog;
+private:
+    std::shared_ptr<DeviceDialog> dialog;
+
     //     QString highlighted_icon_path;
     //     QString normal_icon_path;
-    //     ClickableLabel *selectIcon;
-    //     ValueLabel *metricLabel;
+    // ClickableLabel *selectIcon;
+    // ValueLabel *metricLabel;
 };
