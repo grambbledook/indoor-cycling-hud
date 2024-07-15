@@ -5,16 +5,17 @@ It is intended to be used during indoor cycling on top of other full screen apps
 ## Supported Features
 
 ### Supported Devices
-[x] Heart Rate Monitors (Bluetooth LE) \
-[x] Cycling Speed and Cadence Sensors (Bluetooth LE) \
-[x] Power Meters (Bluetooth LE) \
+[ ] Heart Rate Monitors (Bluetooth LE) \
+[ ] Cycling Speed and Cadence Sensors (Bluetooth LE) \
+[ ] Power Meters (Bluetooth LE) \
+[ ] Indoor Cycling Trainers (FE-C over BLE) \
 [ ] Indoor Cycling Trainers (Bluetooth LE) \
 
 ### Display features
-[x] Display of current heart rate \
-[x] Display of current cycling speed \
-[x] Display of current cycling cadence \
-[x] Display of instantaneous cycling power \
+[ ] Display of current heart rate \
+[ ] Display of current cycling speed \
+[ ] Display of current cycling cadence \
+[ ] Display of instantaneous cycling power \
 [ ] Display of 3s average cycling power \
 [ ] Display of total distance 
 
