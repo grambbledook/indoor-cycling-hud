@@ -14,10 +14,21 @@ message(CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}")
 find_package(Qt6Core CONFIG REQUIRED)
 find_package(Qt6Widgets CONFIG REQUIRED)
 
-
 #--------------------Include WinRT------------------------------
-find_package(WindowsSDK REQUIRED)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /ZW")
+
+# Add the Windows SDK include directories
+include_directories(
+        "$ENV{WINDOWS_SDK_HOME}/um"
+        "$ENV{WINDOWS_SDK_HOME}/ucrt"
+        "$ENV{WINDOWS_SDK_HOME}/shared"
+        "$ENV{WINDOWS_SDK_HOME}/cppwinrt"
+)
+
+# Add the Windows SDK library directories
+link_directories(
+        "$ENV{WINDOWS_SDK_HOME}/um/x64"
+        "$ENV{WINDOWS_SDK_HOME}/ucrt/x64"
+)
 
 #--------------------Include Project Files-------------------
 set(ASSETS_DIR ${CMAKE_SOURCE_DIR}/assets)
@@ -42,7 +53,7 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
 #set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_AUTOUIC_SEARCH_PATHS} ${FORMS_DIR})
 
 add_executable(HelloWorld ${SOURCES}
-        include/WorkoutWindow.h)
+        include/Hud.h)
 
 target_include_directories(HelloWorld PRIVATE ${INCLUDE_DIR})
 target_include_directories(HelloWorld PRIVATE ${SOURCE_DIR})
@@ -53,13 +64,12 @@ target_link_libraries(HelloWorld Qt6::Widgets Qt6::Core)
 
 #--------------------Set WinRT Executable-------------------------
 
-add_executable(WinRt ${SOURCES} include/WinRT.h)
+add_executable(WinRt src/WinRT.cpp include/WinRT.h)
 include_directories(${WindowsSDK_INCLUDE_DIR})
 target_link_libraries(WinRt
         WindowsApp.lib
         windowsapp
 )
-
 
 if (WIN32)
     add_definitions(-DWIN32_LEAN_AND_MEAN)

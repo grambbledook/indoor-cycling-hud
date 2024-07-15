@@ -1,3 +1,7 @@
+#include "WinRT.h"
+
+#include <iostream>
+
 using namespace winrt;
 using namespace Windows::Foundation;
 using namespace Windows::Devices::Bluetooth;
@@ -26,6 +30,4 @@ int main() {
 
     winrt::uninit_apartment();
     return 0;
-}//
-// Created by denis on 7/15/2024.
-//
+}

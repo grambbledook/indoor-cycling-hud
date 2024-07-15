@@ -1,13 +1,6 @@
-#include <QApplication>
-#include <QLineEdit>
-#include <QVBoxLayout>
-#include <QtPlugin>
+#include "Hud.h"
 
-#include "Constants.h"
-#include "SensorsWindow.h"
-#include "TrainerWindow.h"
-#include "ViewNavigator.h"
-#include "WorkoutWindow.h"
+#include <memory>
 
 int main(int argc, char **argv) {
     const auto app = new QApplication(argc, argv);
