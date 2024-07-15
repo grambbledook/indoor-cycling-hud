@@ -42,4 +42,11 @@ namespace Constants {
 
         const std::string APP_WINDOW = "AppWindow";
     }
+
+    namespace Screens {
+        const std::string TRAINER = "trainer";
+        const std::string SENSORS = "sensors";
+        const std::string WORKOUT = "workout";
+        const std::string WORKOUT_SUMMARY = "workout_summary";
+    }
 }

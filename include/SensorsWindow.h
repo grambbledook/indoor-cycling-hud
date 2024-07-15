@@ -7,8 +7,6 @@ class SensorsWindow final : public AppWindow {
 public:
     explicit SensorsWindow(QWidget *parent = nullptr);
 
-public slots:
-    void back();
-
-    void next();
+    void back() override;
+    void next() override;
 };

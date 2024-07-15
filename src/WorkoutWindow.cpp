@@ -1,6 +1,9 @@
 #include "SelectDevicePanel.h"
 #include "StyleSheets.h"
 #include "WorkoutWindow.h"
+
+#include <iostream>
+
 #include "MetricsPanel.h"
 #include <Labels.h>
 
@@ -15,6 +18,7 @@ WorkoutWindow::WorkoutWindow(QWidget *parent): AppWindow(parent) {
     const auto speed_sensor_panel = new MetricsPanel(Constants::Labels::SPEED, this);
 
     const auto finishLabel = new ButtonLabel(Constants::Buttons::FINISH, this);
+    connect(finishLabel, &ButtonLabel::clicked, this, &WorkoutWindow::next);
 
     const auto layout = new QGridLayout(this);
     const auto centralWidget = new QWidget(this);
@@ -28,5 +32,10 @@ WorkoutWindow::WorkoutWindow(QWidget *parent): AppWindow(parent) {
     layout->addWidget(speed_sensor_panel, 3, 0);
     layout->addWidget(finishLabel, 4, 0, 1, 1, Qt::AlignmentFlag::AlignCenter);
 
-    setStyleSheet((StyleSheets::THEME_BRIGHT + StyleSheets::SCALE_MEDIUM).data());
+    setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
+}
+
+void WorkoutWindow::next() {
+    std::cout << "WorkoutWindow::next" << std::endl;
+    emit nextScreen(Constants::Screens::WORKOUT_SUMMARY);
 }

@@ -39,7 +39,7 @@ SelectDevicePanel::SelectDevicePanel(
     centralWidget->setLayout(layout);
     setCentralWidget(centralWidget);
 
-    setStyleSheet((StyleSheets::THEME_BRIGHT + StyleSheets::SCALE_MEDIUM).data());
+    setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
 }
 
 void SelectDevicePanel::showDeviceDialog() {

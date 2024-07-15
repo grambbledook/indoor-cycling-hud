@@ -37,5 +37,5 @@ MetricsPanel::MetricsPanel(std::string text, QWidget *parent): QWidget(parent), 
     main_layout->addWidget(panel);
     setLayout(main_layout);
 
-    setStyleSheet((StyleSheets::THEME_BRIGHT + StyleSheets::SCALE_MEDIUM).data());
+    setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
 }

@@ -6,4 +6,6 @@ class WorkoutWindow final : public AppWindow {
 
 public:
     explicit WorkoutWindow(QWidget *parent = nullptr);
+
+    void next() override;
 };

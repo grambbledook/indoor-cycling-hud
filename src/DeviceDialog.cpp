@@ -37,7 +37,7 @@ DeviceDialog::DeviceDialog(QWidget *parent): QDialog(parent), listWidget(std::ma
     layout->addLayout(hLayout);
 
     setLayout(layout);
-    setStyleSheet((StyleSheets::THEME_BRIGHT + StyleSheets::SCALE_MEDIUM).data());
+    setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
     setWindowFlags(Qt::WindowType::FramelessWindowHint | Qt::WindowType::Dialog);
     setAttribute(Qt::WidgetAttribute::WA_TranslucentBackground);
 }

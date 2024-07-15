@@ -6,4 +6,6 @@ class TrainerWindow final : public AppWindow {
 
 public:
     explicit TrainerWindow(QWidget *parent = nullptr);
+
+    void next() override;
 };

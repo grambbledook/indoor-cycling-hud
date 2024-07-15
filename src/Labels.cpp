@@ -15,7 +15,7 @@ ClickableLabel::ClickableLabel(
     QWidget *parent
 ) : QLabel(parent), normal(pixmap(normal_icon_path)), highlighted(pixmap(highlighted_icon_path)) {
     setPixmap(*normal);
-    setStyleSheet((StyleSheets::THEME_BRIGHT + StyleSheets::SCALE_MEDIUM).data());
+    setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
 }
 
 void ClickableLabel::enterEvent(QEnterEvent *event) {
@@ -54,7 +54,7 @@ std::shared_ptr<QPixmap> ClickableLabel::pixmap(const std::string &path) {
 TextLabel::TextLabel(std::string text, const LabelSize &size, QWidget *parent) : QLabel(parent), text(std::move(text)) {
     setText(QString::fromStdString(this->text));
     setObjectName(size.asString());
-    setStyleSheet((StyleSheets::THEME_BRIGHT + StyleSheets::SCALE_MEDIUM).data());
+    setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
 }
 
 ValueLabel::ValueLabel(std::string text, const LabelSize &size, QWidget *parent) : TextLabel(

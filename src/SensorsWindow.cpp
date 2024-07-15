@@ -52,15 +52,17 @@ SensorsWindow::SensorsWindow(QWidget *parent): AppWindow(parent) {
     centralWidget->setLayout(layout);
     setCentralWidget(centralWidget);
 
-    setStyleSheet((StyleSheets::THEME_BRIGHT + StyleSheets::SCALE_MEDIUM).data());
+    setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
 }
 
 void SensorsWindow::back() {
     std::cout << "SensorsWindow::back" << std::endl;
-    this->close();
+    const auto x = this->x(), y = this->y();
+    emit nextScreen(Constants::Screens::TRAINER);
 }
 
 void SensorsWindow::next() {
     std::cout << "SensorsWindow::next" << std::endl;
-    this->close();
+    const auto x = this->x(), y = this->y();
+    emit nextScreen(Constants::Screens::WORKOUT);
 }

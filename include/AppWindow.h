@@ -16,8 +16,17 @@ public:
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
+
+signals:
+    virtual void positionUpdated(int x, int y);
+    virtual void nextScreen(std::string screen);
+
+public slots:
+    virtual void back();
+    virtual void next();
+
 private:
+
     bool m_drag;
     QPointF m_DragPosition;
 };
-
