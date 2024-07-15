@@ -4,7 +4,6 @@
 #include <QListWidget>
 #include <QObject>
 
-
 class DeviceDialog final : public QDialog {
     Q_OBJECT
 

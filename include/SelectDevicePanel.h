@@ -1,8 +1,6 @@
 #pragma once
 #include <QMainWindow>
 #include <QWidget>
-#include <QDialog>
-
 #include "DeviceDialog.h"
 
 class DeviceDialog;
@@ -17,16 +15,14 @@ public:
         QWidget *parent = nullptr
     );
 
-    //
-public slots:
-    void show_device_dialog();
+    struct Device {
+        std::string name;
+        std::string address;
+    };
 
-    //
+public slots:
+    void showDeviceDialog();
+
 private:
     std::shared_ptr<DeviceDialog> dialog;
-
-    //     QString highlighted_icon_path;
-    //     QString normal_icon_path;
-    // ClickableLabel *selectIcon;
-    // ValueLabel *metricLabel;
 };

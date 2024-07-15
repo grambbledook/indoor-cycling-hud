@@ -1,11 +1,5 @@
 #include <QPainter>
-#include <QPaintEvent>
-#include <QMouseEvent>
-
 #include "AppWindow.h"
-
-#include <iostream>
-
 #include "Constants.h"
 
 AppWindow::AppWindow(QWidget *parent) : QMainWindow(parent), m_drag(false), m_DragPosition(QPoint(0, 0)) {
