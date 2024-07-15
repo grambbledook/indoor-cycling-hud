@@ -7,10 +7,17 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo" CACHE STRING "" FOR
 #--------------------Include QT------------------------------
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_PREFIX_PATH $ENV{QT_HOME})
+list(APPEND CMAKE_PREFIX_PATH $ENV{QT_HOME} $ENV{CMAKE_MODULES_HOME})
+
+message(CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}")
 
 find_package(Qt6Core CONFIG REQUIRED)
 find_package(Qt6Widgets CONFIG REQUIRED)
+
+
+#--------------------Include WinRT------------------------------
+find_package(WindowsSDK REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /ZW")
 
 #--------------------Include Project Files-------------------
 set(ASSETS_DIR ${CMAKE_SOURCE_DIR}/assets)
@@ -20,13 +27,14 @@ set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 include_directories(${ASSETS_DIR})
 include_directories(${INCLUDE_DIR})
 include_directories(${SOURCE_DIR})
+include_directories(${WindowsSDK_INCLUDE_DIR})
 
 file(GLOB_RECURSE SOURCES
         ${SOURCE_DIR}/*.cpp
         ${INCLUDE_DIR}/*.h
 )
 
-#--------------------Set Executable-------------------------
+#--------------------Set QT Executable-------------------------
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
         $<$<CONFIG:RELWITHDEBINFO>:QT_MESSAGELOGCONTEXT>)
 
@@ -42,3 +50,19 @@ target_include_directories(HelloWorld PRIVATE ${ASSETS_DIR})
 
 #--------------------Link Libraries--------------------------
 target_link_libraries(HelloWorld Qt6::Widgets Qt6::Core)
+
+#--------------------Set WinRT Executable-------------------------
+
+add_executable(WinRt ${SOURCES} include/WinRT.h)
+include_directories(${WindowsSDK_INCLUDE_DIR})
+target_link_libraries(WinRt
+        WindowsApp.lib
+        windowsapp
+)
+
+
+if (WIN32)
+    add_definitions(-DWIN32_LEAN_AND_MEAN)
+    add_definitions(-DUNICODE)
+    add_definitions(-D_UNICODE)
+endif()
