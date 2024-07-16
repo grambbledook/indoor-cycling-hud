@@ -2,9 +2,21 @@ cmake_minimum_required(VERSION 3.10)
 project(HelloWorld LANGUAGES CXX)
 add_subdirectory(bluetooth)
 
+message(PROJECT="BAZA")
+message(CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}")
+message(CMAKE_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
+message(CMAKE_CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+message(PROJECT_BINARY_DIR="${PROJECT_BINARY_DIR}")
+
+# control where the static and shared libraries are built so that on windows
+# we don't need to tinker with the path to run the executable
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
+
 SET(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo" CACHE STRING "" FORCE)
-set(CMAKE_CXX_FLAGS "/Z7")
+#set(CMAKE_CXX_FLAGS "/Z7")
 
 #--------------------Include QT------------------------------
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -17,9 +29,10 @@ find_package(Qt6Core CONFIG REQUIRED)
 find_package(Qt6Widgets CONFIG REQUIRED)
 
 #--------------------Include Project Files-------------------
-set(ASSETS_DIR ${CMAKE_SOURCE_DIR}/assets)
-set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
-set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
+set(ASSETS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/assets)
+set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(BLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bluetooth/include)
 
 include_directories(${ASSETS_DIR})
 include_directories(${INCLUDE_DIR})
@@ -40,7 +53,7 @@ add_executable(HelloWorld ${SOURCES}
 target_include_directories(HelloWorld PRIVATE ${INCLUDE_DIR})
 target_include_directories(HelloWorld PRIVATE ${SOURCE_DIR})
 target_include_directories(HelloWorld PRIVATE ${ASSETS_DIR})
-
+target_include_directories(Bluetooth PUBLIC ${BLE_DIR})
 
 #--------------------Link Libraries--------------------------
-target_link_libraries(HelloWorld Qt6::Widgets Qt6::Core WindowsApp.lib windowsapp bluetooth)
+target_link_libraries(HelloWorld Qt6::Widgets Qt6::Core Bluetooth)

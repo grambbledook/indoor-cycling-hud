@@ -1,4 +1,4 @@
-#include "../../include/bluetooth/WinRT.h"
+#include "WinRT.h"
 
 #include <iostream>
 

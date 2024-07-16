@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
+project(Bluetooth LANGUAGES CXX)
+
+
 
 SET(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo" CACHE STRING "" FORCE)
@@ -8,7 +11,10 @@ set(CMAKE_CXX_FLAGS "/Z7")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 list(APPEND CMAKE_PREFIX_PATH $ENV{CMAKE_MODULES_HOME})
 
+message(PROJECT="BLUETOOTH")
 message(CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}")
+message(CMAKE_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
+message(CMAKE_CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 #--------------------Include WinRT------------------------------
 
@@ -27,28 +33,28 @@ link_directories(
 )
 
 #--------------------Include Project Files-------------------
-set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
-set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
+set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-include_directories(${ASSETS_DIR})
+include_directories(${INCLUDE_DIR})
 include_directories(${SOURCE_DIR})
 include_directories(${WindowsSDK_INCLUDE_DIR})
 
 file(GLOB_RECURSE SOURCES
         ${SOURCE_DIR}/*.cpp
         ${INCLUDE_DIR}/*.h
+#        ${BLE_DIR}/*.h
 )
 
-#--------------------Set QT Executable-------------------------
 add_library(Bluetooth STATIC ${SOURCES})
 
-target_include_directories(Bluetooth PRIVATE ${INCLUDE_DIR})
-target_include_directories(Bluetooth PRIVATE ${SOURCE_DIR})
+target_include_directories(Bluetooth PUBLIC ${INCLUDE_DIR})
+target_include_directories(Bluetooth PUBLIC ${SOURCE_DIR})
 
 include_directories(${WindowsSDK_INCLUDE_DIR})
 
 #--------------------Link Libraries--------------------------
-target_link_libraries(Bluetooth Qt WindowsApp.lib windowsapp)
+target_link_libraries(Bluetooth PUBLIC WindowsApp.lib windowsapp)
 
 if (WIN32)
     add_definitions(-DWIN32_LEAN_AND_MEAN)

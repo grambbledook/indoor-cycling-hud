@@ -2,7 +2,8 @@
 
 #include <memory>
 
-#include "Bluetooth/WinRT.h"
+#include "WinRT.h"
+
 
 int main(int argc, char **argv) {
 
