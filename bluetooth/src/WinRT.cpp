@@ -1,6 +1,9 @@
+
 #include "WinRT.h"
 
 #include <iostream>
+
+#include "Scanner.h"
 
 using namespace winrt;
 using namespace Windows::Foundation;
@@ -10,28 +13,30 @@ using namespace Windows::Devices::Bluetooth::GenericAttributeProfile;
 using namespace Windows::Devices::Enumeration;
 
 void WinRT::print() {
-    std::cout << "Hello from WinRT!" << std::endl;
-    winrt::init_apartment(apartment_type::single_threaded);
-    std::cout << "BLAHA after init_apartment!" << std::endl;
+    const auto scanner = new Scanner();
 
-    // Example: Initialize a Bluetooth LE watcher
-    BluetoothLEAdvertisementWatcher watcher;
-    watcher.ScanningMode(BluetoothLEScanningMode::Active);
-
-    watcher.Received(&WinRT::process);
-
-    std::cout << "BLAHA before watcher!" << std::endl;
-    watcher.Start();
-    std::cout << "BLAHA after watcher!" << std::endl;
-    // Keep the application running to receive events
+    std::cout << "BLAHA kek-pook test one!" << std::endl;
+    auto first_receiver = [](Device device) {
+        std::cout << "Received device: " << device.name.value << " with address: " << device.address.value << std::endl;
+        std::cout << "   Supported services: [";
+        for (const auto &service: device.services) {
+            std::cout << "{ " << service.type << ": " << service.service_uuid.value << "}, ";
+        }
+        std::cout << "]" << std::endl;
+    };
+    scanner->scan(first_receiver);
     std::cin.get();
-    std::cout << "BLAHA after kek-pook!" << std::endl;
-    winrt::uninit_apartment();
-    std::cout << "BLAHA after uninit_apartment!" << std::endl;
-}
+    scanner->stop();
 
-void WinRT::process(BluetoothLEAdvertisementWatcher watcher, BluetoothLEAdvertisementReceivedEventArgs args) {
-    // Process received advertisement
-    auto btAddress = args.BluetoothAddress();
-    wprintf(L"Received advertisement from: %llX\n", btAddress);
+    std::cin.get();
+    std::cout << "BLAHA kek-pook test two!" << std::endl;
+
+    auto second_receiver = [](Device device) {
+        std::cout << "Huiceived device: " << device.name.value << " with address: " << device.address.value <<
+                std::endl;
+    };
+    scanner->scan(second_receiver);
+    std::cin.get();
+    scanner->stop();
+    std::cout << "BLAHA after uninit_apartment!" << std::endl;
 }
