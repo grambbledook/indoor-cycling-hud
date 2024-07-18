@@ -6,8 +6,13 @@
 #include <winrt/Windows.Devices.Bluetooth.Advertisement.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Foundation.h>
+#include <winrt/Windows.Devices.Bluetooth.h>
+#include <winrt/Windows.Devices.Bluetooth.GenericAttributeProfile.h>
+#include <winrt/Windows.Devices.Enumeration.h>
+#include <winrt/Windows.Storage.Streams.h>
 
 #include "Service.h"
+#include "WinRtUtils.h"
 
 using namespace winrt;
 using namespace Windows::Foundation;
@@ -15,7 +20,7 @@ using namespace Windows::Foundation::Collections;
 using namespace Windows::Devices::Bluetooth::Advertisement;
 using namespace Windows::Devices::Bluetooth::Advertisement;
 
-void Scanner::scan(const std::function<void(Device)> &receiver) {
+void Scanner::start_scan(const std::function<void(Device)> &receiver) {
     reset_previous_scans();
 
     watcher->Received(
@@ -29,7 +34,7 @@ void Scanner::scan(const std::function<void(Device)> &receiver) {
             auto supported_services = std::vector<Service>();
             for (auto i = 0; i < services_size; i++) {
                 auto cs = services.GetAt(i);
-                auto candidate_service_uuid = UUID::from_guid(cs.Data1, cs.Data2, cs.Data3, cs.Data4);
+                auto candidate_service_uuid = WinrtUtils::uuid_from_guid(cs);
 
                 for (const auto &service: Services::SUPPORTED_SERVICES) {
                     if (service.service_uuid == candidate_service_uuid) {
@@ -41,7 +46,7 @@ void Scanner::scan(const std::function<void(Device)> &receiver) {
             if (supported_services.empty()) return;
 
             const auto device = Device{
-                Name::from_wstring(name.c_str()), Address::from_uint64_t(address), supported_services
+                WinrtUtils::name_from_hstring(name), WinrtUtils::name_from_hstring(address), supported_services
             };
 
             receiver(device);
@@ -52,15 +57,14 @@ void Scanner::scan(const std::function<void(Device)> &receiver) {
 }
 
 void Scanner::reset_previous_scans() {
-    this->stop();
+    this->stop_scan();
     watcher = std::make_shared<BluetoothLEAdvertisementWatcher>();
-    init_apartment(apartment_type::single_threaded);
 }
 
-void Scanner::stop() const {
+void Scanner::stop_scan() const {
     if (!watcher) return;
 
     std::cout << "Stopping scan routine...\n";
     watcher->Stop();
-    uninit_apartment();
+    // uninit_apartment();
 }

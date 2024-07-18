@@ -6,10 +6,10 @@
 
 
 int main(int argc, char **argv) {
+    WinRT::test(true);
 
     const auto app = new QApplication(argc, argv);
 
-    WinRT::print();
 
     auto trainer_window = std::make_shared<TrainerWindow>();
     auto sensor_window = std::make_shared<SensorsWindow>();
