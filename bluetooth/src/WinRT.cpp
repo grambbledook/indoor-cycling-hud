@@ -26,9 +26,9 @@ void WinRT::test(bool multi_threaded) {
     exit(0);
 }
 
-std::vector<Device> WinRT::do_work() {
+std::unordered_map<UUID, std::shared_ptr<Device> > WinRT::do_work() {
     const auto scanner = new Scanner();
-    auto found_devices = std::vector<Device>();
+    auto found_devices = std::unordered_map<UUID, std::shared_ptr<Device> >();
 
     auto first_receiver = [&found_devices](const Device &device) {
         std::cout << "Received device: " << device.name.value << " with address: " << device.address.value << std::endl;
@@ -39,8 +39,26 @@ std::vector<Device> WinRT::do_work() {
         }
         std::cout << "]" << std::endl;
 
-        if (found_devices.empty()) {
-            found_devices.push_back(device);
+        bool hasHRMService = false;
+        bool hasCSCService = false;
+
+        for (const auto &[type, service_uuid, characteristic_uuid]: device.services) {
+            if (service_uuid == Services::HRM.service_uuid) {
+                hasHRMService = true;
+                break;
+            }
+            if (service_uuid == Services::CSC.service_uuid) {
+                hasCSCService = true;
+                break;
+            }
+        }
+
+        if (hasHRMService && !found_devices.contains(Services::HRM.service_uuid)) {
+            found_devices[Services::HRM.service_uuid] = std::make_shared<Device>(device);
+        }
+
+        if (hasCSCService && !found_devices.contains(Services::CSC.service_uuid)) {
+            found_devices[Services::CSC.service_uuid] = std::make_shared<Device>(device);
         }
     };
     scanner->start_scan(first_receiver);
@@ -54,12 +72,21 @@ void WinRT::runTest() {
     const auto found_devices = do_work();
     std::cout << "Found devices: " << found_devices.size() << std::endl;
 
-    const auto &device = found_devices[0];
-
     auto registry = std::make_shared<DeviceRegistry>();
-    const auto service = std::make_shared<HrmNotificationService>(registry);
+    const auto hrm = std::make_shared<HrmNotificationService>(registry);
+    const auto csc = std::make_shared<CyclingCadenceAndSpeedNotificationService>(registry);
 
-    service->set_device(std::make_shared<Device>(device));
+    if (found_devices.contains(Services::HRM.service_uuid)) {
+        const auto &device = found_devices.at(Services::HRM.service_uuid);
+        hrm->set_device(device);
+        std::cin.get();
+    }
+
+    if (found_devices.contains(Services::CSC.service_uuid)) {
+        const auto &device = found_devices.at(Services::CSC.service_uuid);
+        csc->set_device(device);
+        std::cin.get();
+    }
     std::cin.get();
 
     registry->stop();

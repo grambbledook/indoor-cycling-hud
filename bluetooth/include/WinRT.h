@@ -9,7 +9,7 @@ class WinRT {
 public:
     static void test(bool multi_threaded = false);
 
-    static std::vector<Device> do_work();
+    static std::unordered_map<UUID, std::shared_ptr<Device>> do_work();
 
 private:
     static void runTest();

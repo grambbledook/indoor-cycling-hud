@@ -6,34 +6,34 @@ public:
     virtual ~Measurement() = default;
 };
 
-struct HrmMeasurement final : public Measurement {
+struct HrmMeasurement final : Measurement {
     explicit HrmMeasurement(const int hrm): Measurement(), hrm(hrm) {
     }
 
-    int hrm;
+    unsigned int hrm;
 };
 
-class SpeedMeasurement final : public Measurement {
+struct SpeedMeasurement final : Measurement {
     SpeedMeasurement(const int cwr, const int lwet): Measurement(), cwr(cwr), lwet(lwet) {
     }
 
-    int cwr;
-    int lwet;
+    unsigned int cwr;
+    unsigned int lwet;
 };
 
-class CadenceMeasurement final : public Measurement {
+struct CadenceMeasurement final : Measurement {
     CadenceMeasurement(const int ccr, const int lcet): Measurement(), ccr(ccr), lcet(lcet) {
     }
 
-    int ccr;
-    int lcet;
+    unsigned int ccr;
+    unsigned int lcet;
 };
 
-class PowerMeasurement final : public Measurement {
+struct PowerMeasurement final : Measurement {
     explicit PowerMeasurement(const int power): Measurement(), power(power) {
     }
 
-    int power;
+    unsigned int power;
 };
 
 
