@@ -25,6 +25,7 @@ public:
 
     bool subscribe(const UUID &characteristicUuid,
                    const std::function<void(std::shared_ptr<Device>, std::vector<uint8_t>)> &receiver) const;
+    bool unsubscribe(const UUID &characteristicUuid) const;
 
     void disconnect() const;
 

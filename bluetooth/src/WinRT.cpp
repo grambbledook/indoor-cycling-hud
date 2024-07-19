@@ -41,6 +41,7 @@ std::unordered_map<UUID, std::shared_ptr<Device> > WinRT::do_work() {
 
         bool hasHRMService = false;
         bool hasCSCService = false;
+        bool hasPWRService = false;
 
         for (const auto &[type, service_uuid, characteristic_uuid]: device.services) {
             if (service_uuid == Services::HRM.service_uuid) {
@@ -51,6 +52,10 @@ std::unordered_map<UUID, std::shared_ptr<Device> > WinRT::do_work() {
                 hasCSCService = true;
                 break;
             }
+            if (service_uuid == Services::PWR.service_uuid) {
+                hasPWRService = true;
+                break;
+            }
         }
 
         if (hasHRMService && !found_devices.contains(Services::HRM.service_uuid)) {
@@ -59,6 +64,10 @@ std::unordered_map<UUID, std::shared_ptr<Device> > WinRT::do_work() {
 
         if (hasCSCService && !found_devices.contains(Services::CSC.service_uuid)) {
             found_devices[Services::CSC.service_uuid] = std::make_shared<Device>(device);
+        }
+
+        if (hasPWRService && !found_devices.contains(Services::PWR.service_uuid)) {
+            found_devices[Services::PWR.service_uuid] = std::make_shared<Device>(device);
         }
     };
     scanner->start_scan(first_receiver);
@@ -75,10 +84,13 @@ void WinRT::runTest() {
     auto registry = std::make_shared<DeviceRegistry>();
     const auto hrm = std::make_shared<HrmNotificationService>(registry);
     const auto csc = std::make_shared<CyclingCadenceAndSpeedNotificationService>(registry);
+    const auto pwr = std::make_shared<PowerNotificationService>(registry);
 
     if (found_devices.contains(Services::HRM.service_uuid)) {
         const auto &device = found_devices.at(Services::HRM.service_uuid);
         hrm->set_device(device);
+        std::cin.get();
+        hrm->unset_device(device);
         std::cin.get();
     }
 
@@ -86,9 +98,19 @@ void WinRT::runTest() {
         const auto &device = found_devices.at(Services::CSC.service_uuid);
         csc->set_device(device);
         std::cin.get();
+        csc->unset_device(device);
+        std::cin.get();
     }
-    std::cin.get();
 
+    if (found_devices.contains(Services::PWR.service_uuid)) {
+        const auto &device = found_devices.at(Services::PWR.service_uuid);
+        pwr->set_device(device);
+        std::cin.get();
+        pwr->unset_device(device);
+        std::cin.get();
+    }
+
+    std::cin.get();
     registry->stop();
     std::cin.get();
 }

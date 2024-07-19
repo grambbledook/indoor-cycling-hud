@@ -48,22 +48,20 @@ void BleClient::connect() {
 bool BleClient::subscribe(const UUID &characteristicUuid,
                           const std::function<void(std::shared_ptr<Device>, std::vector<uint8_t>)> &receiver) const {
     try {
-        const auto anyChar = characteristics.at(characteristicUuid);
-        if (not anyChar.has_value()) {
-            std::cerr << "Service or characteristic not found." << std::endl;
+        if (not characteristics.contains(characteristicUuid)) {
+            std::cerr << "Service or characteristic " << characteristicUuid.value << " not found." << std::endl;
             return false;
         }
 
+        const auto anyChar = characteristics.at(characteristicUuid);
         const auto characteristic = std::any_cast<GattCharacteristic>(anyChar);
         characteristic.ValueChanged(
             [this, receiver](GattCharacteristic const &sender, GattValueChangedEventArgs const &args) {
                 const auto reader = DataReader::FromBuffer(args.CharacteristicValue());
                 std::vector<uint8_t> data(reader.UnconsumedBufferLength());
-                std::cout << "   a";
                 reader.ReadBytes(data);
-                std::cout << "   b";
+
                 receiver(std::make_shared<Device>(device), data);
-                std::cout << "   c";
             }
         );
 
@@ -75,6 +73,36 @@ bool BleClient::subscribe(const UUID &characteristicUuid,
             std::cout << "Successfully subscribed to characteristic." << std::endl;
         } else {
             std::cerr << "Failed to subscribe to characteristic." << std::endl;
+        }
+
+        return status == GattCommunicationStatus::Success;
+    } catch (const winrt::hresult_error &e) {
+        std::cerr << "Exception: " << winrt::to_string(e.message()) << std::endl;
+    } catch (const std::exception &e) {
+        std::cerr << "Standard exception: " << e.what() << std::endl;
+    } catch (...) {
+        std::cerr << "Unknown exception occurred." << std::endl;
+    }
+    return false;
+}
+
+bool BleClient::unsubscribe(const UUID &characteristicUuid) const {
+    try {
+        const auto anyChar = characteristics.at(characteristicUuid);
+        if (not anyChar.has_value()) {
+            std::cerr << "Service or characteristic not found." << std::endl;
+            return false;
+        }
+
+        const auto characteristic = std::any_cast<GattCharacteristic>(anyChar);
+        const auto status = characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(
+            GattClientCharacteristicConfigurationDescriptorValue::None
+        ).get();
+
+        if (status == GattCommunicationStatus::Success) {
+            std::cout << "Successfully unsubscribed from characteristic." << std::endl;
+        } else {
+            std::cerr << "Failed to unsubscribe from characteristic." << std::endl;
         }
 
         return status == GattCommunicationStatus::Success;
@@ -106,6 +134,7 @@ bool BleClient::isConnected() const {
 }
 
 void BleClient::read(UUID serviceUuid, UUID characteristicUuid) {
+
 }
 
 void BleClient::fetchCharacteristics() {
