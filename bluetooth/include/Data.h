@@ -25,6 +25,9 @@ struct Device {
     const Name name;
     const Address address;
     const std::vector<Service> services;
+
+public:
+    [[nodiscard]] std::string deviceId() const;
 };
 
 namespace std {

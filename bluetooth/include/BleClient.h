@@ -1,10 +1,21 @@
-#include "Data.h"
-#include <memory>
-#include <any>
-#include <vector>
-#include <functional>
+#pragma once
 
-using namespace winrt::Windows::Devices::Bluetooth;
+#include <any>
+#include <functional>
+#include <iostream>
+#include <memory>
+#include <memory>
+#include <vector>
+#include <winrt/Windows.Devices.Bluetooth.h>
+#include "Data.h"
+#include "WinRtUtils.h"
+
+using namespace winrt;
+using namespace Windows::Devices::Bluetooth;
+using namespace Windows::Devices::Bluetooth::GenericAttributeProfile;
+using namespace Windows::Foundation;
+using namespace Windows::Foundation::Collections;
+using namespace Windows::Storage::Streams;
 
 class BleClient {
 public:
@@ -12,10 +23,8 @@ public:
 
     void connect();
 
-    bool subscribe(const UUID &characteristicUuid, const std::function<void(std::vector<uint8_t>)> &receiver) const;
-
-    static void onCharacteristicValueChanged(GenericAttributeProfile::GattCharacteristic const &sender,
-                                             GenericAttributeProfile::GattValueChangedEventArgs const &args);
+    bool subscribe(const UUID &characteristicUuid,
+                   const std::function<void(std::shared_ptr<Device>, std::vector<uint8_t>)> &receiver) const;
 
     void disconnect() const;
 

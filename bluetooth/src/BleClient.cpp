@@ -46,7 +46,7 @@ void BleClient::connect() {
 }
 
 bool BleClient::subscribe(const UUID &characteristicUuid,
-                          const std::function<void(std::vector<uint8_t>)> &receiver) const {
+                          const std::function<void(std::shared_ptr<Device>, std::vector<uint8_t>)> &receiver) const {
     try {
         const auto anyChar = characteristics.at(characteristicUuid);
         if (not anyChar.has_value()) {
@@ -56,13 +56,13 @@ bool BleClient::subscribe(const UUID &characteristicUuid,
 
         const auto characteristic = std::any_cast<GattCharacteristic>(anyChar);
         characteristic.ValueChanged(
-            [receiver](GattCharacteristic const &sender, GattValueChangedEventArgs const &args) {
+            [this, receiver](GattCharacteristic const &sender, GattValueChangedEventArgs const &args) {
                 const auto reader = DataReader::FromBuffer(args.CharacteristicValue());
                 std::vector<uint8_t> data(reader.UnconsumedBufferLength());
                 std::cout << "   a";
                 reader.ReadBytes(data);
                 std::cout << "   b";
-                receiver(data);
+                receiver(std::make_shared<Device>(device), data);
                 std::cout << "   c";
             }
         );
@@ -92,8 +92,6 @@ void BleClient::disconnect() const {
     if (isConnected()) {
         connection->Close();
     }
-
-    // uninit_apartment();
 }
 
 bool BleClient::isConnected() const {
