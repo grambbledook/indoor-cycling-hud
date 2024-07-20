@@ -22,7 +22,7 @@ void INotificationService<T>::set_device(std::shared_ptr<Device> device) {
         this->process_measurement(device, data);
     };
 
-    std::cout << "INotificationService::set_device: Subscribing to " << service.type << "service" << std::endl;
+    std::cout << "INotificationService::set_device: Subscribing to " << service.type << " service" << std::endl;
     const auto result = client->subscribe(service.characteristic_uuid, lambda);
     std::cout << "Subscribed to " << service.type << " service: " << result << std::endl;
 }
@@ -34,7 +34,7 @@ void INotificationService<T>::unset_device(std::shared_ptr<Device> device) {
     const auto client = this->registry->connect(*device);
 
 
-    std::cout << "INotificationService::unset_device: Unsubscribing from " << service.type << "service" << std::endl;
+    std::cout << "INotificationService::unset_device: Unsubscribing from " << service.type << " service" << std::endl;
     const auto result = client->unsubscribe(service.characteristic_uuid);
     std::cout << "Unsubscribed from " << service.type << " service: " << result << std::endl;
 }
@@ -112,5 +112,5 @@ void PowerNotificationService::process_measurement(std::shared_ptr<Device> devic
     const auto value = static_cast<int>(data[2]) | (static_cast<int>(data[3]) << 8);
 
     const PowerMeasurement power(value);
-    std::cout << "Cadence: " << power.power << std::endl;
+    std::cout << "Power: " << power.power << std::endl;
 }

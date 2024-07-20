@@ -23,9 +23,11 @@ using namespace Windows::Devices::Bluetooth::Advertisement;
 void Scanner::start_scan(const std::function<void(Device)> &receiver) {
     reset_previous_scans();
 
+    watcher->ScanningMode(BluetoothLEScanningMode::Active);
+
     watcher->Received(
         [receiver](BluetoothLEAdvertisementWatcher const &, BluetoothLEAdvertisementReceivedEventArgs const &args) {
-            const auto name = args.Advertisement().LocalName();
+            auto name = args.Advertisement().LocalName();
             const uint64_t address = args.BluetoothAddress();
 
             const auto services = args.Advertisement().ServiceUuids();
@@ -36,17 +38,31 @@ void Scanner::start_scan(const std::function<void(Device)> &receiver) {
                 auto cs = services.GetAt(i);
                 auto candidate_service_uuid = WinrtUtils::uuid_from_guid(cs);
 
-                for (const auto &service: Services::SUPPORTED_SERVICES) {
-                    if (service.service_uuid == candidate_service_uuid) {
-                        supported_services.push_back(service);
-                    }
+                if (Services::SUPPORTED_SERVICES_MAP.contains(candidate_service_uuid)) {
+                    supported_services.push_back(Services::SUPPORTED_SERVICES_MAP.at(candidate_service_uuid));
                 }
             }
 
             if (supported_services.empty()) return;
 
+            if (name.empty()) {
+                std::cout << "No name found for device with address: " << WinrtUtils::address_from_long(address).value
+                        << std::endl;
+                const auto device = Windows::Devices::Bluetooth::BluetoothLEDevice::FromBluetoothAddressAsync(address).
+                        get();
+
+                if (!device) {
+                    std::cerr << "  Failed to connect to device." << std::endl;
+                    return;
+                }
+
+                std::cout << "  Got device name: ";
+                name = device.Name();
+                std::cout << WinrtUtils::name_from_hstring(name).value << std::endl;
+            };
+
             const auto device = Device{
-                WinrtUtils::name_from_hstring(name), WinrtUtils::name_from_hstring(address), supported_services
+                WinrtUtils::name_from_hstring(name), WinrtUtils::address_from_long(address), supported_services
             };
 
             receiver(device);

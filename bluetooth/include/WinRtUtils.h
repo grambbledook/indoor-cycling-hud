@@ -62,7 +62,7 @@ namespace WinrtUtils {
         return Name{std::string{wstr.begin(), wstr.end()}};
     }
 
-    inline Address name_from_hstring(const uint64_t &uint) {
+    inline Address address_from_long(const uint64_t &uint) {
         std::ostringstream oss;
         oss << std::hex << std::setfill('0')
                 << std::setw(2) << ((uint >> 40) & 0xFF) << ":"

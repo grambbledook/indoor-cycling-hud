@@ -46,15 +46,12 @@ std::unordered_map<UUID, std::shared_ptr<Device> > WinRT::do_work() {
         for (const auto &[type, service_uuid, characteristic_uuid]: device.services) {
             if (service_uuid == Services::HRM.service_uuid) {
                 hasHRMService = true;
-                break;
             }
             if (service_uuid == Services::CSC.service_uuid) {
                 hasCSCService = true;
-                break;
             }
             if (service_uuid == Services::PWR.service_uuid) {
                 hasPWRService = true;
-                break;
             }
         }
 
