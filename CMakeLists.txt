@@ -16,7 +16,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
 
 SET(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo" CACHE STRING "" FORCE)
-#set(CMAKE_CXX_FLAGS "/Z7")
+set(CMAKE_CXX_FLAGS "/EHsc")
 
 #--------------------Include QT------------------------------
 set(CMAKE_INCLUDE_CURRENT_DIR ON)

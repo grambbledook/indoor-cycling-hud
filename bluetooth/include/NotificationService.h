@@ -16,6 +16,7 @@ public:
 
 public:
     virtual void set_device(std::shared_ptr<Device> device);
+
     virtual void unset_device(std::shared_ptr<Device> device);
 
     virtual void process_feature_and_set_devices(BleClient &client, std::shared_ptr<Device> device) = 0;
@@ -62,4 +63,19 @@ public:
     void process_feature_and_set_devices(BleClient &client, std::shared_ptr<Device> device) override;
 
     void process_measurement(std::shared_ptr<Device> device, const std::vector<uint8_t> &data) override;
+};
+
+class FecService final : public INotificationService<FecMeasurement> {
+public:
+    explicit FecService(std::shared_ptr<DeviceRegistry> &registry);
+
+    ~FecService() override = default;
+
+public:
+    void process_feature_and_set_devices(BleClient &client, std::shared_ptr<Device> device) override;
+
+    void process_measurement(std::shared_ptr<Device> device, const std::vector<uint8_t> &data) override;
+
+private:
+    static FeStateEvent parse_fe_state_event(int bit);
 };

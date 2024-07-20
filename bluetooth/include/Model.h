@@ -1,8 +1,9 @@
 #pragma once
 
+class F {
 
-class NotificationService {
-
+public:
 private:
 
-}
+};
+
