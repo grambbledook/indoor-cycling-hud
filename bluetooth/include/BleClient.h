@@ -31,7 +31,7 @@ public:
 
     bool isConnected() const;
 
-    void read(UUID serviceUuid, UUID characteristicUuid);
+    std::pair<std::vector<uint8_t>, bool> read(const UUID &characteristicUuid) const;
 
 private:
     void fetchCharacteristics();

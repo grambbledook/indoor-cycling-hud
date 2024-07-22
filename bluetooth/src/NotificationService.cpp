@@ -19,6 +19,8 @@ void INotificationService<T>::set_device(std::shared_ptr<Device> device) {
 
     const auto client = this->registry->connect(*device);
 
+    this->process_feature_and_set_devices(*client, device);
+
     auto lambda = [this](const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) {
         this->process_measurement(device, data);
     };
@@ -47,10 +49,11 @@ HrmNotificationService::HrmNotificationService(std::shared_ptr<DeviceRegistry> &
 }
 
 
-void HrmNotificationService::process_feature_and_set_devices(BleClient &client, std::shared_ptr<Device> device) {
+void HrmNotificationService::process_feature_and_set_devices(BleClient &client, std::shared_ptr<Device> &device) {
+    model->setHeartRateMonitor(device);
 }
 
-void HrmNotificationService::process_measurement(const std::shared_ptr<Device> device,
+void HrmNotificationService::process_measurement(const std::shared_ptr<Device> &device,
                                                  const std::vector<uint8_t> &data) {
     const auto flag = data[0];
 
@@ -62,7 +65,7 @@ void HrmNotificationService::process_measurement(const std::shared_ptr<Device> d
     }
 
     const HrmMeasurement measurement(hrm);
-    model->recordData(MeasurementEvent(device, measurement));
+    model->recordHeartData(MeasurementEvent(device, measurement));
 }
 
 CyclingCadenceAndSpeedNotificationService::CyclingCadenceAndSpeedNotificationService(
@@ -71,10 +74,25 @@ CyclingCadenceAndSpeedNotificationService::CyclingCadenceAndSpeedNotificationSer
 }
 
 void CyclingCadenceAndSpeedNotificationService::process_feature_and_set_devices(BleClient &client,
-    std::shared_ptr<Device> device) {
+    std::shared_ptr<Device> &device) {
+    auto [data, success] = client.read(UUID("00002a5c-0000-1000-8000-00805f9b34fb"));
+
+    if (not success) {
+        std::cerr << "Failed to read CSC feature." << std::endl;
+        return;
+    }
+
+    const auto flag = data[0];
+    if (flag & 0b01) {
+        model->setSpeedSensor(device);
+    }
+
+    if (flag & 0b10) {
+        model->setCadenceSensor(device);
+    }
 }
 
-void CyclingCadenceAndSpeedNotificationService::process_measurement(std::shared_ptr<Device> device,
+void CyclingCadenceAndSpeedNotificationService::process_measurement(const std::shared_ptr<Device> &device,
                                                                     const std::vector<uint8_t> &data) {
     const auto flag = data[0];
     auto offset = 1;
@@ -90,7 +108,7 @@ void CyclingCadenceAndSpeedNotificationService::process_measurement(std::shared_
         offset += 6;
 
         const SpeedMeasurement speed(cwr, lwet);
-        model->recordData(MeasurementEvent(device, speed));
+        model->recordSpeedData(MeasurementEvent(device, speed));
     }
 
     if (flag & 0b10) {
@@ -100,7 +118,7 @@ void CyclingCadenceAndSpeedNotificationService::process_measurement(std::shared_
                           static_cast<uint16_t>(data[3 + offset]) << 8;
 
         const CadenceMeasurement cadence(ccr, lcet);
-        model->recordData(MeasurementEvent(device, cadence));
+        model->recordCadenceData(MeasurementEvent(device, cadence));
     }
 }
 
@@ -109,24 +127,26 @@ PowerNotificationService::PowerNotificationService(std::shared_ptr<DeviceRegistr
     registry, model, Services::PWR) {
 }
 
-void PowerNotificationService::process_feature_and_set_devices(BleClient &client, std::shared_ptr<Device> device) {
+void PowerNotificationService::process_feature_and_set_devices(BleClient &client, std::shared_ptr<Device> &device) {
+    model->setPowerMeter(device);
 }
 
-void PowerNotificationService::process_measurement(std::shared_ptr<Device> device, const std::vector<uint8_t> &data) {
+void PowerNotificationService::process_measurement(const std::shared_ptr<Device> &device,
+                                                   const std::vector<uint8_t> &data) {
     const auto value = static_cast<int>(data[2]) | (static_cast<int>(data[3]) << 8);
 
     const PowerMeasurement power(value);
-    model->recordData(MeasurementEvent(device, power));
+    model->recordPowerData(MeasurementEvent(device, power));
 }
 
 FecService::FecService(std::shared_ptr<DeviceRegistry> &registry, std::shared_ptr<Model> &model): INotificationService(
     registry, model, Services::LEGACY_BIKE_TRAINER) {
 }
 
-void FecService::process_feature_and_set_devices(BleClient &client, std::shared_ptr<Device> device) {
+void FecService::process_feature_and_set_devices(BleClient &client, std::shared_ptr<Device> &device) {
 }
 
-void FecService::process_measurement(std::shared_ptr<Device> device, const std::vector<uint8_t> &data) {
+void FecService::process_measurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) {
     // int payload_size = data[1];
     // std::vector<uint8_t> message(data.begin() + 4, data.begin() + 4 + payload_size - 1);
     // int page_type = message[0];

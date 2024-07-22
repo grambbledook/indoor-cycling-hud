@@ -18,8 +18,8 @@ template<typename T>
     requires DerivedFromMeasurement<T>
 class MeasurementEvent {
 public:
-    explicit MeasurementEvent(std::shared_ptr<Device> device, T measurement)
-        : device(std::move(device)), measurement(measurement) {
+    explicit MeasurementEvent(const std::shared_ptr<Device> &device, T measurement)
+        : device(device), measurement(measurement) {
     }
 
     std::shared_ptr<Device> device;

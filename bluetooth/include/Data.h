@@ -25,6 +25,7 @@ struct Device {
     const Name name;
     const Address address;
     const std::vector<GattService> services;
+    bool operator==(const Device &other) const;
 
 public:
     [[nodiscard]] std::string deviceId() const;

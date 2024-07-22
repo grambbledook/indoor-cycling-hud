@@ -25,12 +25,13 @@ struct State {
     std::vector<A> data;
     Statistics<B> stats;
 
-    std::vector<A> getLastN(int n) {
+
+    std::pair<std::vector<A>, bool> getLastN(int n) {
         if (n > data.size()) {
-            return std::vector<A>(n);
+            return {std::vector<A>(n), false};
         }
 
-        return std::vector<A>(data.end() - n, data.end());
+        return {std::vector<A>(data.end() - n, data.end()), true};
     }
 
     void recordMetric(A value) {
@@ -41,7 +42,10 @@ struct State {
     }
 
     void unrecordMetric() {
-        data.erase(data.end());
+        if (data.empty()) {
+            return;
+        }
+        data.erase(data.end() - 1);
     };
 
     void aggregateMetric(B value) {
@@ -52,8 +56,21 @@ struct State {
 
 class Model {
 public:
-    template<DerivedFromMeasurement T>
-    void recordData(MeasurementEvent<T> event);
+    void setHeartRateMonitor(const std::shared_ptr<Device> &device);
+
+    void setCadenceSensor(const std::shared_ptr<Device> &device);
+
+    void setSpeedSensor(const std::shared_ptr<Device> &device);
+
+    void setPowerMeter(const std::shared_ptr<Device> &device);
+
+    void recordHeartData(const MeasurementEvent<HrmMeasurement> &event);
+
+    void recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event);
+
+    void recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event);
+
+    void recordPowerData(const MeasurementEvent<PowerMeasurement> &event);
 
 private:
     State<int, int> hrmState = {
