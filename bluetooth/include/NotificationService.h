@@ -2,15 +2,18 @@
 
 #include "Data.h" // Assuming this includes Measurement and Device definitions
 #include <memory>
-#include <concepts>
 #include <Events.h>
 
 #include "DeviceRegistry.h"
+#include "Model.h"
+#include "Service.h"
 
 template<DerivedFromMeasurement T>
 class INotificationService {
 public:
-    explicit INotificationService(std::shared_ptr<DeviceRegistry> &registry, const Service &service);
+    explicit INotificationService(std::shared_ptr<DeviceRegistry> &registry,
+                                  std::shared_ptr<Model> &model,
+                                  const GattService &service);
 
     virtual ~INotificationService() = default;
 
@@ -24,13 +27,15 @@ public:
     virtual void process_measurement(std::shared_ptr<Device> device, const std::vector<uint8_t> &data) = 0;
 
 public:
-    Service service;
+    GattService service;
+    std::shared_ptr<Model> &model;
     std::shared_ptr<DeviceRegistry> &registry;
 };
 
 class HrmNotificationService final : public INotificationService<HrmMeasurement> {
 public:
-    explicit HrmNotificationService(std::shared_ptr<DeviceRegistry> &registry);
+    explicit HrmNotificationService(std::shared_ptr<DeviceRegistry> &registry,
+                                    std::shared_ptr<Model> &model);
 
     ~HrmNotificationService() override = default;
 
@@ -42,7 +47,8 @@ public:
 
 class CyclingCadenceAndSpeedNotificationService final : public INotificationService<HrmMeasurement> {
 public:
-    explicit CyclingCadenceAndSpeedNotificationService(std::shared_ptr<DeviceRegistry> &registry);
+    explicit CyclingCadenceAndSpeedNotificationService(std::shared_ptr<DeviceRegistry> &registry,
+                                                       std::shared_ptr<Model> &model);
 
     ~CyclingCadenceAndSpeedNotificationService() override = default;
 
@@ -55,7 +61,8 @@ public:
 
 class PowerNotificationService final : public INotificationService<HrmMeasurement> {
 public:
-    explicit PowerNotificationService(std::shared_ptr<DeviceRegistry> &registry);
+    explicit PowerNotificationService(std::shared_ptr<DeviceRegistry> &registry,
+                                      std::shared_ptr<Model> &model);
 
     ~PowerNotificationService() override = default;
 
@@ -67,7 +74,8 @@ public:
 
 class FecService final : public INotificationService<FecMeasurement> {
 public:
-    explicit FecService(std::shared_ptr<DeviceRegistry> &registry);
+    explicit FecService(std::shared_ptr<DeviceRegistry> &registry,
+                        std::shared_ptr<Model> &model);
 
     ~FecService() override = default;
 
@@ -77,5 +85,5 @@ public:
     void process_measurement(std::shared_ptr<Device> device, const std::vector<uint8_t> &data) override;
 
 private:
-    static FeStateEvent parse_fe_state_event(int bit);
+    static FeState parse_fe_state_event(int bit);
 };

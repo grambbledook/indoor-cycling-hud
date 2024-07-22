@@ -3,13 +3,14 @@
 #include <iostream>
 #include <utility>
 
-#include "Service.h"
-
 
 template<DerivedFromMeasurement T>
 INotificationService<
-    T>::INotificationService(std::shared_ptr<DeviceRegistry> &registry, const Service &service): registry(registry),
-    service(service) {
+    T>::INotificationService(std::shared_ptr<DeviceRegistry> &registry,
+                             std::shared_ptr<Model> &model,
+                             const GattService &service): registry(registry),
+                                                          service(service),
+                                                          model(model) {
 }
 
 template<DerivedFromMeasurement T>
@@ -40,8 +41,9 @@ void INotificationService<T>::unset_device(std::shared_ptr<Device> device) {
 }
 
 
-HrmNotificationService::HrmNotificationService(std::shared_ptr<DeviceRegistry> &registry): INotificationService(
-    registry, Services::HRM) {
+HrmNotificationService::HrmNotificationService(std::shared_ptr<DeviceRegistry> &registry,
+                                               std::shared_ptr<Model> &model): INotificationService(
+    registry, model, Services::HRM) {
 }
 
 
@@ -60,11 +62,12 @@ void HrmNotificationService::process_measurement(const std::shared_ptr<Device> d
     }
 
     const HrmMeasurement measurement(hrm);
-    std::cout << "HRM: " << measurement.hrm << std::endl;
+    model->recordData(MeasurementEvent(device, measurement));
 }
 
 CyclingCadenceAndSpeedNotificationService::CyclingCadenceAndSpeedNotificationService(
-    std::shared_ptr<DeviceRegistry> &registry): INotificationService(registry, Services::CSC) {
+    std::shared_ptr<DeviceRegistry> &registry, std::shared_ptr<Model> &model): INotificationService(
+    registry, model, Services::CSC) {
 }
 
 void CyclingCadenceAndSpeedNotificationService::process_feature_and_set_devices(BleClient &client,
@@ -87,7 +90,7 @@ void CyclingCadenceAndSpeedNotificationService::process_measurement(std::shared_
         offset += 6;
 
         const SpeedMeasurement speed(cwr, lwet);
-        std::cout << "Speed: " << speed.cwr << ", " << speed.lwet << std::endl;
+        model->recordData(MeasurementEvent(device, speed));
     }
 
     if (flag & 0b10) {
@@ -97,12 +100,13 @@ void CyclingCadenceAndSpeedNotificationService::process_measurement(std::shared_
                           static_cast<uint16_t>(data[3 + offset]) << 8;
 
         const CadenceMeasurement cadence(ccr, lcet);
-        std::cout << "Cadence: " << cadence.ccr << ", " << cadence.lcet << std::endl;
+        model->recordData(MeasurementEvent(device, cadence));
     }
 }
 
-PowerNotificationService::PowerNotificationService(std::shared_ptr<DeviceRegistry> &registry): INotificationService(
-    registry, Services::PWR) {
+PowerNotificationService::PowerNotificationService(std::shared_ptr<DeviceRegistry> &registry,
+                                                   std::shared_ptr<Model> &model): INotificationService(
+    registry, model, Services::PWR) {
 }
 
 void PowerNotificationService::process_feature_and_set_devices(BleClient &client, std::shared_ptr<Device> device) {
@@ -112,10 +116,11 @@ void PowerNotificationService::process_measurement(std::shared_ptr<Device> devic
     const auto value = static_cast<int>(data[2]) | (static_cast<int>(data[3]) << 8);
 
     const PowerMeasurement power(value);
-    std::cout << "Power: " << power.power << std::endl;
+    model->recordData(MeasurementEvent(device, power));
 }
 
-FecService::FecService(std::shared_ptr<DeviceRegistry> &registry): INotificationService(registry, Services::LEGACY_BIKE_TRAINER){
+FecService::FecService(std::shared_ptr<DeviceRegistry> &registry, std::shared_ptr<Model> &model): INotificationService(
+    registry, model, Services::LEGACY_BIKE_TRAINER) {
 }
 
 void FecService::process_feature_and_set_devices(BleClient &client, std::shared_ptr<Device> device) {
@@ -144,7 +149,7 @@ void FecService::process_measurement(std::shared_ptr<Device> device, const std::
     // }
 }
 
-FeStateEvent FecService::parse_fe_state_event(int fe_state_bit) {
+FeState FecService::parse_fe_state_event(int fe_state_bit) {
     const bool lap_toggle = fe_state_bit & 0x8;
     const int code = fe_state_bit & 0x7;
 
@@ -152,19 +157,19 @@ FeStateEvent FecService::parse_fe_state_event(int fe_state_bit) {
     switch (code) {
         case 1:
             fe_state = "ASLEEP";
-        break;
+            break;
         case 2:
             fe_state = "READY";
-        break;
+            break;
         case 3:
             fe_state = "IN_USE";
-        break;
+            break;
         case 4:
             fe_state = "FINISHED";
-        break;
+            break;
         default:
             fe_state = "UNKNOWN";
-        break;
+            break;
     }
-    return FeStateEvent(fe_state, lap_toggle);
+    return FeState(fe_state, lap_toggle);
 }

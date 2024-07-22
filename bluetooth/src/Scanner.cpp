@@ -33,7 +33,7 @@ void Scanner::start_scan(const std::function<void(Device)> &receiver) {
             const auto services = args.Advertisement().ServiceUuids();
             const auto services_size = services.Size();
 
-            auto supported_services = std::vector<Service>();
+            auto supported_services = std::vector<GattService>();
             for (auto i = 0; i < services_size; i++) {
                 auto cs = services.GetAt(i);
                 auto candidate_service_uuid = WinrtUtils::uuid_from_guid(cs);

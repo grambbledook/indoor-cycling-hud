@@ -78,10 +78,11 @@ void WinRT::runTest() {
     const auto found_devices = do_work();
     std::cout << "Found devices: " << found_devices.size() << std::endl;
 
+    auto model = std::make_shared<Model>();
     auto registry = std::make_shared<DeviceRegistry>();
-    const auto hrm = std::make_shared<HrmNotificationService>(registry);
-    const auto csc = std::make_shared<CyclingCadenceAndSpeedNotificationService>(registry);
-    const auto pwr = std::make_shared<PowerNotificationService>(registry);
+    const auto hrm = std::make_shared<HrmNotificationService>(registry, model);
+    const auto csc = std::make_shared<CyclingCadenceAndSpeedNotificationService>(registry, model);
+    const auto pwr = std::make_shared<PowerNotificationService>(registry, model);
 
     if (found_devices.contains(Services::HRM.service_uuid)) {
         const auto &device = found_devices.at(Services::HRM.service_uuid);

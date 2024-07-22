@@ -1,5 +1,10 @@
 #pragma once
 
+#include <memory> // For std::shared_ptr and std::move
+#include <string> // For std::string
+#include <type_traits> // For std::is_base_of_v
+
+#include "Data.h"
 
 class Measurement {
 public:
@@ -7,17 +12,18 @@ public:
 };
 
 template<typename T>
-concept DerivedFromMeasurement = std::is_base_of<Measurement, T>::value;
+concept DerivedFromMeasurement = std::is_base_of_v<Measurement, T>;
 
-template<DerivedFromMeasurement T>
+template<typename T>
+    requires DerivedFromMeasurement<T>
 class MeasurementEvent {
 public:
-    std::unique_ptr<Device> device{};
-    T measurement;
-
-    MeasurementEvent(std::unique_ptr<Device> device, T measurement)
+    explicit MeasurementEvent(std::shared_ptr<Device> device, T measurement)
         : device(std::move(device)), measurement(measurement) {
     }
+
+    std::shared_ptr<Device> device;
+    T measurement;
 };
 
 struct HrmMeasurement final : Measurement {
@@ -28,7 +34,7 @@ struct HrmMeasurement final : Measurement {
 };
 
 struct SpeedMeasurement final : Measurement {
-    SpeedMeasurement(const int cwr, const int lwet): Measurement(), cwr(cwr), lwet(lwet) {
+    explicit SpeedMeasurement(const int cwr, const int lwet): Measurement(), cwr(cwr), lwet(lwet) {
     }
 
     unsigned int cwr;
@@ -53,51 +59,52 @@ struct PowerMeasurement final : Measurement {
 class FecMeasurement : public Measurement {
 };
 
-struct FeStateEvent final : FecMeasurement {
-    FeStateEvent(std::string fe_state, bool lap_toggle)
-        : fe_state(std::move(fe_state)), lap_toggle(lap_toggle) {
+struct FeState final : FecMeasurement {
+    explicit FeState(std::string feState, const bool lapToggle)
+        : feState(std::move(feState)), lapToggle(lapToggle) {
     }
 
-    std::string fe_state; // Assuming fe_state is a string
-    bool lap_toggle; // Assuming lap_toggle is a boolean
+    std::string feState;
+    bool lapToggle;
 };
 
-struct GeneralDataEvent final : FecMeasurement {
-    GeneralDataEvent(int elapsed_time, int distance_traveled, int speed, int heart_rate, FeStateEvent fe_state_event)
-        : elapsed_time(elapsed_time), distance_traveled(distance_traveled), speed(speed), heart_rate(heart_rate),
-          fe_state_event(std::move(fe_state_event)) {
+struct GeneralData final : FecMeasurement {
+    explicit GeneralData(const int elapsedTime, const int distanceTraveled, const int speed, const int heartRate,
+                         FeState feState)
+        : elapsed_time(elapsedTime), distance_traveled(distanceTraveled), speed(speed), heart_rate(heartRate),
+          feState(std::move(feState)) {
     }
 
     int elapsed_time;
     int distance_traveled;
     int speed;
     int heart_rate;
-    FeStateEvent fe_state_event; // Assuming fe_state_event is a string
+    FeState feState;
 };
 
-struct GeneralSettingsEvent final : FecMeasurement {
-    GeneralSettingsEvent(int cycle_length, int incline, int resistance, FeStateEvent fe_state_event)
-        : cycle_length(cycle_length), incline(incline), resistance(resistance),
-          fe_state_event(std::move(fe_state_event)) {
+struct GeneralSettings final : FecMeasurement {
+    explicit GeneralSettings(const int cycleLength, const int incline, const int resistance, FeState feState)
+        : cycle_length(cycleLength), incline(incline), resistance(resistance),
+          feState(std::move(feState)) {
     }
 
     int cycle_length;
     int incline;
     int resistance;
-    FeStateEvent fe_state_event; // Assuming fe_state_event is a string
+    FeState feState;
 };
 
-struct SpecificTrainerDataEvent {
-    SpecificTrainerDataEvent(int update_event_count, int instantaneous_cadence, FeStateEvent fe_state_event,
-                             int instantaneous_power, int accumulated_power)
-        : update_event_count(update_event_count), instantaneous_cadence(instantaneous_cadence),
-          fe_state_event(std::move(fe_state_event)), instantaneous_power(instantaneous_power),
-          accumulated_power(accumulated_power) {
+struct SpecificTrainerData {
+    explicit SpecificTrainerData(const int updateEventCount, const int instantaneousCadence, FeState feState,
+                                 const int instantaneousPower, const int accumulatedPower)
+        : update_event_count(updateEventCount), instantaneous_cadence(instantaneousCadence),
+          instantaneous_power(instantaneousPower), accumulated_power(accumulatedPower),
+          feState(std::move(feState)) {
     }
 
     int update_event_count;
     int instantaneous_cadence;
     int instantaneous_power;
     int accumulated_power;
-    FeStateEvent fe_state_event; // Assuming fe_state_event is a string
+    FeState feState;
 };
