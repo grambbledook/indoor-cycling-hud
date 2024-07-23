@@ -1,4 +1,5 @@
 #pragma once
+#include "Channel.h"
 #include "Events.h"
 
 template<typename T, typename = std::enable_if_t<std::is_same_v<T, int> || std::is_same_v<T, double>> >
@@ -57,28 +58,25 @@ struct State {
 class Model {
 public:
     void setHeartRateMonitor(const std::shared_ptr<Device> &device);
-
     void setCadenceSensor(const std::shared_ptr<Device> &device);
-
     void setSpeedSensor(const std::shared_ptr<Device> &device);
-
     void setPowerMeter(const std::shared_ptr<Device> &device);
-
     void setBikeTrainer(const std::shared_ptr<Device> &device);
 
     void recordHeartData(const MeasurementEvent<HrmMeasurement> &event);
-
     void recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event);
-
     void recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event);
-
     void recordPowerData(const MeasurementEvent<PowerMeasurement> &event);
-
     void recordTrainerData(const MeasurementEvent<GeneralData> &event);
-
     void recordTrainerData(const MeasurementEvent<GeneralSettings> &event);
-
     void recordTrainerData(const MeasurementEvent<SpecificTrainerData> &event);
+
+public:
+    Notifications<Statistics<int>> hrmNotifications;
+    Notifications<Statistics<double>> speedNotifications;
+    Notifications<Statistics<int>> cadenceNotifications;
+    Notifications<Statistics<int>> powerNotifications;
+    Notifications<std::string> trainerNotifications;
 
 private:
     State<int, int> hrmState = {

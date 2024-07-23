@@ -93,13 +93,13 @@ void WinRT::runTest() {
     const auto pwr = std::make_shared<PowerNotificationService>(registry, model);
     const auto fec = std::make_shared<FecService>(registry, model);
 
-    // if (found_devices.contains(Services::HRM.service_uuid)) {
-    //     const auto &device = found_devices.at(Services::HRM.service_uuid);
-    //     hrm->set_device(device);
-    //     std::cin.get();
-    //     hrm->unset_device(device);
-    //     std::cin.get();
-    // }
+    if (found_devices.contains(Services::HRM.service_uuid)) {
+        const auto &device = found_devices.at(Services::HRM.service_uuid);
+        hrm->set_device(device);
+        std::cin.get();
+        hrm->unset_device(device);
+        std::cin.get();
+    }
     //
     // if (found_devices.contains(Services::CSC.service_uuid)) {
     //     const auto &device = found_devices.at(Services::CSC.service_uuid);

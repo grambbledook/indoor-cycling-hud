@@ -118,3 +118,4 @@ struct SpecificTrainerData : FecMeasurement {
     TrainerStatus trainerStatus;
     FeState feState;
 };
+
