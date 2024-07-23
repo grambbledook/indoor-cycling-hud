@@ -147,26 +147,44 @@ void FecService::process_feature_and_set_devices(BleClient &client, std::shared_
 }
 
 void FecService::process_measurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) {
-    // int payload_size = data[1];
-    // std::vector<uint8_t> message(data.begin() + 4, data.begin() + 4 + payload_size - 1);
-    // int page_type = message[0];
-    //
-    // try {
-    //     if (page_type == 16) {
-    //         auto event = parse_general_data_page(device, message);
-    //         model.update_general_data(event);
-    //     } else if (page_type == 17) {
-    //         auto event = parse_general_settings_page(device, message);
-    //         model.update_general_settings(event);
-    //     } else if (page_type == 25) {
-    //         auto event = parse_specific_trainer_data_page(device, message);
-    //         model.update_specific_trainer_data(event);
-    //     } else {
-    //         return;
-    //     }
-    // } catch (const std::exception& e) {
-    //     std::cout << "Error processing measurement: " << e.what() << std::endl;
-    // }
+    int payload_size = data[1];
+    const std::vector message(data.begin() + 1, data.begin() + 4 + payload_size - 1);
+    int page_type = message[0];
+
+    try {
+        if (page_type == 16) {
+            auto elapsedTime = message[2] * 0.25;
+            auto distanceTraveled = message[3];
+
+            double speed = message[4] | message[5] << 8;
+
+            if (speed != 65535) {
+                speed = 0.001 * speed;
+            }
+
+            auto heartRate = message[6];
+            if (heartRate == 255) {
+                heartRate = 0;
+            }
+
+            const auto feState = parse_fe_state_event(message[7]);
+
+            const GeneralData event(elapsedTime, distanceTraveled, speed, heartRate, feState);
+            std::cout << "General data: " << event.elapsed_time << " " << event.distance_traveled << " "
+                    << event.speed << " " << event.heart_rate << " " << event.feState.feState << " "
+                    << event.feState.lapToggle << std::endl;
+
+            // model->recordGeneralData(MeasurementEvent(device, event));
+        }
+        // } else if (page_type == 17) {
+        // auto event = parse_general_settings_page(device, message);
+        // model.update_general_settings(event);
+        // } else if (page_type == 25) {
+        // auto event = parse_specific_trainer_data_page(device, message);
+        // model.update_specific_trainer_data(event);
+    } catch (const std::exception &e) {
+        std::cout << "Error processing measurement: " << e.what() << std::endl;
+    }
 }
 
 FeState FecService::parse_fe_state_event(int fe_state_bit) {
