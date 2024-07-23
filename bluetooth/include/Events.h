@@ -61,50 +61,60 @@ class FecMeasurement : public Measurement {
 
 struct FeState final : FecMeasurement {
     explicit FeState(std::string feState, const bool lapToggle)
-        : feState(std::move(feState)), lapToggle(lapToggle) {
+        : state(std::move(feState)), lapToggle(lapToggle) {
     }
 
-    std::string feState;
+    std::string state;
     bool lapToggle;
 };
 
 struct GeneralData final : FecMeasurement {
     explicit GeneralData(const int elapsedTime, const int distanceTraveled, const int speed, const int heartRate,
                          FeState feState)
-        : elapsed_time(elapsedTime), distance_traveled(distanceTraveled), speed(speed), heart_rate(heartRate),
+        : elapsedTime(elapsedTime), distanceTraveled(distanceTraveled), speed(speed), heartRate(heartRate),
           feState(std::move(feState)) {
     }
 
-    int elapsed_time;
-    int distance_traveled;
+    int elapsedTime;
+    int distanceTraveled;
     int speed;
-    int heart_rate;
+    int heartRate;
     FeState feState;
 };
 
 struct GeneralSettings final : FecMeasurement {
     explicit GeneralSettings(const int cycleLength, const int incline, const int resistance, FeState feState)
-        : cycle_length(cycleLength), incline(incline), resistance(resistance),
+        : cycleLength(cycleLength), incline(incline), resistance(resistance),
           feState(std::move(feState)) {
     }
 
-    int cycle_length;
+    int cycleLength;
     int incline;
     int resistance;
     FeState feState;
 };
 
-struct SpecificTrainerData {
-    explicit SpecificTrainerData(const int updateEventCount, const int instantaneousCadence, FeState feState,
-                                 const int instantaneousPower, const int accumulatedPower)
-        : update_event_count(updateEventCount), instantaneous_cadence(instantaneousCadence),
-          instantaneous_power(instantaneousPower), accumulated_power(accumulatedPower),
+struct TrainerStatus {
+    bool powerCalibrationRequired;
+    bool resistanceCalibrationRequired;
+    bool userConfigurationRequired;
+};
+
+struct SpecificTrainerData : FecMeasurement {
+    explicit SpecificTrainerData(const int updateEventCount, const int instantaneousCadence,
+                                 const int instantaneousPower, const int accumulatedPower,
+                                 std::string targetPowerLimits, const TrainerStatus trainerStatus, FeState feState)
+        : updateEventCount(updateEventCount), instantaneousCadence(instantaneousCadence),
+          targetPowerLimits(std::move(targetPowerLimits)),
+          instantaneousPower(instantaneousPower), accumulatedPower(accumulatedPower), trainerStatus(trainerStatus),
           feState(std::move(feState)) {
     }
 
-    int update_event_count;
-    int instantaneous_cadence;
-    int instantaneous_power;
-    int accumulated_power;
+    int updateEventCount;
+    int instantaneousCadence;
+    int instantaneousPower;
+    int accumulatedPower;
+    std::string targetPowerLimits;
+    TrainerStatus trainerStatus;
     FeState feState;
 };

@@ -27,13 +27,13 @@ namespace Services {
         UUID("00002a63-0000-1000-8000-00805f9b34fb")
     );
 
-    const auto LEGACY_BIKE_TRAINER = GattService(
+    const auto FEC_BIKE_TRAINER = GattService(
         "Bike Trainer (FE-C over Bluetooth)",
         UUID("6e40fec1-b5a3-f393-e0a9-e50e24dcca9e"),
         UUID("6e40fec2-b5a3-f393-e0a9-e50e24dcca9e")
     );
 
-    const std::vector SUPPORTED_SERVICES = {HRM, CSC, PWR, LEGACY_BIKE_TRAINER};
+    const std::vector SUPPORTED_SERVICES = {HRM, CSC, PWR, FEC_BIKE_TRAINER};
 
     const std::unordered_map<UUID, GattService> SUPPORTED_SERVICES_MAP = SUPPORTED_SERVICES
             | views::transform([](const GattService &s) { return std::make_pair(s.service_uuid, s); })

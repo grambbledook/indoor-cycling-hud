@@ -3,6 +3,8 @@
 #include <iostream>
 #include <utility>
 
+#include "BleConstants.h"
+
 
 template<DerivedFromMeasurement T>
 INotificationService<
@@ -25,9 +27,9 @@ void INotificationService<T>::set_device(std::shared_ptr<Device> device) {
         this->process_measurement(device, data);
     };
 
-    std::cout << "INotificationService::set_device: Subscribing to " << service.type << " service" << std::endl;
+    std::cout << "  INotificationService::set_device: Subscribing to " << service.type << " service" << std::endl;
     const auto result = client->subscribe(service.characteristic_uuid, lambda);
-    std::cout << "Subscribed to " << service.type << " service: " << result << std::endl;
+    std::cout << "  Subscribed to " << service.type << " service: " << result << std::endl;
 }
 
 template<DerivedFromMeasurement T>
@@ -36,10 +38,9 @@ void INotificationService<T>::unset_device(std::shared_ptr<Device> device) {
 
     const auto client = this->registry->connect(*device);
 
-
-    std::cout << "INotificationService::unset_device: Unsubscribing from " << service.type << " service" << std::endl;
+    std::cout << "  INotificationService::unset_device: Unsubscribing from " << service.type << " service" << std::endl;
     const auto result = client->unsubscribe(service.characteristic_uuid);
-    std::cout << "Unsubscribed from " << service.type << " service: " << result << std::endl;
+    std::cout << "  Unsubscribed from " << service.type << " service: " << result << std::endl;
 }
 
 
@@ -140,74 +141,97 @@ void PowerNotificationService::process_measurement(const std::shared_ptr<Device>
 }
 
 FecService::FecService(std::shared_ptr<DeviceRegistry> &registry, std::shared_ptr<Model> &model): INotificationService(
-    registry, model, Services::LEGACY_BIKE_TRAINER) {
+    registry, model, Services::FEC_BIKE_TRAINER) {
 }
 
 void FecService::process_feature_and_set_devices(BleClient &client, std::shared_ptr<Device> &device) {
 }
 
 void FecService::process_measurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) {
-    int payload_size = data[1];
-    const std::vector message(data.begin() + 1, data.begin() + 4 + payload_size - 1);
-    int page_type = message[0];
+    int payloadSize = data[1];
+    const std::vector message(data.begin() + 4, data.begin() + 4 + payloadSize - 1);
+    int pageType = message[0];
 
     try {
-        if (page_type == 16) {
-            auto elapsedTime = message[2] * 0.25;
-            auto distanceTraveled = message[3];
+        if (pageType == 0x10) {
+            const auto elapsedTime = std::round(message[2] * 0.25);
+            const auto distanceTraveled = message[3];
 
-            double speed = message[4] | message[5] << 8;
+            double speedVal = message[4] | message[5] << 8;
+            double speed = speedVal == 0xFFFF ? 0 : std::round(speedVal * 0.001);
+            auto heartRate = message[6] == 0xFF ? 0 : message[6];
 
-            if (speed != 65535) {
-                speed = 0.001 * speed;
+            const GeneralData event(elapsedTime, distanceTraveled, speed, heartRate, parseFeStateByte(message[7]));
+            model->recordTrainerData(MeasurementEvent(device, event));
+        } else if (pageType == 0x11) {
+            const auto cycleLength = message[3];
+
+            const auto inclineValue = message[4] << 8 | message[5];
+            auto incline = inclineValue == 0x7FFF or inclineValue > 1000 or inclineValue < -1000
+                               ? 0
+                               : inclineValue / 100.0;
+
+            const auto resistance = std::round(message[6] * 0.5);
+
+            const GeneralSettings event(cycleLength, incline, resistance, parseFeStateByte(message[7]));
+            model->recordTrainerData(MeasurementEvent(device, event));
+        } else if (pageType == 0x19) {
+            auto updateEventCount = message[1];
+
+            auto instantaneousCadence = message[2] == 0xFF ? 0 : message[2];
+            auto accumulatedPower = message[3] | message[4] << 8;
+
+            auto powerLsb = message[5];
+            auto powerMsb = message[6] & 0xF;
+
+            auto instantaneousPower = powerLsb | powerMsb << 8;
+            if (instantaneousPower == 0xFFF) instantaneousPower = 0;
+
+            const auto trainerStatusFlags = (message[6] >> 4) & 0xF;
+
+            auto trainerStatus = TrainerStatus{
+                static_cast<bool>(trainerStatusFlags & 0x1),
+                static_cast<bool>(trainerStatusFlags & 0x2),
+                static_cast<bool>(trainerStatusFlags & 0x4)
+            };
+
+            std::string targetPowerLimits;
+            switch (message[7] & 0x7) {
+                case 0: targetPowerLimits = BLE::Tacx::Power::IN_RANGE;
+                    break;
+                case 1: targetPowerLimits = BLE::Tacx::Power::TOO_LOW;
+                    break;
+                case 2: targetPowerLimits = BLE::Tacx::Power::TOO_HIGH;
+                    break;
+                default: targetPowerLimits = BLE::Tacx::Power::UNKNOWN;
+                    break;
             }
 
-            auto heartRate = message[6];
-            if (heartRate == 255) {
-                heartRate = 0;
-            }
-
-            const auto feState = parse_fe_state_event(message[7]);
-
-            const GeneralData event(elapsedTime, distanceTraveled, speed, heartRate, feState);
-            std::cout << "General data: " << event.elapsed_time << " " << event.distance_traveled << " "
-                    << event.speed << " " << event.heart_rate << " " << event.feState.feState << " "
-                    << event.feState.lapToggle << std::endl;
-
-            // model->recordGeneralData(MeasurementEvent(device, event));
+            SpecificTrainerData event(
+                updateEventCount,
+                instantaneousCadence,
+                instantaneousPower,
+                accumulatedPower,
+                targetPowerLimits,
+                trainerStatus,
+                parseFeStateByte(message[7])
+            );
+            model->recordTrainerData(MeasurementEvent(device, event));
+        } else {
+            std::cout << "Unknown page type: " << pageType << std::endl;
         }
-        // } else if (page_type == 17) {
-        // auto event = parse_general_settings_page(device, message);
-        // model.update_general_settings(event);
-        // } else if (page_type == 25) {
-        // auto event = parse_specific_trainer_data_page(device, message);
-        // model.update_specific_trainer_data(event);
     } catch (const std::exception &e) {
         std::cout << "Error processing measurement: " << e.what() << std::endl;
     }
 }
 
-FeState FecService::parse_fe_state_event(int fe_state_bit) {
-    const bool lap_toggle = fe_state_bit & 0x8;
-    const int code = fe_state_bit & 0x7;
-
-    std::string fe_state;
-    switch (code) {
-        case 1:
-            fe_state = "ASLEEP";
-            break;
-        case 2:
-            fe_state = "READY";
-            break;
-        case 3:
-            fe_state = "IN_USE";
-            break;
-        case 4:
-            fe_state = "FINISHED";
-            break;
-        default:
-            fe_state = "UNKNOWN";
-            break;
+FeState FecService::parseFeStateByte(const unsigned char fitnessEquipmentStateBit) {
+    const bool lapToggle = fitnessEquipmentStateBit & 0x80;
+    switch (fitnessEquipmentStateBit & 0x40) {
+        case 1: return FeState(BLE::Tacx::Status::ASLEEP, lapToggle);
+        case 2: return FeState(BLE::Tacx::Status::READY, lapToggle);
+        case 3: return FeState(BLE::Tacx::Status::IN_USE, lapToggle);
+        case 4: return FeState(BLE::Tacx::Status::FINISHED, lapToggle);
+        default: return FeState(BLE::Tacx::Status::UNKNOWN, lapToggle);
     }
-    return FeState(fe_state, lap_toggle);
 }

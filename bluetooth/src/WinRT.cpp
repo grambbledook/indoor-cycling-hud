@@ -42,6 +42,7 @@ std::unordered_map<UUID, std::shared_ptr<Device> > WinRT::do_work() {
         bool hasHRMService = false;
         bool hasCSCService = false;
         bool hasPWRService = false;
+        bool hasFECService = false;
 
         for (const auto &[type, service_uuid, characteristic_uuid]: device.services) {
             if (service_uuid == Services::HRM.service_uuid) {
@@ -52,6 +53,9 @@ std::unordered_map<UUID, std::shared_ptr<Device> > WinRT::do_work() {
             }
             if (service_uuid == Services::PWR.service_uuid) {
                 hasPWRService = true;
+            }
+            if (service_uuid == Services::FEC_BIKE_TRAINER.service_uuid) {
+                hasFECService = true;
             }
         }
 
@@ -65,6 +69,10 @@ std::unordered_map<UUID, std::shared_ptr<Device> > WinRT::do_work() {
 
         if (hasPWRService && !found_devices.contains(Services::PWR.service_uuid)) {
             found_devices[Services::PWR.service_uuid] = std::make_shared<Device>(device);
+        }
+
+        if (hasFECService && !found_devices.contains(Services::FEC_BIKE_TRAINER.service_uuid)) {
+            found_devices[Services::FEC_BIKE_TRAINER.service_uuid] = std::make_shared<Device>(device);
         }
     };
     scanner->start_scan(first_receiver);
@@ -83,28 +91,37 @@ void WinRT::runTest() {
     const auto hrm = std::make_shared<HrmNotificationService>(registry, model);
     const auto csc = std::make_shared<CyclingCadenceAndSpeedNotificationService>(registry, model);
     const auto pwr = std::make_shared<PowerNotificationService>(registry, model);
+    const auto fec = std::make_shared<FecService>(registry, model);
 
-    if (found_devices.contains(Services::HRM.service_uuid)) {
-        const auto &device = found_devices.at(Services::HRM.service_uuid);
-        hrm->set_device(device);
-        std::cin.get();
-        hrm->unset_device(device);
-        std::cin.get();
-    }
+    // if (found_devices.contains(Services::HRM.service_uuid)) {
+    //     const auto &device = found_devices.at(Services::HRM.service_uuid);
+    //     hrm->set_device(device);
+    //     std::cin.get();
+    //     hrm->unset_device(device);
+    //     std::cin.get();
+    // }
+    //
+    // if (found_devices.contains(Services::CSC.service_uuid)) {
+    //     const auto &device = found_devices.at(Services::CSC.service_uuid);
+    //     csc->set_device(device);
+    //     std::cin.get();
+    //     csc->unset_device(device);
+    //     std::cin.get();
+    // }
+    //
+    // if (found_devices.contains(Services::PWR.service_uuid)) {
+    //     const auto &device = found_devices.at(Services::PWR.service_uuid);
+    //     pwr->set_device(device);
+    //     std::cin.get();
+    //     pwr->unset_device(device);
+    //     std::cin.get();
+    // }
 
-    if (found_devices.contains(Services::CSC.service_uuid)) {
-        const auto &device = found_devices.at(Services::CSC.service_uuid);
-        csc->set_device(device);
+    if (found_devices.contains(Services::FEC_BIKE_TRAINER.service_uuid)) {
+        const auto &device = found_devices.at(Services::FEC_BIKE_TRAINER.service_uuid);
+        fec->set_device(device);
         std::cin.get();
-        csc->unset_device(device);
-        std::cin.get();
-    }
-
-    if (found_devices.contains(Services::PWR.service_uuid)) {
-        const auto &device = found_devices.at(Services::PWR.service_uuid);
-        pwr->set_device(device);
-        std::cin.get();
-        pwr->unset_device(device);
+        fec->unset_device(device);
         std::cin.get();
     }
 

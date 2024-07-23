@@ -85,5 +85,5 @@ public:
     void process_measurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) override;
 
 private:
-    static FeState parse_fe_state_event(int bit);
+    static FeState parseFeStateByte(const unsigned char fitnessEquipmentStateBit);
 };

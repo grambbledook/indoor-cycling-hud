@@ -64,6 +64,8 @@ public:
 
     void setPowerMeter(const std::shared_ptr<Device> &device);
 
+    void setBikeTrainer(const std::shared_ptr<Device> &device);
+
     void recordHeartData(const MeasurementEvent<HrmMeasurement> &event);
 
     void recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event);
@@ -71,6 +73,12 @@ public:
     void recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event);
 
     void recordPowerData(const MeasurementEvent<PowerMeasurement> &event);
+
+    void recordTrainerData(const MeasurementEvent<GeneralData> &event);
+
+    void recordTrainerData(const MeasurementEvent<GeneralSettings> &event);
+
+    void recordTrainerData(const MeasurementEvent<SpecificTrainerData> &event);
 
 private:
     State<int, int> hrmState = {

@@ -10,35 +10,40 @@ constexpr auto MS_TO_HOUR = 1.0 / (60 * 60 * 1024);
 constexpr auto DEFAULT_TIRE_CIRCUMFERENCE_MM = 2168;
 
 void Model::setHeartRateMonitor(const std::shared_ptr<Device> &device) {
-    std::cout << "Model::setHeartRateMonitor: " << device->deviceId() <<std::endl;
+    std::cout << "Model::setHeartRateMonitor: " << device->deviceId() << std::endl;
     hrmState.device = device;
 }
 
 void Model::setCadenceSensor(const std::shared_ptr<Device> &device) {
-    std::cout << "Model::setCadenceSensor: " << device->deviceId() <<std::endl;
+    std::cout << "Model::setCadenceSensor: " << device->deviceId() << std::endl;
     cadenceState.device = device;
 }
 
 void Model::setSpeedSensor(const std::shared_ptr<Device> &device) {
-    std::cout << "Model::setSpeedSensor: " << device->deviceId() <<std::endl;
+    std::cout << "Model::setSpeedSensor: " << device->deviceId() << std::endl;
     speedState.device = device;
 }
 
 void Model::setPowerMeter(const std::shared_ptr<Device> &device) {
-    std::cout << "Model::setPowerMeter: " << device->deviceId() <<std::endl;
+    std::cout << "Model::setPowerMeter: " << device->deviceId() << std::endl;
     powerState.device = device;
+}
+
+void Model::setBikeTrainer(const std::shared_ptr<Device> &device) {
+    std::cout << "Model::setBikeTrainer: " << device->deviceId() << std::endl;
 }
 
 void Model::recordHeartData(const MeasurementEvent<HrmMeasurement> &event) {
     if (*hrmState.device != *event.device) {
         std::cout << "Device mismatch." << std::endl;
-        std::cout << "  Should be: " << hrmState.device->deviceId() << " but was: " << event.device->deviceId() << std::endl;
+        std::cout << "  Should be: " << hrmState.device->deviceId() << " but was: " << event.device->deviceId() <<
+                std::endl;
         return;
     }
 
     hrmState.recordMetric(event.measurement.hrm);
     hrmState.aggregateMetric(event.measurement.hrm);
-    std::cout << "HRM: " << hrmState.stats.latest << " AVG: " << hrmState.stats.average << std::endl;
+    std::cout << "  HRM: " << hrmState.stats.latest << " AVG: " << hrmState.stats.average << std::endl;
 }
 
 void Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event) {
@@ -49,7 +54,7 @@ void Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event)
 
     cadenceState.recordMetric(std::pair{event.measurement.ccr, event.measurement.lcet});
 
-    auto [events, dataPresent ] = cadenceState.getLastN(2);
+    auto [events, dataPresent] = cadenceState.getLastN(2);
     auto [prevCcr, prevLcet, ccr, lcet] = std::tuple_cat(events[0], events[1]);
     std::cout << "  Prev[" << prevCcr << ", " << prevLcet << "], Cur[" << ccr << ", " << lcet << "]" << std::endl;
 
@@ -67,14 +72,15 @@ void Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event)
     const auto cadence = totalRevolutions / (timeDelta * MS_TO_MIN);
 
     cadenceState.aggregateMetric(std::round(cadence));
-    std::cout << "CADENCE: " << cadenceState.stats.latest << " AVG: " << cadenceState.stats.average << std::endl;
+    std::cout << "  CADENCE: " << cadenceState.stats.latest << " AVG: " << cadenceState.stats.average << std::endl;
 }
 
 void Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) {
     std::cout << "Model::recordSpeedData" << std::endl;
     if (*speedState.device != *event.device) {
         std::cout << "  Device mismatch." << std::endl;
-        std::cout << "  Should be: " << speedState.device->deviceId() << " but was: " << event.device->deviceId() << std::endl;
+        std::cout << "  Should be: " << speedState.device->deviceId() << " but was: " << event.device->deviceId() <<
+                std::endl;
         return;
     }
 
@@ -98,7 +104,7 @@ void Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) {
     const auto speed = totalKmh / timeDelta * MS_TO_HOUR;
 
     speedState.aggregateMetric(std::round(speed));
-    std::cout << "SPEED: " << speedState.stats.latest << " AVG: " << speedState.stats.average << std::endl;
+    std::cout << "  SPEED: " << speedState.stats.latest << " AVG: " << speedState.stats.average << std::endl;
 }
 
 void Model::recordPowerData(const MeasurementEvent<PowerMeasurement> &event) {
@@ -108,5 +114,17 @@ void Model::recordPowerData(const MeasurementEvent<PowerMeasurement> &event) {
 
     powerState.recordMetric(event.measurement.power);
     powerState.aggregateMetric(event.measurement.power);
-    std::cout << "POWER: " << powerState.stats.latest << " AVG: " << powerState.stats.average << std::endl;
+    std::cout << "  POWER: " << powerState.stats.latest << " AVG: " << powerState.stats.average << std::endl;
+}
+
+void Model::recordTrainerData(const MeasurementEvent<GeneralData> &event) {
+}
+
+void Model::recordTrainerData(const MeasurementEvent<GeneralSettings> &event) {
+    std::cout << "  General FE Settings: " << event.measurement.cycleLength << " " << event.measurement.incline << " "
+            << event.measurement.resistance << " " << event.measurement.feState.state << std::endl;
+}
+
+void Model::recordTrainerData(const MeasurementEvent<SpecificTrainerData> &event) {
+    std::cout << "  Specific Trainer Data: " << event.measurement.targetPowerLimits << std::endl;
 }
