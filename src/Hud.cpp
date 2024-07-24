@@ -9,7 +9,11 @@
 #include "ViewNavigator.h"
 #include "WorkoutWindow.h"
 
+#include "WinRT.h"
+
 int main(int argc, char **argv) {
+    WinRT::test(true);
+
     const auto app = new QApplication(argc, argv);
 
     auto trainer_window = std::make_shared<TrainerWindow>();

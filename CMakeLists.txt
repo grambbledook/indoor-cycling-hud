@@ -1,21 +1,38 @@
 cmake_minimum_required(VERSION 3.10)
 project(HelloWorld LANGUAGES CXX)
+add_subdirectory(bluetooth)
+
+message(PROJECT="BAZA")
+message(CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}")
+message(CMAKE_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
+message(CMAKE_CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+message(PROJECT_BINARY_DIR="${PROJECT_BINARY_DIR}")
+
+# control where the static and shared libraries are built so that on windows
+# we don't need to tinker with the path to run the executable
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
 
 SET(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo" CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS "/EHsc")
 
 #--------------------Include QT------------------------------
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_PREFIX_PATH $ENV{QT_HOME})
+list(APPEND CMAKE_PREFIX_PATH $ENV{QT_HOME} $ENV{CMAKE_MODULES_HOME})
+
+message(CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}")
 
 find_package(Qt6Core CONFIG REQUIRED)
 find_package(Qt6Widgets CONFIG REQUIRED)
 
 #--------------------Include Project Files-------------------
-set(ASSETS_DIR ${CMAKE_SOURCE_DIR}/assets)
-set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
-set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
+set(ASSETS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/assets)
+set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(BLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bluetooth/include)
 
 include_directories(${ASSETS_DIR})
 include_directories(${INCLUDE_DIR})
@@ -26,19 +43,17 @@ file(GLOB_RECURSE SOURCES
         ${INCLUDE_DIR}/*.h
 )
 
-#--------------------Set Executable-------------------------
+#--------------------Set QT Executable-------------------------
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
         $<$<CONFIG:RELWITHDEBINFO>:QT_MESSAGELOGCONTEXT>)
 
-# no forms so far
-#set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_AUTOUIC_SEARCH_PATHS} ${FORMS_DIR})
-
 add_executable(HelloWorld ${SOURCES}
-        include/WorkoutWindow.h)
+        include/Hud.h)
 
 target_include_directories(HelloWorld PRIVATE ${INCLUDE_DIR})
 target_include_directories(HelloWorld PRIVATE ${SOURCE_DIR})
 target_include_directories(HelloWorld PRIVATE ${ASSETS_DIR})
+target_include_directories(Bluetooth PUBLIC ${BLE_DIR})
 
 #--------------------Link Libraries--------------------------
-target_link_libraries(HelloWorld Qt6::Widgets Qt6::Core)
+target_link_libraries(HelloWorld Qt6::Widgets Qt6::Core Bluetooth)
