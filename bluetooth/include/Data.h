@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <algorithm>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <unordered_set>

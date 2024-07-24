@@ -20,7 +20,7 @@ using namespace Windows::Foundation::Collections;
 using namespace Windows::Devices::Bluetooth::Advertisement;
 using namespace Windows::Devices::Bluetooth::Advertisement;
 
-void Scanner::start_scan(const std::function<void(Device)> &receiver) {
+void Scanner::start_scan(const std::function<void(std::shared_ptr<Device>)> &receiver) {
     reset_previous_scans();
 
     watcher->ScanningMode(BluetoothLEScanningMode::Active);
@@ -37,7 +37,8 @@ void Scanner::start_scan(const std::function<void(Device)> &receiver) {
             for (auto i = 0; i < services_size; i++) {
                 auto cs = services.GetAt(i);
 
-                if (auto candidate_service_uuid = WinrtUtils::uuid_from_guid(cs); Services::SUPPORTED_SERVICES_MAP.contains(candidate_service_uuid)) {
+                if (auto candidate_service_uuid = WinrtUtils::uuid_from_guid(cs); Services::SUPPORTED_SERVICES_MAP.
+                    contains(candidate_service_uuid)) {
                     supported_services.insert(Services::SUPPORTED_SERVICES_MAP.at(candidate_service_uuid));
                 }
             }
@@ -60,9 +61,9 @@ void Scanner::start_scan(const std::function<void(Device)> &receiver) {
                 std::cout << WinrtUtils::name_from_hstring(name).value << std::endl;
             };
 
-            const auto device = Device{
+            const auto device = std::make_shared<Device>(
                 WinrtUtils::name_from_hstring(name), WinrtUtils::address_from_long(address), supported_services
-            };
+            );
 
             receiver(device);
         });

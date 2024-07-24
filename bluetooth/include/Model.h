@@ -59,7 +59,8 @@ struct State {
 
 class Model {
 public:
-    void deviceDiscovered(const std::shared_ptr<Device> &device);
+    void addDevice(const std::shared_ptr<Device> &device);
+    std::vector<std::shared_ptr<Device>> getDevices(GattService service);
 
     void setHeartRateMonitor(const std::shared_ptr<Device> &device);
     void setCadenceSensor(const std::shared_ptr<Device> &device);
@@ -82,7 +83,7 @@ public:
     Notifications<Statistics<int>> powerNotifications;
     Notifications<std::string> trainerNotifications;
 
-    std::unordered_map<std::string, std::shared_ptr<Device>> discoveredDevices;
+    std::unordered_map<std::string, std::shared_ptr<Device>> devices;
 private:
     std::mutex mutex;
 

@@ -19,15 +19,15 @@ private:
     template<typename T>
     static void subscribeToNotifications(const Notifications<T> &notifications, const GattService &service) {
         notifications.data.subscribe([service](const T &data) {
-            std::cout << "Service [" << service.type << "]: Received data of type:" << typeid(data).name() << std::endl;
+            std::cout << "Service [" << service.type << "]: Received data of type: " << typeid(data).name() << std::endl;
         });
 
         notifications.deviceDiscovered.subscribe([service](const std::shared_ptr<Device> &device) {
-            std::cout << "Service [" << service.type << "]: Device discovered:" << device->deviceId() << std::endl;
+            std::cout << "Service [" << service.type << "]: Device discovered: " << device->deviceId() << std::endl;
         });
 
         notifications.deviceSelected.subscribe([service](const std::shared_ptr<Device> &device) {
-            std::cout << "Service [" << service.type << "]: Device selected:" << device->deviceId() << std::endl;
+            std::cout << "Service [" << service.type << "]: Device selected: " << device->deviceId() << std::endl;
         });
     }
 };

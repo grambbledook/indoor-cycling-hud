@@ -11,7 +11,7 @@ using namespace Windows::Devices::Bluetooth::Advertisement;
 
 class Scanner {
 public:
-    void start_scan(const std::function<void(Device)> &receiver);
+    void start_scan(const std::function<void(std::shared_ptr<Device>)> &receiver);
 
     void stop_scan() const;
 

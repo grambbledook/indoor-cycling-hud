@@ -14,20 +14,20 @@ constexpr auto MS_TO_HOUR = 1.0 / (60 * 60 * 1024);
 constexpr auto DEFAULT_TIRE_CIRCUMFERENCE_MM = 2168;
 
 
-void Model::deviceDiscovered(const std::shared_ptr<Device> &device) {
+void Model::addDevice(const std::shared_ptr<Device> &device) {
     std::lock_guard guard(mutex);
 
-    if (not discoveredDevices.contains(device->deviceId())) {
-        discoveredDevices[device->deviceId()] = device;
-    }
-
-    const auto oldDevice = discoveredDevices[device->deviceId()];
-    if (*oldDevice == *device) {
+    const auto oldDevice = devices[device->deviceId()];
+    if (oldDevice and *oldDevice == *device) {
         return;
     }
 
-    const auto newDevice = std::make_shared<Device>(*oldDevice | *device);
-    discoveredDevices[device->deviceId()] = newDevice;
+    const auto newDevice = oldDevice ? std::make_shared<Device>(*oldDevice | *device) : device;
+
+    if (oldDevice and *newDevice == *oldDevice) {
+        return;
+    }
+    devices[device->deviceId()] = newDevice;
 
     if (newDevice->services.contains(Services::HRM)) {
         hrmNotifications.deviceDiscovered.publish(newDevice);
@@ -42,6 +42,13 @@ void Model::deviceDiscovered(const std::shared_ptr<Device> &device) {
     if (newDevice->services.contains(Services::FEC_BIKE_TRAINER)) {
         trainerNotifications.deviceDiscovered.publish(newDevice);
     }
+}
+
+std::vector<std::shared_ptr<Device> > Model::getDevices(GattService service) {
+    return devices
+           | std::views::filter([service](const auto &pair) { return pair.second->services.contains(service); })
+           | std::views::transform([](const auto &pair) { return pair.second; })
+           | std::ranges::to<std::vector<std::shared_ptr<Device> > >();
 }
 
 void Model::setHeartRateMonitor(const std::shared_ptr<Device> &device) {
