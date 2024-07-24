@@ -6,7 +6,6 @@
 
 #include "DeviceRegistry.h"
 #include "Model.h"
-#include "Service.h"
 
 template<DerivedFromMeasurement T>
 class INotificationService {
@@ -19,11 +18,8 @@ public:
 
 public:
     virtual void set_device(std::shared_ptr<Device> device);
-
     virtual void unset_device(std::shared_ptr<Device> device);
-
     virtual void process_feature_and_set_devices(BleClient &client, std::shared_ptr<Device> &device) = 0;
-
     virtual void process_measurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) = 0;
 
 public:
@@ -41,7 +37,6 @@ public:
 
 public:
     void process_feature_and_set_devices(BleClient &client, std::shared_ptr<Device> &device) override;
-
     void process_measurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) override;
 };
 
@@ -54,7 +49,6 @@ public:
 
 public:
     void process_feature_and_set_devices(BleClient &client, std::shared_ptr<Device> &device) override;
-
     void process_measurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) override;
 };
 
@@ -68,7 +62,6 @@ public:
 
 public:
     void process_feature_and_set_devices(BleClient &client, std::shared_ptr<Device> &device) override;
-
     void process_measurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) override;
 };
 
@@ -81,7 +74,6 @@ public:
 
 public:
     void process_feature_and_set_devices(BleClient &client, std::shared_ptr<Device> &device) override;
-
     void process_measurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) override;
 
 private:

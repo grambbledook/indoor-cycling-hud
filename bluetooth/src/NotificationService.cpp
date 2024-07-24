@@ -3,7 +3,8 @@
 #include <iostream>
 #include <utility>
 
-#include "BleConstants.h"
+#include "BluetoothConstants.h"
+#include "Service.h"
 
 
 template<DerivedFromMeasurement T>

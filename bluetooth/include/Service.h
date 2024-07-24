@@ -28,7 +28,7 @@ namespace Services {
     );
 
     const auto FEC_BIKE_TRAINER = GattService(
-        "Bike Trainer (FE-C over Bluetooth)",
+        "Tacx Bike Trainer (FE-C over Bluetooth)",
         UUID("6e40fec1-b5a3-f393-e0a9-e50e24dcca9e"),
         UUID("6e40fec2-b5a3-f393-e0a9-e50e24dcca9e")
     );

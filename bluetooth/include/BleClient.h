@@ -25,13 +25,14 @@ public:
 
     bool subscribe(const UUID &characteristicUuid,
                    const std::function<void(std::shared_ptr<Device>, std::vector<uint8_t>)> &receiver) const;
+
     bool unsubscribe(const UUID &characteristicUuid) const;
 
     void disconnect() const;
 
-    bool isConnected() const;
+    [[nodiscard]] bool isConnected() const;
 
-    std::pair<std::vector<uint8_t>, bool> read(const UUID &characteristicUuid) const;
+    [[nodiscard]] std::pair<std::vector<uint8_t>, bool> read(const UUID &characteristicUuid) const;
 
 private:
     void fetchCharacteristics();

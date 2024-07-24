@@ -83,8 +83,8 @@ public:
     Notifications<Statistics<int>> powerNotifications;
     Notifications<std::string> trainerNotifications;
 
-    std::unordered_map<std::string, std::shared_ptr<Device>> devices;
 private:
+    std::unordered_map<std::string, std::shared_ptr<Device>> devices;
     std::mutex mutex;
 
     State<int, int> hrmState = {

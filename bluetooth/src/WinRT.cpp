@@ -29,7 +29,7 @@ void WinRT::test(const bool multi_threaded) {
 
 void WinRT::runTest() {
     auto model = std::make_shared<Model>();
-    auto scanner = std::make_shared<ScanneService>(model, Scanner());
+    const auto scanner = std::make_shared<ScanneService>(model, Scanner());
     auto registry = std::make_shared<DeviceRegistry>();
     const auto hrm = std::make_shared<HrmNotificationService>(registry, model);
     const auto csc = std::make_shared<CyclingCadenceAndSpeedNotificationService>(registry, model);
@@ -43,11 +43,6 @@ void WinRT::runTest() {
 
     scanner->startScan();
     std::cin.get();
-
-    std::cout << "Found devices: " << model->devices.size() << std::endl;
-    for (auto const &[uuid, device]: model->devices) {
-        std::cout << "  Found device: " << uuid << std::endl;
-    }
 
     const auto hrms = model->getDevices(Services::HRM);
     if (not hrms.empty()) {

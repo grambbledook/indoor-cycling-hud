@@ -6,12 +6,8 @@
 
 #include <memory>
 
+#include "Formula.h"
 #include "Service.h"
-
-constexpr auto MM_TO_KM = 1.0 / 1000000;
-constexpr auto MS_TO_MIN = 1.0 / (60 * 1024);
-constexpr auto MS_TO_HOUR = 1.0 / (60 * 60 * 1024);
-constexpr auto DEFAULT_TIRE_CIRCUMFERENCE_MM = 2168;
 
 
 void Model::addDevice(const std::shared_ptr<Device> &device) {
@@ -128,7 +124,7 @@ void Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event)
     const auto totalRevolutions = ccr - prevCcr;
     const auto timeDelta = lcet - prevLcet + lcetResetCorrection;
 
-    const auto cadence = totalRevolutions / (timeDelta * MS_TO_MIN);
+    const auto cadence = totalRevolutions / (timeDelta * BLE::Math::MS_TO_MIN);
 
     cadenceState.aggregateMetric(std::round(cadence));
     std::cout << "  CADENCE: " << cadenceState.stats.latest << " AVG: " << cadenceState.stats.average << std::endl;
@@ -161,8 +157,8 @@ void Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) {
     const auto totalRevolutions = cwr - prevCwr;
     const auto timeDelta = lwet - prevLwet + lwetResetCorrection;
 
-    const auto totalKmh = totalRevolutions * DEFAULT_TIRE_CIRCUMFERENCE_MM * MM_TO_KM;
-    const auto speed = totalKmh / timeDelta * MS_TO_HOUR;
+    const auto totalKmh = totalRevolutions * BLE::Wheels::DEFAULT_TIRE_CIRCUMFERENCE_MM * BLE::Math::MM_TO_KM;
+    const auto speed = totalKmh / timeDelta * BLE::Math::MS_TO_HOUR;
 
     speedState.aggregateMetric(std::round(speed));
     std::cout << "  SPEED: " << speedState.stats.latest << " AVG: " << speedState.stats.average << std::endl;
@@ -186,10 +182,8 @@ void Model::recordTrainerData(const MeasurementEvent<GeneralData> &event) {
 }
 
 void Model::recordTrainerData(const MeasurementEvent<GeneralSettings> &event) {
-    std::cout << "  General FE Settings: " << event.measurement.cycleLength << " " << event.measurement.incline << " "
-            << event.measurement.resistance << " " << event.measurement.feState.state << std::endl;
 }
 
 void Model::recordTrainerData(const MeasurementEvent<SpecificTrainerData> &event) {
-    std::cout << "  Specific Trainer Data: " << event.measurement.targetPowerLimits << std::endl;
+    trainerNotifications.data.publish(event.measurement.feState.state);
 }
