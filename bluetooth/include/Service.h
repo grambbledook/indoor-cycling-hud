@@ -35,8 +35,8 @@ namespace Services {
 
     const std::vector SUPPORTED_SERVICES = {HRM, CSC, PWR, FEC_BIKE_TRAINER};
 
-    const std::unordered_map<UUID, GattService> SUPPORTED_SERVICES_MAP = SUPPORTED_SERVICES
+    const std::unordered_map<UUID, GattService, UUID::Hash> SUPPORTED_SERVICES_MAP = SUPPORTED_SERVICES
             | views::transform([](const GattService &s) { return std::make_pair(s.service_uuid, s); })
-            | to<std::unordered_map<UUID, GattService>>();
+            | to<std::unordered_map<UUID, GattService, UUID::Hash>>();
 
 }

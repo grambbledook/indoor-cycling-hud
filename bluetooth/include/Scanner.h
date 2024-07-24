@@ -1,5 +1,3 @@
-
-
 #pragma once
 #include <functional>
 
@@ -14,7 +12,9 @@ using namespace Windows::Devices::Bluetooth::Advertisement;
 class Scanner {
 public:
     void start_scan(const std::function<void(Device)> &receiver);
+
     void stop_scan() const;
+
     void reset_previous_scans();
 
 private:

@@ -1,4 +1,6 @@
 #pragma once
+#include <mutex>
+
 #include "Channel.h"
 #include "Events.h"
 
@@ -57,6 +59,8 @@ struct State {
 
 class Model {
 public:
+    void deviceDiscovered(const std::shared_ptr<Device> &device);
+
     void setHeartRateMonitor(const std::shared_ptr<Device> &device);
     void setCadenceSensor(const std::shared_ptr<Device> &device);
     void setSpeedSensor(const std::shared_ptr<Device> &device);
@@ -78,7 +82,10 @@ public:
     Notifications<Statistics<int>> powerNotifications;
     Notifications<std::string> trainerNotifications;
 
+    std::unordered_map<std::string, std::shared_ptr<Device>> discoveredDevices;
 private:
+    std::mutex mutex;
+
     State<int, int> hrmState = {
         __nullptr,
         std::vector<int>{},

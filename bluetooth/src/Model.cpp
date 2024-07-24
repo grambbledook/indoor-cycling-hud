@@ -5,69 +5,77 @@
 #include "Model.h"
 
 #include <memory>
-#include <unordered_set>
+
+#include "Service.h"
 
 constexpr auto MM_TO_KM = 1.0 / 1000000;
 constexpr auto MS_TO_MIN = 1.0 / (60 * 1024);
 constexpr auto MS_TO_HOUR = 1.0 / (60 * 60 * 1024);
 constexpr auto DEFAULT_TIRE_CIRCUMFERENCE_MM = 2168;
 
-std::vector<GattService> operator|(const std::vector<GattService> &lhs, const std::vector<GattService> &rhs) {
-    std::vector<GattService> unionResult = lhs;
 
-    std::unordered_set<UUID> existingUUIDs;
-    for (const auto &service: lhs) {
-        existingUUIDs.insert(service.service_uuid);
+void Model::deviceDiscovered(const std::shared_ptr<Device> &device) {
+    std::lock_guard guard(mutex);
+
+    if (not discoveredDevices.contains(device->deviceId())) {
+        discoveredDevices[device->deviceId()] = device;
     }
 
-    for (const auto &service: rhs) {
-        if (!existingUUIDs.contains(service.service_uuid)) {
-            unionResult.push_back(service);
-            existingUUIDs.insert(service.service_uuid);
-        }
+    const auto oldDevice = discoveredDevices[device->deviceId()];
+    if (*oldDevice == *device) {
+        return;
     }
 
-    return unionResult;
-}
+    const auto newDevice = std::make_shared<Device>(*oldDevice | *device);
+    discoveredDevices[device->deviceId()] = newDevice;
 
-std::shared_ptr<Device> operator|(const std::shared_ptr<Device> &lhs, const std::shared_ptr<Device> &rhs) {
-    return std::make_shared<Device>(
-        lhs->name,
-        lhs->address,
-        lhs->services | rhs->services
-    );
+    if (newDevice->services.contains(Services::HRM)) {
+        hrmNotifications.deviceDiscovered.publish(newDevice);
+    }
+    if (newDevice->services.contains(Services::CSC)) {
+        cadenceNotifications.deviceDiscovered.publish(newDevice);
+        speedNotifications.deviceDiscovered.publish(newDevice);
+    }
+    if (newDevice->services.contains(Services::PWR)) {
+        powerNotifications.deviceDiscovered.publish(newDevice);
+    }
+    if (newDevice->services.contains(Services::FEC_BIKE_TRAINER)) {
+        trainerNotifications.deviceDiscovered.publish(newDevice);
+    }
 }
 
 void Model::setHeartRateMonitor(const std::shared_ptr<Device> &device) {
-    std::cout << "Model::setHeartRateMonitor: " << device->deviceId() << std::endl;
-
-    const bool sameDevice = hrmState.device->deviceId() == device->deviceId();
-    hrmState.device = sameDevice ? hrmState.device | device : device;
-
+    if (hrmState.device and hrmState.device->deviceId() == device->deviceId()) {
+        return;
+    }
+    hrmState.device = device;
     hrmNotifications.deviceSelected.publish(hrmState.device);
 }
 
 void Model::setCadenceSensor(const std::shared_ptr<Device> &device) {
-    std::cout << "Model::setCadenceSensor: " << device->deviceId() << std::endl;
-    const bool sameDevice = cadenceState.device->deviceId() == device->deviceId();
-    cadenceState.device = sameDevice ? cadenceState.device | device : device;
+    if (cadenceState.device and cadenceState.device->deviceId() == device->deviceId()) {
+        return;
+    }
 
+    cadenceState.device = device;
     cadenceNotifications.deviceSelected.publish(cadenceState.device);
 }
 
 void Model::setSpeedSensor(const std::shared_ptr<Device> &device) {
-    std::cout << "Model::setSpeedSensor: " << device->deviceId() << std::endl;
-    const bool sameDevice = speedState.device->deviceId() == device->deviceId();
-    speedState.device = sameDevice ? speedState.device | device : device;
+    if (speedState.device and speedState.device->deviceId() == device->deviceId()) {
+        return;
+    }
 
+    speedState.device = device;
     speedNotifications.deviceSelected.publish(speedState.device);
 }
 
 void Model::setPowerMeter(const std::shared_ptr<Device> &device) {
-    std::cout << "Model::setPowerMeter: " << device->deviceId() << std::endl;
-    const bool sameDevice = powerState.device->deviceId() == device->deviceId();
-    powerState.device = sameDevice ? powerState.device | device : device;
+    if (powerState.device and powerState.device->deviceId() == device->deviceId()) {
+        return;
+    }
 
+    powerState.device = device;
     powerNotifications.deviceSelected.publish(powerState.device);
 }
 

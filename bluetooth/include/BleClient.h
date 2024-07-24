@@ -39,5 +39,5 @@ private:
 private:
     Device device;
     std::shared_ptr<BluetoothLEDevice> connection;
-    std::unordered_map<UUID, std::any> characteristics;
+    std::unordered_map<UUID, std::any, UUID::Hash> characteristics;
 };

@@ -2,12 +2,11 @@
 
 #include <functional>
 #include "Data.h"
-#include "Model.h"
 
 template<typename T>
 class Channel {
 public:
-    void subscribe(std::function<void(T)> receiver) {
+    void subscribe(const std::function<void(T)> &receiver) const{
         receivers.push_back(receiver);
     }
 
@@ -18,7 +17,7 @@ public:
     }
 
 private:
-    std::vector<std::function<void(T)> > receivers;
+    mutable std::vector<std::function<void(T)> > receivers;
 };
 
 template<typename T>
