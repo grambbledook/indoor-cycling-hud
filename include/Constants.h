@@ -47,6 +47,7 @@ namespace Constants {
         const std::string TRAINER = "trainer";
         const std::string SENSORS = "sensors";
         const std::string WORKOUT = "workout";
+        const std::string DEVICE_DIALOG = "device_dialog";
         const std::string WORKOUT_SUMMARY = "workout_summary";
     }
 }

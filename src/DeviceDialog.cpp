@@ -10,17 +10,6 @@
 #include "StyleSheets.h"
 
 DeviceDialog::DeviceDialog(QWidget *parent): QDialog(parent), listWidget(std::make_shared<QListWidget>(this)) {
-    const Device device_one{"Dummy Device 1", "00:00:00:00:00:00"};
-    const auto item_1 = new QListWidgetItem(QString::fromStdString(device_one.name));
-    item_1->setData(Qt::ItemDataRole::UserRole, QVariant::fromValue(device_one));
-
-    const Device device_two{"Dummy Device 2", "00:00:00:00:00:01"};
-    const auto item_2 = new QListWidgetItem(QString::fromStdString(device_two.name));
-    item_2->setData(Qt::ItemDataRole::UserRole, QVariant::fromValue(device_two));
-
-    listWidget->addItem(item_1);
-    listWidget->addItem(item_2);
-
     connect(listWidget.get(), &QListWidget::itemClicked, this, &DeviceDialog::itemSelected);
     connect(listWidget.get(), &QListWidget::itemDoubleClicked, this, &DeviceDialog::itemConfirmed);
 
