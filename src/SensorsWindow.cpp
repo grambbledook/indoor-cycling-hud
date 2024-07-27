@@ -8,29 +8,29 @@
 
 #include <QGridLayout>
 
-SensorsWindow::SensorsWindow(QWidget *parent): AppWindow(parent) {
+SensorsWindow::SensorsWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent): AppWindow(handler, parent) {
     const auto heart_rate_monitor_panel = new SelectDevicePanel(
         Constants::Icons::HEART_RATE_MONITOR,
         Constants::Icons::HEART_RATE_MONITOR_HOVER,
-        this
+        handler, this
     );
 
     const auto cadence_panel = new SelectDevicePanel(
         Constants::Icons::CADENCE_SENSOR,
         Constants::Icons::CADENCE_SENSOR_HOVER,
-        this
+        handler, this
     );
 
     const auto speed_panel = new SelectDevicePanel(
         Constants::Icons::SPEED_SENSOR,
         Constants::Icons::SPEED_SENSOR_HOVER,
-        this
+        handler, this
     );
 
     const auto power_panel = new SelectDevicePanel(
         Constants::Icons::POWER_SENSOR,
         Constants::Icons::POWER_SENSOR_HOVER,
-        this
+        handler, this
     );
 
     const auto backLabel = new ButtonLabel(Constants::Buttons::BACK, true, this);
@@ -58,11 +58,11 @@ SensorsWindow::SensorsWindow(QWidget *parent): AppWindow(parent) {
 void SensorsWindow::back() {
     std::cout << "SensorsWindow::back" << std::endl;
     const auto x = this->x(), y = this->y();
-    emit nextScreen(Constants::Screens::TRAINER);
+    controllerHandler->next(Constants::Screens::TRAINER);
 }
 
 void SensorsWindow::next() {
     std::cout << "SensorsWindow::next" << std::endl;
     const auto x = this->x(), y = this->y();
-    emit nextScreen(Constants::Screens::WORKOUT);
+    controllerHandler->next(Constants::Screens::WORKOUT);
 }

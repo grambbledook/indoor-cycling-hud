@@ -8,13 +8,13 @@
 
 #include <QGridLayout>
 
-TrainerWindow::TrainerWindow(QWidget *parent): AppWindow(parent) {
+TrainerWindow::TrainerWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent): AppWindow(handler, parent) {
     auto *layout = new QGridLayout(this);
 
     const auto trainer_panel = new SelectDevicePanel(
         Constants::Icons::BIKE_TRAINER,
         Constants::Icons::BIKE_TRAINER_HOVER,
-        this
+        handler, this
     );
 
     const auto nextLabel = new ButtonLabel(Constants::Buttons::NEXT, true, this);
@@ -32,5 +32,5 @@ TrainerWindow::TrainerWindow(QWidget *parent): AppWindow(parent) {
 
 void TrainerWindow::next() {
     std::cout << "TrainerWindow::next" << std::endl;
-    emit nextScreen(Constants::Screens::SENSORS);
+    controllerHandler->next(Constants::Screens::SENSORS);
 }

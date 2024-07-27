@@ -5,7 +5,8 @@
 
 #include "Constants.h"
 
-AppWindow::AppWindow(QWidget *parent) : QMainWindow(parent), m_drag(false), m_DragPosition(QPoint(0, 0)) {
+AppWindow::AppWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent) : QMainWindow(parent),
+    m_drag(false), m_DragPosition(QPoint(0, 0)), controllerHandler(handler) {
     setWindowFlags(Qt::WindowType::WindowStaysOnTopHint | Qt::WindowType::FramelessWindowHint);
     setAttribute(Qt::WidgetAttribute::WA_TranslucentBackground);
     setObjectName(Constants::Classes::APP_WINDOW);

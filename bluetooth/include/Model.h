@@ -62,6 +62,8 @@ public:
     void addDevice(const std::shared_ptr<Device> &device);
     std::vector<std::shared_ptr<Device>> getDevices(GattService service);
 
+    void setDevice(const std::shared_ptr<Device> &device);
+
     void setHeartRateMonitor(const std::shared_ptr<Device> &device);
     void setCadenceSensor(const std::shared_ptr<Device> &device);
     void setSpeedSensor(const std::shared_ptr<Device> &device);

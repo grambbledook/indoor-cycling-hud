@@ -11,7 +11,7 @@
 
 #include "Constants.h"
 
-WorkoutWindow::WorkoutWindow(QWidget *parent): AppWindow(parent) {
+WorkoutWindow::WorkoutWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent): AppWindow(handler, parent) {
     const auto heart_rate_monitor_panel = new MetricsPanel(Constants::Labels::HEART_RATE, this);
     const auto cadence_sensor_panel = new MetricsPanel(Constants::Labels::CADENCE, this);
     const auto power_meter_panel = new MetricsPanel(Constants::Labels::INSTANT_POWER, this);
@@ -37,5 +37,5 @@ WorkoutWindow::WorkoutWindow(QWidget *parent): AppWindow(parent) {
 
 void WorkoutWindow::next() {
     std::cout << "WorkoutWindow::next" << std::endl;
-    emit nextScreen(Constants::Screens::WORKOUT_SUMMARY);
+    controllerHandler->next(Constants::Screens::WORKOUT_SUMMARY);
 }

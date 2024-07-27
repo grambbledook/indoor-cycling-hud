@@ -2,6 +2,7 @@
 #include <QMainWindow>
 #include <QWidget>
 #include "DeviceDialog.h"
+#include "ControllerHandler.h"
 
 class DeviceDialog;
 
@@ -12,6 +13,7 @@ public:
     SelectDevicePanel(
         const std::string &normal_icon_path,
         const std::string &highlighted_icon_path,
+        const std::shared_ptr<ControllerHandler> &handler,
         QWidget *parent = nullptr
     );
 
@@ -21,8 +23,9 @@ public:
     };
 
 public slots:
-    void showDeviceDialog();
+    void handleDeviceButtonClick() const;
 
 private:
     std::shared_ptr<DeviceDialog> dialog;
+    std::shared_ptr<ControllerHandler> handler;
 };

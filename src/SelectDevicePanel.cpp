@@ -16,14 +16,18 @@
 #include <qevent.h>
 #include <QListWidget>
 
+#include "Constants.h"
+#include "ControllerHandler.h"
+
 SelectDevicePanel::SelectDevicePanel(
     const std::string &normal_icon_path,
     const std::string &highlighted_icon_path,
+    const std::shared_ptr<ControllerHandler> &handler,
     QWidget *parent
-) : QMainWindow(parent) {
+) : QMainWindow(parent), handler(handler) {
     const auto selectIcon = new ClickableLabel(normal_icon_path, highlighted_icon_path, this);
     selectIcon->setToolTip("No device selected");
-    connect(selectIcon, &ClickableLabel::clicked, this, &SelectDevicePanel::showDeviceDialog);
+    connect(selectIcon, &ClickableLabel::clicked, this, &SelectDevicePanel::handleDeviceButtonClick);
 
     const auto metricLabel = new ValueLabel("--/--", LabelSize::MEDIUM, this);
     metricLabel->setToolTip("No device selected");
@@ -42,9 +46,7 @@ SelectDevicePanel::SelectDevicePanel(
     setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
 }
 
-void SelectDevicePanel::showDeviceDialog() {
+void SelectDevicePanel::handleDeviceButtonClick() const {
     std::cout << "SelectDevicePanel::show_device_dialog()" << std::endl;
-    dialog = std::make_shared<DeviceDialog>(this);
-    dialog->show();
-    dialog->setFocus();
+    handler->next(Constants::Screens::DEVICE_DIALOG);
 }

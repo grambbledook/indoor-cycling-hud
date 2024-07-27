@@ -3,7 +3,7 @@
 // include/AppState.h
 #pragma once
 
-enum class State {
+enum class ApplicationState {
     STARTING,
     WAITING_FOR_TRAINER,
     WAITING_FOR_SENSORS,
@@ -15,9 +15,9 @@ enum class State {
 
 class AppState {
 public:
-    AppState() : state(State::STARTING), x(300), y(300) {
+    AppState() : state(ApplicationState::STARTING), x(300), y(300) {
     }
 
-    State state;
+    ApplicationState state;
     int x, y;
 };

@@ -4,16 +4,21 @@
 #include "DeviceDialog.h"
 
 ViewNavigator::ViewNavigator(
+    const std::shared_ptr<ControllerHandler> &controllerHandler,
     const std::shared_ptr<DeviceDialogController> &deviceDialogController,
     const std::shared_ptr<TrainerWindowController> &trainerWindowController,
     const std::shared_ptr<SensorsWindowController> &sensorsWindowController,
     const std::shared_ptr<WorkoutWindowController> &workoutWindowController
-): deviceDialogController(deviceDialogController), trainerWindowController(trainerWindowController),
+): controllerHandler(controllerHandler), deviceDialogController(deviceDialogController), trainerWindowController(trainerWindowController),
    sensorsWindowController(sensorsWindowController), workoutWindowController(workoutWindowController), x(300), y(300) {
 
-    connect(trainerWindowController->view.get(), &TrainerWindow::nextScreen, this, &ViewNavigator::nextScreen);
-    connect(sensorsWindowController->view.get(), &SensorsWindow::nextScreen, this, &ViewNavigator::nextScreen);
-    connect(workoutWindowController->view.get(), &WorkoutWindow::nextScreen, this, &ViewNavigator::nextScreen);
+    controllerHandler->subscribe([this](const std::string &screen) {
+        this->nextScreen(screen);
+    });
+
+    // connect(trainerWindowController->view.get(), &TrainerWindow::nextScreen, this, &ViewNavigator::nextScreen);
+    // connect(sensorsWindowController->view.get(), &SensorsWindow::nextScreen, this, &ViewNavigator::nextScreen);
+    // connect(workoutWindowController->view.get(), &WorkoutWindow::nextScreen, this, &ViewNavigator::nextScreen);
 
     connect(trainerWindowController->view.get(), &TrainerWindow::positionUpdated, this, &ViewNavigator::positionUpdate);
     connect(sensorsWindowController->view.get(), &SensorsWindow::positionUpdated, this, &ViewNavigator::positionUpdate);

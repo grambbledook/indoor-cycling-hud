@@ -41,7 +41,7 @@ void DeviceDialog::itemSelected(const QListWidgetItem *item) {
 
     auto device = get<Device>(data);
 
-    std::cout << "Selected device: " << device.name << std::endl;
+    std::cout << "Selected device: " << device.name.value << std::endl;
     selectedItem = std::make_shared<Device>(device);
 }
 

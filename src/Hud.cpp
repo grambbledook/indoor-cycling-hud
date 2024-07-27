@@ -13,21 +13,31 @@
 #include "WinRT.h"
 
 int main(int argc, char **argv) {
-    WinRT::test(true);
-
     const auto app = new QApplication(argc, argv);
 
     auto appState = std::make_shared<AppState>();
     auto history = std::make_shared<std::stack<std::shared_ptr<QWidget> > >();
 
-    auto deviceDialogController = std::make_shared<DeviceDialogController>(appState, history);
-    auto trainerWindowController = std::make_shared<TrainerWindowController>(std::make_shared<TrainerWindow>(), appState, history);
-    auto sensorWindowController = std::make_shared<SensorsWindowController>(std::make_shared<SensorsWindow>(), appState, history);
-    auto workoutWindowController = std::make_shared<WorkoutWindowController>(std::make_shared<WorkoutWindow>(), appState, history);
+    auto model = std::make_shared<Model>();
+
+    auto controllerHandler = std::make_shared<ControllerHandler>();
+
+    auto deviceDialogController = std::make_shared<DeviceDialogController>(
+        appState, history, model);
+
+    auto trainerWindowController = std::make_shared<TrainerWindowController>(
+        std::make_shared<TrainerWindow>(controllerHandler), appState, history, model);
+
+    auto sensorWindowController = std::make_shared<SensorsWindowController>(
+        std::make_shared<SensorsWindow>(controllerHandler), appState, history, model);
+
+    auto workoutWindowController = std::make_shared<WorkoutWindowController>(
+        std::make_shared<WorkoutWindow>(controllerHandler), appState, history, model);
 
     const auto view_navigator = std::make_unique<ViewNavigator>(
+        controllerHandler,
         deviceDialogController, trainerWindowController, sensorWindowController, workoutWindowController
-        );
+    );
 
     view_navigator->nextScreen(Constants::Screens::TRAINER);
 

@@ -5,11 +5,13 @@
 #include <QMouseEvent>
 #include <QPaintEvent>
 
+#include "ControllerHandler.h"
+
 class AppWindow: public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit AppWindow(QWidget *parent = nullptr);
+    explicit AppWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent = nullptr);
     ~AppWindow() override;
 
     void mousePressEvent(QMouseEvent *event) override;
@@ -25,6 +27,8 @@ public slots:
     virtual void back();
     virtual void next();
 
+protected:
+    std::shared_ptr<ControllerHandler> controllerHandler;
 private:
 
     bool m_drag;

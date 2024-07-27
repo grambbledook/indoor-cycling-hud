@@ -47,6 +47,22 @@ std::vector<std::shared_ptr<Device> > Model::getDevices(GattService service) {
            | std::ranges::to<std::vector<std::shared_ptr<Device> > >();
 }
 
+void Model::setDevice(const std::shared_ptr<Device> &device) {
+    if (device->services.contains(Services::HRM)) {
+        setHeartRateMonitor(device);
+    }
+    if (device->services.contains(Services::CSC)) {
+        setCadenceSensor(device);
+        setSpeedSensor(device);
+    }
+    if (device->services.contains(Services::PWR)) {
+        setPowerMeter(device);
+    }
+    if (device->services.contains(Services::FEC_BIKE_TRAINER)) {
+        setBikeTrainer(device);
+    }
+}
+
 void Model::setHeartRateMonitor(const std::shared_ptr<Device> &device) {
     if (hrmState.device and hrmState.device->deviceId() == device->deviceId()) {
         return;
