@@ -27,6 +27,15 @@ public:
 
     virtual void handleRequest() = 0;
 
+    void print(std::string mod) {
+        if (history->empty()) {
+            std::cout << "[" << mod << "] History is empty" << std::endl;
+        } else {
+            auto previous = history->top();
+            std::cout << "Controller [" << mod << "]: " << typeid(*previous).name() << std::endl;
+        }
+    }
+
 protected:
     std::shared_ptr<Model> model;
     std::shared_ptr<AppState> state;
@@ -90,11 +99,15 @@ public:
 class DeviceDialogController final : public Controller<DeviceDialog> {
 public:
     explicit DeviceDialogController(
+        const std::function<std::shared_ptr<DeviceDialog>(QWidget *)> &createDialog,
         const std::shared_ptr<AppState> &state,
         const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history,
         const std::shared_ptr<Model> &model)
-        : Controller(model, state, history) {
+        : Controller(model, state, history), createDialog(createDialog) {
     }
 
     void handleRequest() override;
+
+private:
+    std::function<std::shared_ptr<DeviceDialog>(QWidget *)> createDialog;
 };

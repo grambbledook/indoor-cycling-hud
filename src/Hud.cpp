@@ -22,8 +22,12 @@ int main(int argc, char **argv) {
 
     auto controllerHandler = std::make_shared<ControllerHandler>();
 
+    auto deviceDialog = [&controllerHandler](QWidget *parent) {
+        return std::make_shared<DeviceDialog>(controllerHandler, parent);
+    };
+
     auto deviceDialogController = std::make_shared<DeviceDialogController>(
-        appState, history, model);
+        deviceDialog, appState, history, model);
 
     auto trainerWindowController = std::make_shared<TrainerWindowController>(
         std::make_shared<TrainerWindow>(controllerHandler), appState, history, model);

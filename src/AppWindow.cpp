@@ -38,9 +38,6 @@ void AppWindow::mouseMoveEvent(QMouseEvent *event) {
         this->move(newPosition.toPoint());
 
         event->accept();
-
-        const auto x = this->x(), y = this->y();
-        emit positionUpdated(x, y);
     }
 }
 

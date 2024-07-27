@@ -9,7 +9,10 @@
 #include "Labels.h"
 #include "StyleSheets.h"
 
-DeviceDialog::DeviceDialog(QWidget *parent): QDialog(parent), listWidget(std::make_shared<QListWidget>(this)) {
+DeviceDialog::DeviceDialog(
+    const std::shared_ptr<ControllerHandler> &handler, QWidget *parent
+): QDialog(parent),
+   handler(handler), listWidget(std::make_shared<QListWidget>(this)) {
     connect(listWidget.get(), &QListWidget::itemClicked, this, &DeviceDialog::itemSelected);
     connect(listWidget.get(), &QListWidget::itemDoubleClicked, this, &DeviceDialog::itemConfirmed);
 
@@ -50,8 +53,8 @@ void DeviceDialog::closeEvent(QCloseEvent *event) {
 
     if (selectedItem) {
         std::cout << "DeviceDialog::closeEvent: emitting deviceSelected" << selectedItem << std::endl;
-        emit deviceSelected(selectedItem);
     }
 
+    handler->next(Constants::Screens::DEVICE_DIALOG);
     event->accept();
 }

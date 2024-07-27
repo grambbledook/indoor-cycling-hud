@@ -24,16 +24,22 @@ void TrainerWindowController::handleRequest() {
         return;
     }
 
+    print("before");
+    auto x = 300;
+    auto y = 300;
     if (not history->empty()) {
         const auto previous = history->top();
         history->pop();
+        x = previous->x();
+        y = previous->y();
         previous->hide();
     }
 
-    view->move(state->x, state->y);
+    view->move(x, y);
     view->show();
     view->setFocus();
 
+    print("after");
     history->push(view);
     state->state = ApplicationState::WAITING_FOR_TRAINER;
 }
@@ -44,18 +50,24 @@ void SensorsWindowController::handleRequest() {
         return;
     }
 
+    print("before");
+    auto x = 300;
+    auto y = 300;
     if (not history->empty()) {
         const auto previous = history->top();
         history->pop();
+        x = previous->x();
+        y = previous->y();
         previous->hide();
     }
 
-    view->move(state->x, state->y);
+    view->move(x, y);
     view->show();
     view->setFocus();
 
-    state->state = ApplicationState::WAITING_FOR_SENSORS;
+    print("after");
     history->push(view);
+    state->state = ApplicationState::WAITING_FOR_SENSORS;
 }
 
 void WorkoutWindowController::handleRequest() {
@@ -64,26 +76,34 @@ void WorkoutWindowController::handleRequest() {
         return;
     }
 
-
+    print("before");
+    auto x = 300;
+    auto y = 300;
     if (not history->empty()) {
         const auto previous = history->top();
+        history->pop();
+        x = previous->x();
+        y = previous->y();
         previous->hide();
     }
 
-    view->move(state->x, state->y);
+    view->move(x, y);
     view->show();
     view->setFocus();
 
-    state->state = ApplicationState::IN_WORKOUT;
+    print("after");
     history->push(view);
+    state->state = ApplicationState::IN_WORKOUT;
 }
 
 void DeviceDialogController::handleRequest() {
-    if (state->state != ApplicationState::WAITING_FOR_SENSORS and state->state != ApplicationState::WAITING_FOR_TRAINER) {
+    if (state->state != ApplicationState::WAITING_FOR_SENSORS and state->state !=
+        ApplicationState::WAITING_FOR_TRAINER) {
         std::cout << "  Wrong state: " << state->state << std::endl;
         return;
     }
 
+    print("before");
     if (not history->empty()) {
         const auto previous = history->top();
 
@@ -98,14 +118,12 @@ void DeviceDialogController::handleRequest() {
             return;
         }
 
-        const auto dialog = std::make_shared<DeviceDialog>(&window);
-        dialog->move(state->x, state->y);
+        const auto dialog = createDialog(&window);
 
         dialog->show();
         dialog->setFocus();
 
+        print("after");
         history->push(dialog);
     }
-
-
 }

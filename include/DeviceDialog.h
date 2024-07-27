@@ -4,13 +4,17 @@
 #include <QListWidget>
 #include <QObject>
 
+#include "ControllerHandler.h"
 #include "Data.h"
 
 class DeviceDialog final : public QDialog {
     Q_OBJECT
 
 public:
-    explicit DeviceDialog(QWidget *parent = nullptr);
+    explicit DeviceDialog(
+        const std::shared_ptr<ControllerHandler> &handler,
+        QWidget *parent = nullptr
+    );
 
     void closeEvent(QCloseEvent *event) override;
 
@@ -23,6 +27,7 @@ public slots:
     void itemConfirmed(const QListWidgetItem *item);
 
 public:
+    std::shared_ptr<ControllerHandler> handler;
     std::shared_ptr<QListWidget> listWidget;
     std::shared_ptr<Device> selectedItem;
 };

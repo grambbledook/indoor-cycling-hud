@@ -15,14 +15,6 @@ ViewNavigator::ViewNavigator(
     controllerHandler->subscribe([this](const std::string &screen) {
         this->nextScreen(screen);
     });
-
-    // connect(trainerWindowController->view.get(), &TrainerWindow::nextScreen, this, &ViewNavigator::nextScreen);
-    // connect(sensorsWindowController->view.get(), &SensorsWindow::nextScreen, this, &ViewNavigator::nextScreen);
-    // connect(workoutWindowController->view.get(), &WorkoutWindow::nextScreen, this, &ViewNavigator::nextScreen);
-
-    connect(trainerWindowController->view.get(), &TrainerWindow::positionUpdated, this, &ViewNavigator::positionUpdate);
-    connect(sensorsWindowController->view.get(), &SensorsWindow::positionUpdated, this, &ViewNavigator::positionUpdate);
-    connect(workoutWindowController->view.get(), &WorkoutWindow::positionUpdated, this, &ViewNavigator::positionUpdate);
 }
 
 void ViewNavigator::nextScreen(const std::string &screen) const {
@@ -45,9 +37,4 @@ void ViewNavigator::nextScreen(const std::string &screen) const {
     if (screen == Constants::Screens::WORKOUT_SUMMARY) {
         exit(0);
     }
-}
-
-void ViewNavigator::positionUpdate(const int x, const int y) {
-    this->x = x;
-    this->y = y;
 }

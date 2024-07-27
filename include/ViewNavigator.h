@@ -23,8 +23,6 @@ public:
 public slots:
     void nextScreen(const std::string &screen) const;
 
-    void positionUpdate(int x, int y);
-
 private:
     std::shared_ptr<ControllerHandler> controllerHandler;
 

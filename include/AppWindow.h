@@ -20,7 +20,6 @@ public:
     void paintEvent(QPaintEvent *event) override;
 
 signals:
-    virtual void positionUpdated(int x, int y);
     virtual void nextScreen(std::string screen);
 
 public slots:
