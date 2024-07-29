@@ -6,6 +6,7 @@
 #include <QPaintEvent>
 
 #include "ControllerHandler.h"
+#include "Data.h"
 
 class AppWindow: public QMainWindow {
     Q_OBJECT
@@ -18,6 +19,9 @@ public:
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
+    bool event(QEvent *event) override;
+
+    virtual void deviceSelected(const std::shared_ptr<Device> &device);
 
 signals:
     virtual void nextScreen(std::string screen);

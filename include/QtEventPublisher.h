@@ -32,9 +32,11 @@ public:
     }
 
     void deviceSelected(const std::shared_ptr<Device> &device) const {
-        auto event = std::make_shared<DeviceSelectedEvent>(device);
-        QCoreApplication::postEvent(trainerWindow.get(), event.get());
-        QCoreApplication::postEvent(sensorsWindow.get(), event.get());
+        const auto firstEvent = new DeviceSelectedEvent(device);
+        QCoreApplication::postEvent(trainerWindow.get(), firstEvent);
+
+        const auto secondEvent = new DeviceSelectedEvent(device);
+        QCoreApplication::postEvent(sensorsWindow.get(), secondEvent);
     }
 
 private:

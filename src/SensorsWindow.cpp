@@ -1,4 +1,4 @@
-#include "SelectDevicePanel.h"
+
 #include "StyleSheets.h"
 #include "SensorsWindow.h"
 
@@ -8,26 +8,33 @@
 
 #include <QGridLayout>
 
-SensorsWindow::SensorsWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent): AppWindow(handler, parent) {
-    const auto heart_rate_monitor_panel = new SelectDevicePanel(
+#include "Service.h"
+
+SensorsWindow::SensorsWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent): AppWindow(
+    handler, parent) {
+    heartRateMonitorPanel = new SelectDevicePanel(
+        &Services::HRM,
         Constants::Icons::HEART_RATE_MONITOR,
         Constants::Icons::HEART_RATE_MONITOR_HOVER,
         handler, this
     );
 
-    const auto cadence_panel = new SelectDevicePanel(
+     cadencePanel = new SelectDevicePanel(
+        &Services::CSC,
         Constants::Icons::CADENCE_SENSOR,
         Constants::Icons::CADENCE_SENSOR_HOVER,
         handler, this
     );
 
-    const auto speed_panel = new SelectDevicePanel(
+     speedPanel = new SelectDevicePanel(
+        &Services::CSC,
         Constants::Icons::SPEED_SENSOR,
         Constants::Icons::SPEED_SENSOR_HOVER,
         handler, this
     );
 
-    const auto power_panel = new SelectDevicePanel(
+     powerPanel = new SelectDevicePanel(
+        &Services::PWR,
         Constants::Icons::POWER_SENSOR,
         Constants::Icons::POWER_SENSOR_HOVER,
         handler, this
@@ -40,10 +47,10 @@ SensorsWindow::SensorsWindow(const std::shared_ptr<ControllerHandler> &handler, 
     connect(nextLabel, &ButtonLabel::clicked, this, &SensorsWindow::next);
 
     auto *layout = new QGridLayout(this);
-    layout->addWidget(heart_rate_monitor_panel, 0, 0, Qt::AlignCenter);
-    layout->addWidget(cadence_panel, 0, 1, Qt::AlignCenter);
-    layout->addWidget(speed_panel, 1, 0, Qt::AlignCenter);
-    layout->addWidget(power_panel, 1, 1, Qt::AlignCenter);
+    layout->addWidget(heartRateMonitorPanel, 0, 0, Qt::AlignCenter);
+    layout->addWidget(cadencePanel, 0, 1, Qt::AlignCenter);
+    layout->addWidget(speedPanel, 1, 0, Qt::AlignCenter);
+    layout->addWidget(powerPanel, 1, 1, Qt::AlignCenter);
 
     layout->addWidget(backLabel, 3, 0, Qt::AlignCenter);
     layout->addWidget(nextLabel, 3, 1, Qt::AlignCenter);
@@ -53,6 +60,15 @@ SensorsWindow::SensorsWindow(const std::shared_ptr<ControllerHandler> &handler, 
     setCentralWidget(centralWidget);
 
     setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
+}
+
+void SensorsWindow::deviceSelected(const std::shared_ptr<Device> &device) {
+    std::cout << "SensorsWindow::deviceSelected" << std::endl;
+
+    heartRateMonitorPanel->deviceSelected(device);
+    cadencePanel->deviceSelected(device);
+    speedPanel->deviceSelected(device);
+    powerPanel->deviceSelected(device);
 }
 
 void SensorsWindow::back() {

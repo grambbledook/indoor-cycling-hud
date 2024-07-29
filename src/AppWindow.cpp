@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "Constants.h"
+#include "Events.h"
 
 AppWindow::AppWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent) : QMainWindow(parent),
     m_drag(false), m_DragPosition(QPoint(0, 0)), controllerHandler(handler) {
@@ -53,4 +54,24 @@ void AppWindow::back() {
 
 void AppWindow::next() {
     std::cout << "AppWindow::next" << std::endl;
+}
+
+bool AppWindow::event(QEvent *event) {
+    if (event->type() > QEvent::MaxUser or event->type() < QEvent::User) {
+        return QMainWindow::event(event);
+    }
+
+    const auto deviceEvent = dynamic_cast<DeviceSelectedEvent *>(event);
+    if (not deviceEvent) {
+        return false;
+    }
+
+    const std::shared_ptr<Device> device = deviceEvent->getDevice();
+    deviceSelected(device);
+
+    event->accept();
+    return true;
+}
+
+void AppWindow::deviceSelected(const std::shared_ptr<Device> &device) {
 }

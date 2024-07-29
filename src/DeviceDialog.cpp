@@ -4,6 +4,7 @@
 #include <qboxlayout.h>
 #include <qevent.h>
 #include <QListWidget>
+#include <QPainter>
 
 #include "Constants.h"
 #include "Events.h"
@@ -50,11 +51,17 @@ void DeviceDialog::renderDevice(const std::shared_ptr<Device> &device) const {
     const auto item = new QListWidgetItem(deviceName);
     item->setData(Qt::ItemDataRole::UserRole, QVariant::fromValue(device));
 
-    if (const auto alreadyExists = listWidget->findItems(deviceName, Qt::MatchFlag::MatchExactly); not alreadyExists.
-        empty()) {
+    const auto existingItems = listWidget->findItems(deviceName, Qt::MatchFlag::MatchExactly);
+
+    if (existingItems.empty()) {
+        listWidget->addItem(item);
         return;
     }
-    listWidget->addItem(item);
+
+    const auto itemToReplace = existingItems.first();
+    const auto row = listWidget->row(itemToReplace);
+    listWidget->insertItem(row, item);
+    listWidget->takeItem(row + 1);
 }
 
 void DeviceDialog::itemSelected(const QListWidgetItem *item) {
@@ -75,7 +82,7 @@ void DeviceDialog::closeEvent(QCloseEvent *event) {
     std::cout << "DeviceDialog::closeEvent" << std::endl;
 
     if (selectedItem) {
-        std::cout << " DeviceDialog::closeEvent: emitting deviceSelected" << selectedItem << std::endl;
+        std::cout << "  DeviceDialog::closeEvent: emitting deviceSelected" << selectedItem << std::endl;
     }
 
     handler->next(Constants::Screens::DEVICE_DIALOG);
@@ -96,4 +103,12 @@ bool DeviceDialog::event(QEvent *event) {
     const std::shared_ptr<Device> device = deviceEvent->getDevice();
     renderDevice(device);
     return true;
+}
+
+void DeviceDialog::paintEvent(QPaintEvent *event) {
+    const auto painter = std::make_unique<QPainter>(this);
+
+    painter->setOpacity(0.75);
+    painter->setBrush(QBrush(QColor(200, 200, 200, 128)));
+    painter->drawRect(this->rect());
 }

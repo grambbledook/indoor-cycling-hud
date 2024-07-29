@@ -4,7 +4,6 @@
 #include <QSpacerItem>
 #include <QSizePolicy>
 
-#include "Labels.h"
 #include "SelectDevicePanel.h"
 
 #include <iostream>
@@ -20,16 +19,16 @@
 #include "ControllerHandler.h"
 
 SelectDevicePanel::SelectDevicePanel(
+    const GattService *service,
     const std::string &normal_icon_path,
     const std::string &highlighted_icon_path,
     const std::shared_ptr<ControllerHandler> &handler,
     QWidget *parent
-) : QMainWindow(parent), handler(handler) {
-    const auto selectIcon = new ClickableLabel(normal_icon_path, highlighted_icon_path, this);
+) : QMainWindow(parent), handler(handler), service(service) {
+    selectIcon = new ClickableLabel(normal_icon_path, highlighted_icon_path, this);
     selectIcon->setToolTip("No device selected");
     connect(selectIcon, &ClickableLabel::clicked, this, &SelectDevicePanel::handleDeviceButtonClick);
-
-    const auto metricLabel = new ValueLabel("--/--", LabelSize::MEDIUM, this);
+    metricLabel = new ValueLabel("--/--", LabelSize::MEDIUM, this);
     metricLabel->setToolTip("No device selected");
 
     const auto spacer = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
@@ -44,6 +43,22 @@ SelectDevicePanel::SelectDevicePanel(
     setCentralWidget(centralWidget);
 
     setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
+}
+
+void SelectDevicePanel::deviceSelected(const std::shared_ptr<Device> &device) {
+    if (!device or !device->services.contains(*service)) {
+        return;
+    }
+
+    std::cout << "SelectDevicePanel::deviceSelected" << std::endl;
+    const auto name = QString::fromStdString(device->name.value);
+    if (selectIcon) {
+        selectIcon->setToolTip(name);
+    }
+    if (metricLabel) {
+        metricLabel->setToolTip(name);
+    }
+    setToolTip(name);
 }
 
 void SelectDevicePanel::handleDeviceButtonClick() const {

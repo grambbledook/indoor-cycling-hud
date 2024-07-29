@@ -21,6 +21,8 @@ public:
 
     bool event(QEvent *event) override;
 
+    void paintEvent(QPaintEvent *event) override;
+
 signals:
     void deviceSelected(std::shared_ptr<Device> device);
 

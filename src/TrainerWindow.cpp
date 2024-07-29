@@ -1,5 +1,4 @@
 #include <Constants.h>
-#include "SelectDevicePanel.h"
 #include "StyleSheets.h"
 #include "TrainerWindow.h"
 
@@ -8,10 +7,15 @@
 
 #include <QGridLayout>
 
-TrainerWindow::TrainerWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent): AppWindow(handler, parent) {
+#include "Service.h"
+
+TrainerWindow::TrainerWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent): AppWindow(
+    handler, parent) {
+    std::cout << "TrainerWindow::TrainerWindow" << std::endl;
     auto *layout = new QGridLayout(this);
 
-    const auto trainer_panel = new SelectDevicePanel(
+    selectTrainerPanel = new SelectDevicePanel(
+        &Services::FEC_BIKE_TRAINER,
         Constants::Icons::BIKE_TRAINER,
         Constants::Icons::BIKE_TRAINER_HOVER,
         handler, this
@@ -20,7 +24,9 @@ TrainerWindow::TrainerWindow(const std::shared_ptr<ControllerHandler> &handler, 
     const auto nextLabel = new ButtonLabel(Constants::Buttons::NEXT, true, this);
     connect(nextLabel, &ButtonLabel::clicked, this, &TrainerWindow::next);
 
-    layout->addWidget(trainer_panel, 0, 0, Qt::AlignCenter);
+    std::cout << "  before add witdget" << std::endl;
+    layout->addWidget(selectTrainerPanel, 0, 0, Qt::AlignCenter);
+    std::cout << "  after add witdget" << std::endl;
     layout->addWidget(nextLabel, 1, 0, Qt::AlignCenter);
 
     const auto centralWidget = new QWidget(this);
@@ -28,6 +34,11 @@ TrainerWindow::TrainerWindow(const std::shared_ptr<ControllerHandler> &handler, 
     setCentralWidget(centralWidget);
 
     setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
+}
+
+void TrainerWindow::deviceSelected(const std::shared_ptr<Device> &device) {
+    std::cout << "TrainerWindow::deviceSelected" << std::endl;
+    selectTrainerPanel->deviceSelected(device);
 }
 
 void TrainerWindow::next() {

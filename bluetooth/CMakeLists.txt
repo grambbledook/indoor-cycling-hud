@@ -5,7 +5,9 @@ project(Bluetooth LANGUAGES CXX)
 
 SET(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo" CACHE STRING "" FORCE)
-set(CMAKE_CXX_FLAGS "/Z7")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Zi /Od")
+set(CMAKE_EXE_LINKER_FLAGS "/DEBUG")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 #--------------------Include QT------------------------------
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
