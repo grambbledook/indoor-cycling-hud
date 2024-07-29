@@ -29,7 +29,7 @@ void WinRT::test(const bool multi_threaded) {
 
 void WinRT::runTest() {
     auto model = std::make_shared<Model>();
-    const auto scanner = std::make_shared<ScanneService>(model, Scanner());
+    const auto scanner = std::make_shared<ScannerService>(model, Scanner());
     auto registry = std::make_shared<DeviceRegistry>();
     const auto hrm = std::make_shared<HrmNotificationService>(registry, model);
     const auto csc = std::make_shared<CyclingCadenceAndSpeedNotificationService>(registry, model);
@@ -44,39 +44,39 @@ void WinRT::runTest() {
     scanner->startScan();
     std::cin.get();
 
-    const auto hrms = model->getDevices(Services::HRM);
+    const auto hrms = model->getDevices(&Services::HRM);
     if (not hrms.empty()) {
         const auto &device = hrms.front();
-        hrm->set_device(device);
+        hrm->setDevice(device);
         std::cin.get();
-        hrm->unset_device(device);
+        hrm->unsetDevice(device);
         std::cin.get();
     }
 
-    const auto cscs = model->getDevices(Services::CSC);
+    const auto cscs = model->getDevices(&Services::CSC);
     if (not cscs.empty()) {
         const auto &device = cscs.front();
-        csc->set_device(device);
+        csc->setDevice(device);
         std::cin.get();
-        csc->unset_device(device);
+        csc->unsetDevice(device);
         std::cin.get();
     }
 
-    const auto pwrs = model->getDevices(Services::PWR);
+    const auto pwrs = model->getDevices(&Services::PWR);
     if (not pwrs.empty()) {
         const auto &device = pwrs.front();
-        pwr->set_device(device);
+        pwr->setDevice(device);
         std::cin.get();
-        pwr->unset_device(device);
+        pwr->unsetDevice(device);
         std::cin.get();
     }
 
-    const auto fecs = model->getDevices(Services::FEC_BIKE_TRAINER);
+    const auto fecs = model->getDevices(&Services::FEC_BIKE_TRAINER);
     if (not fecs.empty()) {
         const auto &device = fecs.front();
-        fec->set_device(device);
+        fec->setDevice(device);
         std::cin.get();
-        fec->unset_device(device);
+        fec->unsetDevice(device);
         std::cin.get();
     }
 

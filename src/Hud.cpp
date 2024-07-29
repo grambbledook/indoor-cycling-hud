@@ -2,9 +2,13 @@
 #include <QLineEdit>
 #include <QVBoxLayout>
 #include <QtPlugin>
+#include <vector>
+
+#include "ScannerService.h"
 
 #include "Constants.h"
 #include "Controller.h"
+#include "QtEventPublisher.h"
 #include "SensorsWindow.h"
 #include "TrainerWindow.h"
 #include "ViewNavigator.h"
@@ -12,38 +16,64 @@
 
 #include "WinRT.h"
 
-int main(int argc, char **argv) {
-    const auto app = new QApplication(argc, argv);
+using namespace winrt;
 
+int main(int argc, char **argv) {
+    winrt::init_apartment(apartment_type::single_threaded);
+
+    const auto app = new QApplication(argc, argv);
     auto appState = std::make_shared<AppState>();
     auto history = std::make_shared<std::stack<std::shared_ptr<QWidget> > >();
 
-    auto model = std::make_shared<Model>();
-
     auto controllerHandler = std::make_shared<ControllerHandler>();
 
-    auto deviceDialog = [&controllerHandler](QWidget *parent) {
-        return std::make_shared<DeviceDialog>(controllerHandler, parent);
+    auto deviceDialog = [&controllerHandler](std::vector<std::shared_ptr<Device> > data, QWidget *parent) {
+        return std::make_shared<DeviceDialog>(data, controllerHandler, parent);
     };
 
-    auto deviceDialogController = std::make_shared<DeviceDialogController>(
-        deviceDialog, appState, history, model);
-
+    auto model = std::make_shared<Model>();
+    auto trainerWindow = std::make_shared<TrainerWindow>(controllerHandler);
     auto trainerWindowController = std::make_shared<TrainerWindowController>(
-        std::make_shared<TrainerWindow>(controllerHandler), appState, history, model);
+        trainerWindow, appState, history, model);
 
+    auto sensorsWindow = std::make_shared<SensorsWindow>(controllerHandler);
     auto sensorWindowController = std::make_shared<SensorsWindowController>(
-        std::make_shared<SensorsWindow>(controllerHandler), appState, history, model);
+        sensorsWindow, appState, history, model);
 
+    auto workoutWindow = std::make_shared<WorkoutWindow>(controllerHandler);
     auto workoutWindowController = std::make_shared<WorkoutWindowController>(
-        std::make_shared<WorkoutWindow>(controllerHandler), appState, history, model);
+        workoutWindow, appState, history, model);
 
-    const auto view_navigator = std::make_unique<ViewNavigator>(
+    auto qtAdapter = std::make_shared<QtEventPublisher>(
+        trainerWindow, sensorsWindow
+    );
+
+    model->hrmNotifications.deviceDiscovered.subscribe(
+        std::bind(&QtEventPublisher::deviceDiscovered, qtAdapter, std::placeholders::_1));
+
+    model->cadenceNotifications.deviceDiscovered.subscribe(
+        std::bind(&QtEventPublisher::deviceDiscovered, qtAdapter, std::placeholders::_1));
+
+    model->speedNotifications.deviceDiscovered.subscribe(
+        std::bind(&QtEventPublisher::deviceDiscovered, qtAdapter, std::placeholders::_1));
+
+    model->powerNotifications.deviceDiscovered.subscribe(
+        std::bind(&QtEventPublisher::deviceDiscovered, qtAdapter, std::placeholders::_1));
+
+    model->trainerNotifications.deviceDiscovered.subscribe(
+        std::bind(&QtEventPublisher::deviceDiscovered, qtAdapter, std::placeholders::_1));
+
+    auto scanner = std::make_shared<ScannerService>(model, Scanner());
+
+    auto deviceDialogController = std::make_shared<DeviceDialogController>(
+        qtAdapter, scanner, deviceDialog, appState, history, model);
+
+    auto viewNavigator = std::make_unique<ViewNavigator>(
         controllerHandler,
         deviceDialogController, trainerWindowController, sensorWindowController, workoutWindowController
     );
 
-    view_navigator->nextScreen(Constants::Screens::TRAINER);
+    viewNavigator->nextScreen(Constants::Screens::TRAINER);
 
     return app->exec();
 }

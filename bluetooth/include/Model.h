@@ -60,7 +60,7 @@ struct State {
 class Model {
 public:
     void addDevice(const std::shared_ptr<Device> &device);
-    std::vector<std::shared_ptr<Device>> getDevices(GattService service);
+    std::vector<std::shared_ptr<Device>> getDevices(const  GattService *service);
 
     void setDevice(const std::shared_ptr<Device> &device);
 

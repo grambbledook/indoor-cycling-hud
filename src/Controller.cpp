@@ -24,7 +24,6 @@ void TrainerWindowController::handleRequest() {
         return;
     }
 
-    print("before");
     auto x = 300;
     auto y = 300;
     if (not history->empty()) {
@@ -39,7 +38,6 @@ void TrainerWindowController::handleRequest() {
     view->show();
     view->setFocus();
 
-    print("after");
     history->push(view);
     state->state = ApplicationState::WAITING_FOR_TRAINER;
 }
@@ -50,7 +48,6 @@ void SensorsWindowController::handleRequest() {
         return;
     }
 
-    print("before");
     auto x = 300;
     auto y = 300;
     if (not history->empty()) {
@@ -65,7 +62,6 @@ void SensorsWindowController::handleRequest() {
     view->show();
     view->setFocus();
 
-    print("after");
     history->push(view);
     state->state = ApplicationState::WAITING_FOR_SENSORS;
 }
@@ -76,7 +72,6 @@ void WorkoutWindowController::handleRequest() {
         return;
     }
 
-    print("before");
     auto x = 300;
     auto y = 300;
     if (not history->empty()) {
@@ -91,7 +86,6 @@ void WorkoutWindowController::handleRequest() {
     view->show();
     view->setFocus();
 
-    print("after");
     history->push(view);
     state->state = ApplicationState::IN_WORKOUT;
 }
@@ -103,27 +97,31 @@ void DeviceDialogController::handleRequest() {
         return;
     }
 
-    print("before");
     if (not history->empty()) {
         const auto previous = history->top();
 
         QWidget &window = *previous;
         if (auto *d = dynamic_cast<DeviceDialog *>(&window)) {
             if (d->selectedItem) {
+                std::cout << "  Device selected: " << d->selectedItem->name.value << std::endl;
                 model->setDevice(d->selectedItem);
             }
 
             d->close();
             history->pop();
+            scanneService->stopScan();
             return;
         }
 
-        const auto dialog = createDialog(&window);
+        const auto devices = model->getDevices(nullptr);
 
+        const auto dialog = createDialog(devices, &window);
+
+        qtAdapter->setDeviceDialog(dialog);
         dialog->show();
         dialog->setFocus();
 
-        print("after");
+        scanneService->startScan();
         history->push(dialog);
     }
 }

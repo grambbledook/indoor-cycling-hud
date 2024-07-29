@@ -20,8 +20,8 @@ using namespace Windows::Foundation::Collections;
 using namespace Windows::Devices::Bluetooth::Advertisement;
 using namespace Windows::Devices::Bluetooth::Advertisement;
 
-void Scanner::start_scan(const std::function<void(std::shared_ptr<Device>)> &receiver) {
-    reset_previous_scans();
+void Scanner::startScan(const std::function<void(std::shared_ptr<Device>)> &receiver) {
+    resetPreviousScans();
 
     watcher->ScanningMode(BluetoothLEScanningMode::Active);
 
@@ -72,12 +72,12 @@ void Scanner::start_scan(const std::function<void(std::shared_ptr<Device>)> &rec
     std::cout << "Scanning for BLE devices...\n";
 }
 
-void Scanner::reset_previous_scans() {
-    this->stop_scan();
+void Scanner::resetPreviousScans() {
+    this->stopScan();
     watcher = std::make_shared<BluetoothLEAdvertisementWatcher>();
 }
 
-void Scanner::stop_scan() const {
+void Scanner::stopScan() const {
     if (!watcher) return;
 
     std::cout << "Stopping scan routine...\n";

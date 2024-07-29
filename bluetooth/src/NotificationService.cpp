@@ -17,15 +17,15 @@ INotificationService<
 }
 
 template<DerivedFromMeasurement T>
-void INotificationService<T>::set_device(std::shared_ptr<Device> device) {
+void INotificationService<T>::setDevice(std::shared_ptr<Device> device) {
     std::cout << "INotificationService::set_device" << std::endl;
 
     const auto client = this->registry->connect(*device);
 
-    this->process_feature_and_set_devices(*client, device);
+    this->processFeatureAndSetDevices(*client, device);
 
     auto lambda = [this](const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) {
-        this->process_measurement(device, data);
+        this->processMeasurement(device, data);
     };
 
     std::cout << "  INotificationService::set_device: Subscribing to " << service.type << " service" << std::endl;
@@ -34,7 +34,7 @@ void INotificationService<T>::set_device(std::shared_ptr<Device> device) {
 }
 
 template<DerivedFromMeasurement T>
-void INotificationService<T>::unset_device(std::shared_ptr<Device> device) {
+void INotificationService<T>::unsetDevice(std::shared_ptr<Device> device) {
     std::cout << "INotificationService::unset_device" << std::endl;
 
     const auto client = this->registry->connect(*device);
@@ -51,11 +51,11 @@ HrmNotificationService::HrmNotificationService(std::shared_ptr<DeviceRegistry> &
 }
 
 
-void HrmNotificationService::process_feature_and_set_devices(BleClient &client, std::shared_ptr<Device> &device) {
+void HrmNotificationService::processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) {
     model->setHeartRateMonitor(device);
 }
 
-void HrmNotificationService::process_measurement(const std::shared_ptr<Device> &device,
+void HrmNotificationService::processMeasurement(const std::shared_ptr<Device> &device,
                                                  const std::vector<uint8_t> &data) {
     const auto flag = data[0];
 
@@ -75,7 +75,7 @@ CyclingCadenceAndSpeedNotificationService::CyclingCadenceAndSpeedNotificationSer
     registry, model, Services::CSC) {
 }
 
-void CyclingCadenceAndSpeedNotificationService::process_feature_and_set_devices(BleClient &client,
+void CyclingCadenceAndSpeedNotificationService::processFeatureAndSetDevices(BleClient &client,
     std::shared_ptr<Device> &device) {
     auto [data, success] = client.read(UUID("00002a5c-0000-1000-8000-00805f9b34fb"));
 
@@ -94,7 +94,7 @@ void CyclingCadenceAndSpeedNotificationService::process_feature_and_set_devices(
     }
 }
 
-void CyclingCadenceAndSpeedNotificationService::process_measurement(const std::shared_ptr<Device> &device,
+void CyclingCadenceAndSpeedNotificationService::processMeasurement(const std::shared_ptr<Device> &device,
                                                                     const std::vector<uint8_t> &data) {
     const auto flag = data[0];
     auto offset = 1;
@@ -129,11 +129,11 @@ PowerNotificationService::PowerNotificationService(std::shared_ptr<DeviceRegistr
     registry, model, Services::PWR) {
 }
 
-void PowerNotificationService::process_feature_and_set_devices(BleClient &client, std::shared_ptr<Device> &device) {
+void PowerNotificationService::processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) {
     model->setPowerMeter(device);
 }
 
-void PowerNotificationService::process_measurement(const std::shared_ptr<Device> &device,
+void PowerNotificationService::processMeasurement(const std::shared_ptr<Device> &device,
                                                    const std::vector<uint8_t> &data) {
     const auto value = static_cast<int>(data[2]) | (static_cast<int>(data[3]) << 8);
 
@@ -145,10 +145,10 @@ FecService::FecService(std::shared_ptr<DeviceRegistry> &registry, std::shared_pt
     registry, model, Services::FEC_BIKE_TRAINER) {
 }
 
-void FecService::process_feature_and_set_devices(BleClient &client, std::shared_ptr<Device> &device) {
+void FecService::processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) {
 }
 
-void FecService::process_measurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) {
+void FecService::processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) {
     int payloadSize = data[1];
     const std::vector message(data.begin() + 4, data.begin() + 4 + payloadSize - 1);
     int pageType = message[0];

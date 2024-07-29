@@ -8,6 +8,8 @@
 #include "AppState.h"
 #include "DeviceDialog.h"
 #include "Model.h"
+#include "QtEventPublisher.h"
+#include "ScannerService.h"
 #include "SensorsWindow.h"
 #include "TrainerWindow.h"
 #include "WorkoutWindow.h"
@@ -99,15 +101,19 @@ public:
 class DeviceDialogController final : public Controller<DeviceDialog> {
 public:
     explicit DeviceDialogController(
-        const std::function<std::shared_ptr<DeviceDialog>(QWidget *)> &createDialog,
+        const std::shared_ptr<QtEventPublisher> &qtAdapter,
+        const std::shared_ptr<ScannerService> &scanneService,
+        const std::function<std::shared_ptr<DeviceDialog>(std::vector<std::shared_ptr<Device>>, QWidget *)> &createDialog,
         const std::shared_ptr<AppState> &state,
         const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history,
         const std::shared_ptr<Model> &model)
-        : Controller(model, state, history), createDialog(createDialog) {
+        : Controller(model, state, history), createDialog(createDialog), scanneService(scanneService), qtAdapter(qtAdapter) {
     }
 
     void handleRequest() override;
 
 private:
-    std::function<std::shared_ptr<DeviceDialog>(QWidget *)> createDialog;
+    std::shared_ptr<ScannerService> scanneService;
+    std::function<std::shared_ptr<DeviceDialog>(std::vector<std::shared_ptr<Device>>, QWidget *)> createDialog;
+    std::shared_ptr<QtEventPublisher> qtAdapter;
 };

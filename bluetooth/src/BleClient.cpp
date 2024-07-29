@@ -20,18 +20,18 @@ BleClient::BleClient(Device device) : device(std::move(device)) {
 
 void BleClient::connect() {
     try {
-        const auto device_address = WinrtUtils::address_to_uint64_t(device.address);
+        const auto deviceAddress = WinrtUtils::address_to_uint64_t(device.address);
 
         std::cout << "Attempting to connect to device with address: " << device.address.value << std::endl;
-        auto connection_result = BluetoothLEDevice::FromBluetoothAddressAsync(device_address).get();
+        auto connectionResult = BluetoothLEDevice::FromBluetoothAddressAsync(deviceAddress).get();
         std::cout << "  Connection result obtained." << std::endl;
 
-        if (!connection_result) {
+        if (!connectionResult) {
             std::cout << "  Failed to connect to device." << std::endl;
             return;
         }
 
-        connection = std::make_shared<BluetoothLEDevice>(std::move(connection_result));
+        connection = std::make_shared<BluetoothLEDevice>(std::move(connectionResult));
         std::cout << "  Device connected successfully." << std::endl;
 
         fetchCharacteristics();

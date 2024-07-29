@@ -40,9 +40,15 @@ void Model::addDevice(const std::shared_ptr<Device> &device) {
     }
 }
 
-std::vector<std::shared_ptr<Device> > Model::getDevices(GattService service) {
+std::vector<std::shared_ptr<Device> > Model::getDevices(const GattService *service=nullptr) {
+    if (service == nullptr) {
+        return devices
+               | std::views::transform([](const auto &pair) { return pair.second; })
+               | std::ranges::to<std::vector<std::shared_ptr<Device> > >();
+    }
+
     return devices
-           | std::views::filter([service](const auto &pair) { return pair.second->services.contains(service); })
+           | std::views::filter([service](const auto &pair) { return pair.second->services.contains(*service); })
            | std::views::transform([](const auto &pair) { return pair.second; })
            | std::ranges::to<std::vector<std::shared_ptr<Device> > >();
 }
@@ -65,8 +71,10 @@ void Model::setDevice(const std::shared_ptr<Device> &device) {
 
 void Model::setHeartRateMonitor(const std::shared_ptr<Device> &device) {
     if (hrmState.device and hrmState.device->deviceId() == device->deviceId()) {
+        std::cout << "Model::setHeartRateMonitor: " << "alredy set" << std::endl;
         return;
     }
+    std::cout << "Model::setHeartRateMonitor: " << device->deviceId() << std::endl;
     hrmState.device = device;
     hrmNotifications.deviceSelected.publish(hrmState.device);
 }
