@@ -24,23 +24,10 @@ void Model::addDevice(const std::shared_ptr<Device> &device) {
         return;
     }
     devices[device->deviceId()] = newDevice;
-
-    if (newDevice->services.contains(Services::HRM)) {
-        hrmNotifications.deviceDiscovered.publish(newDevice);
-    }
-    if (newDevice->services.contains(Services::CSC)) {
-        cadenceNotifications.deviceDiscovered.publish(newDevice);
-        speedNotifications.deviceDiscovered.publish(newDevice);
-    }
-    if (newDevice->services.contains(Services::PWR)) {
-        powerNotifications.deviceDiscovered.publish(newDevice);
-    }
-    if (newDevice->services.contains(Services::FEC_BIKE_TRAINER)) {
-        trainerNotifications.deviceDiscovered.publish(newDevice);
-    }
+    notifications.deviceDiscovered.publish(newDevice);
 }
 
-std::vector<std::shared_ptr<Device> > Model::getDevices(const GattService *service=nullptr) {
+std::vector<std::shared_ptr<Device> > Model::getDevices(const GattService *service = nullptr) {
     if (service == nullptr) {
         return devices
                | std::views::transform([](const auto &pair) { return pair.second; })
@@ -76,7 +63,7 @@ void Model::setHeartRateMonitor(const std::shared_ptr<Device> &device) {
     }
     std::cout << "Model::setHeartRateMonitor: " << device->deviceId() << std::endl;
     hrmState.device = device;
-    hrmNotifications.deviceSelected.publish(hrmState.device);
+    notifications.deviceSelected.publish(hrmState.device);
 }
 
 void Model::setCadenceSensor(const std::shared_ptr<Device> &device) {
@@ -85,7 +72,7 @@ void Model::setCadenceSensor(const std::shared_ptr<Device> &device) {
     }
 
     cadenceState.device = device;
-    cadenceNotifications.deviceSelected.publish(cadenceState.device);
+    notifications.deviceSelected.publish(cadenceState.device);
 }
 
 void Model::setSpeedSensor(const std::shared_ptr<Device> &device) {
@@ -94,7 +81,7 @@ void Model::setSpeedSensor(const std::shared_ptr<Device> &device) {
     }
 
     speedState.device = device;
-    speedNotifications.deviceSelected.publish(speedState.device);
+    publishUpdate();
 }
 
 void Model::setPowerMeter(const std::shared_ptr<Device> &device) {
@@ -103,7 +90,7 @@ void Model::setPowerMeter(const std::shared_ptr<Device> &device) {
     }
 
     powerState.device = device;
-    powerNotifications.deviceSelected.publish(powerState.device);
+    notifications.deviceSelected.publish(powerState.device);
 }
 
 void Model::setBikeTrainer(const std::shared_ptr<Device> &device) {
@@ -122,7 +109,7 @@ void Model::recordHeartData(const MeasurementEvent<HrmMeasurement> &event) {
     hrmState.aggregateMetric(event.measurement.hrm);
     std::cout << "  HRM: " << hrmState.stats.latest << " AVG: " << hrmState.stats.average << std::endl;
 
-    hrmNotifications.data.publish(hrmState.stats);
+    publishUpdate();
 }
 
 void Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event) {
@@ -148,12 +135,12 @@ void Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event)
     const auto totalRevolutions = ccr - prevCcr;
     const auto timeDelta = lcet - prevLcet + lcetResetCorrection;
 
-    const auto cadence = totalRevolutions / (timeDelta * BLE::Math::MS_TO_MIN);
+    const auto cadence = totalRevolutions * BLE::Math::MS_IN_MIN / timeDelta;
 
-    cadenceState.aggregateMetric(std::round(cadence));
+    cadenceState.aggregateMetric(cadence);
     std::cout << "  CADENCE: " << cadenceState.stats.latest << " AVG: " << cadenceState.stats.average << std::endl;
 
-    cadenceNotifications.data.publish(cadenceState.stats);
+    publishUpdate();
 }
 
 void Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) {
@@ -181,13 +168,13 @@ void Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) {
     const auto totalRevolutions = cwr - prevCwr;
     const auto timeDelta = lwet - prevLwet + lwetResetCorrection;
 
-    const auto totalKmh = totalRevolutions * BLE::Wheels::DEFAULT_TIRE_CIRCUMFERENCE_MM * BLE::Math::MM_TO_KM;
-    const auto speed = totalKmh / timeDelta * BLE::Math::MS_TO_HOUR;
+    const auto totalKmh = totalRevolutions * BLE::Wheels::DEFAULT_TIRE_CIRCUMFERENCE_MM / BLE::Math::MM_IN_KM;
+    const auto speed = totalKmh * BLE::Math::MS_IN_HOUR / timeDelta;
 
-    speedState.aggregateMetric(std::round(speed));
+    speedState.aggregateMetric(speed);
     std::cout << "  SPEED: " << speedState.stats.latest << " AVG: " << speedState.stats.average << std::endl;
 
-    speedNotifications.data.publish(speedState.stats);
+    publishUpdate();
 }
 
 void Model::recordPowerData(const MeasurementEvent<PowerMeasurement> &event) {
@@ -199,7 +186,7 @@ void Model::recordPowerData(const MeasurementEvent<PowerMeasurement> &event) {
     powerState.aggregateMetric(event.measurement.power);
     std::cout << "  POWER: " << powerState.stats.latest << " AVG: " << powerState.stats.average << std::endl;
 
-    powerNotifications.data.publish(powerState.stats);
+    publishUpdate();
 }
 
 void Model::recordTrainerData(const MeasurementEvent<GeneralData> &event) {
@@ -209,5 +196,16 @@ void Model::recordTrainerData(const MeasurementEvent<GeneralSettings> &event) {
 }
 
 void Model::recordTrainerData(const MeasurementEvent<SpecificTrainerData> &event) {
-    trainerNotifications.data.publish(event.measurement.feState.state);
+    publishUpdate();
+}
+
+void Model::publishUpdate() {
+    const auto aggregate = MeasurementsUpdate{
+        CroppedStatistics{hrmState.stats.latest, hrmState.stats.average},
+        CroppedStatistics{cadenceState.stats.latest, cadenceState.stats.average},
+        CroppedStatistics{speedState.stats.latest, speedState.stats.average},
+        CroppedStatistics{powerState.stats.latest, powerState.stats.average},
+    };
+
+    notifications.newMeasurements.publish(aggregate);
 }

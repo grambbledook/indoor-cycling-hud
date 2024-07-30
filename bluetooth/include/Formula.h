@@ -2,9 +2,9 @@
 
 namespace BLE {
     namespace Math {
-        constexpr auto MM_TO_KM = 1.0 / 1000000;
-        constexpr auto MS_TO_MIN = 1.0 / (60 * 1024);
-        constexpr auto MS_TO_HOUR = 1.0 / (60 * 60 * 1024);
+        constexpr auto MM_IN_KM = 1000000;
+        constexpr auto MS_IN_MIN = 60 * 1024;
+        constexpr auto MS_IN_HOUR = 60 * 60 * 1024;
     }
 
     namespace Wheels {

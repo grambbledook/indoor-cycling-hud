@@ -19,11 +19,3 @@ public:
 private:
     mutable std::vector<std::function<void(T)> > receivers;
 };
-
-template<typename T>
-class Notifications {
-public:
-    Channel<T> data;
-    Channel<std::shared_ptr<Device> > deviceDiscovered;
-    Channel<std::shared_ptr<Device> > deviceSelected;
-};

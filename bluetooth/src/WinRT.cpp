@@ -36,10 +36,7 @@ void WinRT::runTest() {
     const auto pwr = std::make_shared<PowerNotificationService>(registry, model);
     const auto fec = std::make_shared<FecService>(registry, model);
 
-    subscribeToNotifications(model->hrmNotifications, Services::HRM);
-    subscribeToNotifications(model->cadenceNotifications, Services::CSC);
-    subscribeToNotifications(model->speedNotifications, Services::PWR);
-    subscribeToNotifications(model->powerNotifications, Services::FEC_BIKE_TRAINER);
+    subscribeToNotifications(model->notifications);
 
     scanner->startScan();
     std::cin.get();
@@ -83,4 +80,32 @@ void WinRT::runTest() {
     std::cin.get();
     registry->stop();
     std::cin.get();
+}
+
+void WinRT::subscribeToNotifications(const Notifications &notifications) {
+    notifications.newMeasurements.subscribe([](const MeasurementsUpdate &data) {
+        std::cout << "Received measuremment_update event:" << typeid(data).name() << std::endl;
+        std::cout << "  HRM: " << data.hrm.val << ", AVG: " << data.hrm.avg << std::endl;
+        std::cout << "  CAD: " << data.cadence.val << ", AVG: " << data.cadence.avg << std::endl;
+        std::cout << "  SPD: " << data.speed.val << ", AVG: " << data.speed.avg << std::endl;
+        std::cout << "  PWR: " << data.power.val << ", AVG: " << data.power.avg << std::endl;
+    });
+
+    notifications.deviceDiscovered.subscribe([](const std::shared_ptr<Device> &device) {
+        std::cout << "Device discovered: " << device->deviceId() << std::endl;
+        std::cout << "  Services: [";
+        for (const auto &[type, a, b]: device->services) {
+            std::cout << type << ", ";
+        }
+        std::cout << "]" << std::endl;
+    });
+
+    notifications.deviceSelected.subscribe([](const std::shared_ptr<Device> &device) {
+        std::cout << "Device selected: " << device->deviceId() << std::endl;
+        std::cout << "  Services: [";
+        for (const auto &[type, a, b]: device->services) {
+            std::cout << type << ", ";
+        }
+        std::cout << "]" << std::endl;
+    });
 }

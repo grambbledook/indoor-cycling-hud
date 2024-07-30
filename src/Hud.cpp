@@ -48,29 +48,9 @@ int main(int argc, char **argv) {
         trainerWindow, sensorsWindow
     );
 
-    model->hrmNotifications.deviceDiscovered.subscribe(
+    model->notifications.deviceDiscovered.subscribe(
         std::bind(&QtEventPublisher::deviceDiscovered, qtAdapter, std::placeholders::_1));
-   model->hrmNotifications.deviceSelected.subscribe(
-        std::bind(&QtEventPublisher::deviceSelected, qtAdapter, std::placeholders::_1));
-
-    model->cadenceNotifications.deviceDiscovered.subscribe(
-        std::bind(&QtEventPublisher::deviceDiscovered, qtAdapter, std::placeholders::_1));
-    model->cadenceNotifications.deviceSelected.subscribe(
-        std::bind(&QtEventPublisher::deviceSelected, qtAdapter, std::placeholders::_1));
-
-    model->speedNotifications.deviceDiscovered.subscribe(
-        std::bind(&QtEventPublisher::deviceDiscovered, qtAdapter, std::placeholders::_1));
-    model->speedNotifications.deviceSelected.subscribe(
-        std::bind(&QtEventPublisher::deviceSelected, qtAdapter, std::placeholders::_1));
-
-    model->powerNotifications.deviceDiscovered.subscribe(
-        std::bind(&QtEventPublisher::deviceDiscovered, qtAdapter, std::placeholders::_1));
-    model->powerNotifications.deviceSelected.subscribe(
-        std::bind(&QtEventPublisher::deviceSelected, qtAdapter, std::placeholders::_1));
-
-    model->trainerNotifications.deviceDiscovered.subscribe(
-        std::bind(&QtEventPublisher::deviceDiscovered, qtAdapter, std::placeholders::_1));
-    model->trainerNotifications.deviceSelected.subscribe(
+   model->notifications.deviceSelected.subscribe(
         std::bind(&QtEventPublisher::deviceSelected, qtAdapter, std::placeholders::_1));
 
     auto scanner = std::make_shared<ScannerService>(model, Scanner());
