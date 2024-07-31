@@ -5,26 +5,25 @@
 #include "Events.h"
 #include "SensorsWindow.h"
 #include "TrainerWindow.h"
+#include "WorkoutWindow.h"
 
 class QtEventPublisher final {
 public:
     explicit QtEventPublisher(
         const std::shared_ptr<TrainerWindow> &trainerWindow,
-        const std::shared_ptr<SensorsWindow> &sensorsWindow
-    ): trainerWindow(trainerWindow), sensorsWindow(sensorsWindow) {
+        const std::shared_ptr<SensorsWindow> &sensorsWindow,
+        const std::shared_ptr<WorkoutWindow> &workoutWindow
+    ): trainerWindow(trainerWindow), sensorsWindow(sensorsWindow), workoutWindow(workoutWindow) {
     }
 
     void setDeviceDialog(const std::shared_ptr<DeviceDialog> &deviceDialog) {
         std::lock_guard guard(mutex);
         std::cout << "Setting device dialog: " << deviceDialog << std::endl;
         this->deviceDialog = deviceDialog;
-        if (this->deviceDialog != nullptr) {
-            std::cout << " Device is set: " << std::endl;
-        }
     }
 
     void deviceDiscovered(const std::shared_ptr<Device> &device) const {
-        std::cout << "QtAdapter::deviceDiscovered" << std::endl;
+        std::cout << "QtEventPublisher::deviceDiscovered" << std::endl;
         auto event = new DeviceDiscoveredEvent(device);
         std::cout << "  Device discovered: " << device->name.value << std::endl;
         QCoreApplication::postEvent(deviceDialog.get(), event);
@@ -39,9 +38,22 @@ public:
         QCoreApplication::postEvent(sensorsWindow.get(), secondEvent);
     }
 
+    void measurementReceived(const MeasurementsUpdate &data) const {
+        std::cout << "QtEventPublisher::measurementReceived" << std::endl;
+
+        const auto firstEvent = new MeasurementReceivedEvent(data);
+        QCoreApplication::postEvent(sensorsWindow.get(), firstEvent);
+        std::cout << "  Event one posted" << typeid(firstEvent).name() <<std::endl;
+
+        const auto secondEvent = new MeasurementReceivedEvent(data);
+        QCoreApplication::postEvent(workoutWindow.get(), secondEvent);
+        std::cout << "  Event two posted" << typeid(secondEvent).name() <<std::endl;
+    }
+
 private:
+    std::mutex mutex;
     std::shared_ptr<DeviceDialog> deviceDialog;
     std::shared_ptr<TrainerWindow> trainerWindow;
     std::shared_ptr<SensorsWindow> sensorsWindow;
-    std::mutex mutex;
+    std::shared_ptr<WorkoutWindow> workoutWindow;
 };

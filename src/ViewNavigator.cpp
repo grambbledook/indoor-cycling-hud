@@ -5,36 +5,43 @@
 
 ViewNavigator::ViewNavigator(
     const std::shared_ptr<ControllerHandler> &controllerHandler,
-    const std::shared_ptr<DeviceDialogController> &deviceDialogController,
+    const std::shared_ptr<ShowDeviceDialogController> &deviceDialogController,
+    const std::shared_ptr<ConnectToDeviceController> &connectToDeviceController,
     const std::shared_ptr<TrainerWindowController> &trainerWindowController,
     const std::shared_ptr<SensorsWindowController> &sensorsWindowController,
-    const std::shared_ptr<WorkoutWindowController> &workoutWindowController
-): controllerHandler(controllerHandler), deviceDialogController(deviceDialogController), trainerWindowController(trainerWindowController),
-   sensorsWindowController(sensorsWindowController), workoutWindowController(workoutWindowController), x(300), y(300) {
-
+    const std::shared_ptr<WorkoutWindowController> &workoutWindowController,
+    const std::shared_ptr<ShutdownController> &shutdownController
+): connectToDeviceController(connectToDeviceController), controllerHandler(controllerHandler),
+   deviceDialogController(deviceDialogController), trainerWindowController(trainerWindowController),
+   sensorsWindowController(sensorsWindowController), shutdownController(shutdownController),
+   workoutWindowController(workoutWindowController), x(300), y(300) {
     controllerHandler->subscribe([this](const std::string &screen) {
         this->nextScreen(screen);
     });
 }
 
-void ViewNavigator::nextScreen(const std::string &screen) const {
-    if (screen == Constants::Screens::TRAINER) {
+void ViewNavigator::nextScreen(const std::string &command) const {
+    if (command == Constants::Screens::TRAINER) {
         trainerWindowController->handleRequest();
     }
 
-    if (screen == Constants::Screens::SENSORS) {
+    if (command == Constants::Screens::SENSORS) {
         sensorsWindowController->handleRequest();
     }
 
-    if (screen == Constants::Screens::WORKOUT) {
+    if (command == Constants::Screens::WORKOUT) {
         workoutWindowController->handleRequest();
     }
 
-    if (screen == Constants::Screens::DEVICE_DIALOG) {
+    if (command == Constants::Screens::DEVICE_DIALOG) {
         deviceDialogController->handleRequest();
     }
 
-    if (screen == Constants::Screens::WORKOUT_SUMMARY) {
-        exit(0);
+    if (command == Constants::Commands::CONNECT) {
+        connectToDeviceController->handleRequest();
+    }
+
+    if (command == Constants::Screens::WORKOUT_SUMMARY) {
+        shutdownController->handleRequest();
     }
 }

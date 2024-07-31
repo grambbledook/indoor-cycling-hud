@@ -5,9 +5,10 @@
 
 #include "Constants.h"
 #include "Events.h"
+#include "bluetooth/include/Events.h"
 
 AppWindow::AppWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent) : QMainWindow(parent),
-    m_drag(false), m_DragPosition(QPoint(0, 0)), controllerHandler(handler) {
+                                                                                           m_drag(false), m_DragPosition(QPoint(0, 0)), controllerHandler(handler) {
     setWindowFlags(Qt::WindowType::WindowStaysOnTopHint | Qt::WindowType::FramelessWindowHint);
     setAttribute(Qt::WidgetAttribute::WA_TranslucentBackground);
     setObjectName(Constants::Classes::APP_WINDOW);
@@ -57,21 +58,30 @@ void AppWindow::next() {
 }
 
 bool AppWindow::event(QEvent *event) {
-    if (event->type() > QEvent::MaxUser or event->type() < QEvent::User) {
-        return QMainWindow::event(event);
+    if (event->type() <= QEvent::MaxUser and event->type() >= QEvent::User) {
+        std::cout << "AppWindow::event: " << event->type() << " | " << typeid(event).name() << std::endl;
+        const int device_selected_type = getDeviceSelectedType();
+        std::cout << "  DeviceSelectedType id:" << device_selected_type << std::endl;
+
+        const int device_discovered_type = getDeviceDiscoveredType();
+        std::cout << "  DeviceDiscoveredType id:" << device_discovered_type << std::endl;
+
+        if (eventHandlers.contains(event->type())) {
+            eventHandlers[event->type()](event);
+            return true;
+        }
+
+        std::cout << "  Handler not found!" << std::endl;
+        std::cout << "  Handlers:" << std::endl;
+        for (const auto &[key, _] : eventHandlers) {
+            std::cout << "    " << key << std::endl;
+        }
     }
 
-    const auto deviceEvent = dynamic_cast<DeviceSelectedEvent *>(event);
-    if (not deviceEvent) {
-        return false;
+    if (eventHandlers.contains(event->type())) {
+        eventHandlers[event->type()](event);
+        return true;
     }
 
-    const std::shared_ptr<Device> device = deviceEvent->getDevice();
-    deviceSelected(device);
-
-    event->accept();
-    return true;
-}
-
-void AppWindow::deviceSelected(const std::shared_ptr<Device> &device) {
+    return QMainWindow::event(event);
 }

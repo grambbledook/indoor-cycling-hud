@@ -5,15 +5,15 @@
 class ControllerHandler {
 public:
     void subscribe(const std::function<void(std::string)> &receiver) const {
-        receivers.push_back(receiver);
+        views.push_back(receiver);
     }
 
     void next(const std::string &path) const {
-        for (const auto &receiver: receivers) {
+        for (const auto &receiver: views) {
             receiver(path);
         }
     }
 
 private:
-    mutable std::vector<std::function<void(std::string)> > receivers;
+    mutable std::vector<std::function<void(std::string)> > views;
 };

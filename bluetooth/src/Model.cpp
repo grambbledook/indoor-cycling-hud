@@ -207,5 +207,5 @@ void Model::publishUpdate() {
         CroppedStatistics{powerState.stats.latest, powerState.stats.average},
     };
 
-    notifications.newMeasurements.publish(aggregate);
+    notifications.measurements.publish(aggregate);
 }

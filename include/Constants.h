@@ -50,4 +50,8 @@ namespace Constants {
         const std::string DEVICE_DIALOG = "device_dialog";
         const std::string WORKOUT_SUMMARY = "workout_summary";
     }
+
+    namespace Commands {
+        const auto CONNECT = "CONNECT";
+    }
 }

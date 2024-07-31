@@ -83,7 +83,7 @@ void WinRT::runTest() {
 }
 
 void WinRT::subscribeToNotifications(const Notifications &notifications) {
-    notifications.newMeasurements.subscribe([](const MeasurementsUpdate &data) {
+    notifications.measurements.subscribe([](const MeasurementsUpdate &data) {
         std::cout << "Received measuremment_update event:" << typeid(data).name() << std::endl;
         std::cout << "  HRM: " << data.hrm.val << ", AVG: " << data.hrm.avg << std::endl;
         std::cout << "  CAD: " << data.cadence.val << ", AVG: " << data.cadence.avg << std::endl;

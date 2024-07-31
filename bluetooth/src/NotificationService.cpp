@@ -146,6 +146,7 @@ FecService::FecService(std::shared_ptr<DeviceRegistry> &registry, std::shared_pt
 }
 
 void FecService::processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) {
+    model->setBikeTrainer(device);
 }
 
 void FecService::processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) {

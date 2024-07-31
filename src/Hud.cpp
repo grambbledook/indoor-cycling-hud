@@ -19,7 +19,7 @@
 using namespace winrt;
 
 int main(int argc, char **argv) {
-    winrt::init_apartment(apartment_type::single_threaded);
+    winrt::init_apartment(apartment_type::multi_threaded);
 
     const auto app = new QApplication(argc, argv);
     auto appState = std::make_shared<AppState>();
@@ -45,25 +45,46 @@ int main(int argc, char **argv) {
         workoutWindow, appState, history, model);
 
     auto qtAdapter = std::make_shared<QtEventPublisher>(
-        trainerWindow, sensorsWindow
+        trainerWindow, sensorsWindow, workoutWindow
     );
 
     model->notifications.deviceDiscovered.subscribe(
         std::bind(&QtEventPublisher::deviceDiscovered, qtAdapter, std::placeholders::_1));
-   model->notifications.deviceSelected.subscribe(
+    model->notifications.deviceSelected.subscribe(
         std::bind(&QtEventPublisher::deviceSelected, qtAdapter, std::placeholders::_1));
+    model->notifications.measurements.subscribe(
+        std::bind(&QtEventPublisher::measurementReceived, qtAdapter, std::placeholders::_1));
 
     auto scanner = std::make_shared<ScannerService>(model, Scanner());
 
-    auto deviceDialogController = std::make_shared<DeviceDialogController>(
+    auto deviceDialogController = std::make_shared<ShowDeviceDialogController>(
         qtAdapter, scanner, deviceDialog, appState, history, model);
+
+
+    auto registry = std::make_shared<DeviceRegistry>();
+    const auto hrm = std::make_shared<HrmNotificationService>(registry, model);
+    const auto csc = std::make_shared<CyclingCadenceAndSpeedNotificationService>(registry, model);
+    const auto pwr = std::make_shared<PowerNotificationService>(registry, model);
+    const auto fec = std::make_shared<FecService>(registry, model);
+    auto connectToDeviceController = std::make_shared<ConnectToDeviceController>(
+        hrm, csc, pwr, fec, scanner, appState, history, model);
+
+    const auto shutdownController = std::make_shared<ShutdownController>(
+        hrm, csc, pwr, fec, scanner, registry, appState);
 
     auto viewNavigator = std::make_unique<ViewNavigator>(
         controllerHandler,
-        deviceDialogController, trainerWindowController, sensorWindowController, workoutWindowController
+        deviceDialogController, connectToDeviceController, trainerWindowController, sensorWindowController,
+        workoutWindowController, shutdownController
     );
 
     viewNavigator->nextScreen(Constants::Screens::TRAINER);
 
+    std::cout << "FIRST PASS:" << std::endl;
+    std::cout << "  DeviceDiscoveredType: " << getDeviceDiscoveredType() << std::endl;
+    std::cout << "  DeviceSelectedType: " << getDeviceSelectedType() << std::endl;
+    std::cout << "SECOND PASS:" << std::endl;
+    std::cout << "  DeviceDiscoveredType: " << getDeviceDiscoveredType() << std::endl;
+    std::cout << "  DeviceSelectedType: " << getDeviceSelectedType() << std::endl;
     return app->exec();
 }

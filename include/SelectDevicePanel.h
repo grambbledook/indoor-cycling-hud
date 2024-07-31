@@ -5,6 +5,7 @@
 #include "ControllerHandler.h"
 
 #include "Labels.h"
+#include "Stats.h"
 
 class DeviceDialog;
 
@@ -14,6 +15,7 @@ class SelectDevicePanel final : public QMainWindow {
 public:
     SelectDevicePanel(
         const GattService *service,
+        const std::string &what,
         const std::string &normal_icon_path,
         const std::string &highlighted_icon_path,
         const std::shared_ptr<ControllerHandler> &handler,
@@ -22,6 +24,7 @@ public:
 
 public:
     void deviceSelected(const std::shared_ptr<Device> &device);
+    void measurementsReceived(const MeasurementsUpdate & measurements_update);
 
 public slots:
     void handleDeviceButtonClick() const;
@@ -32,4 +35,5 @@ private:
     std::shared_ptr<ControllerHandler> handler;
     ClickableLabel *selectIcon;
     ValueLabel *metricLabel;
+    std::string what;
 };

@@ -8,6 +8,7 @@
 #include "AppState.h"
 #include "DeviceDialog.h"
 #include "Model.h"
+#include "NotificationService.h"
 #include "QtEventPublisher.h"
 #include "ScannerService.h"
 #include "SensorsWindow.h"
@@ -98,22 +99,80 @@ public:
     void handleRequest() override;
 };
 
-class DeviceDialogController final : public Controller<DeviceDialog> {
+class ShowDeviceDialogController final : public Controller<DeviceDialog> {
 public:
-    explicit DeviceDialogController(
+    explicit ShowDeviceDialogController(
         const std::shared_ptr<QtEventPublisher> &qtAdapter,
-        const std::shared_ptr<ScannerService> &scanneService,
-        const std::function<std::shared_ptr<DeviceDialog>(std::vector<std::shared_ptr<Device>>, QWidget *)> &createDialog,
+        const std::shared_ptr<ScannerService> &scannerService,
+        const std::function<std::shared_ptr<DeviceDialog>(std::vector<std::shared_ptr<Device> >, QWidget *)> &
+        createDialog,
         const std::shared_ptr<AppState> &state,
         const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history,
         const std::shared_ptr<Model> &model)
-        : Controller(model, state, history), createDialog(createDialog), scanneService(scanneService), qtAdapter(qtAdapter) {
+        : Controller(model, state, history), createDialog(createDialog), scannerService(scannerService),
+          qtAdapter(qtAdapter) {
     }
 
     void handleRequest() override;
 
 private:
-    std::shared_ptr<ScannerService> scanneService;
-    std::function<std::shared_ptr<DeviceDialog>(std::vector<std::shared_ptr<Device>>, QWidget *)> createDialog;
+    std::shared_ptr<ScannerService> scannerService;
+    std::function<std::shared_ptr<DeviceDialog>(std::vector<std::shared_ptr<Device> >, QWidget *)> createDialog;
     std::shared_ptr<QtEventPublisher> qtAdapter;
+};
+
+class ConnectToDeviceController final : public Controller<DeviceDialog> {
+public:
+    explicit ConnectToDeviceController(
+        const std::shared_ptr<HrmNotificationService> &hrmNotificationService,
+        const std::shared_ptr<CyclingCadenceAndSpeedNotificationService> &cscNotificationService,
+        const std::shared_ptr<PowerNotificationService> &powerNotificationService,
+        const std::shared_ptr<FecService> &fecService,
+        const std::shared_ptr<ScannerService> &scannerService,
+
+        const std::shared_ptr<AppState> &state,
+        const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history,
+        const std::shared_ptr<Model> &model
+    )
+        : Controller(model, state, history), hrmNotificationService(hrmNotificationService),
+          cscNotificationService(cscNotificationService), powerNotificationService(powerNotificationService),
+          fecService(fecService), scannerService(scannerService) {
+    }
+
+    void handleRequest() override;
+
+private:
+    std::shared_ptr<HrmNotificationService> hrmNotificationService;
+    std::shared_ptr<CyclingCadenceAndSpeedNotificationService> cscNotificationService;
+    std::shared_ptr<PowerNotificationService> powerNotificationService;
+    std::shared_ptr<FecService> fecService;
+    std::shared_ptr<ScannerService> scannerService;
+};
+
+
+class ShutdownController final : public Controller<DeviceDialog> {
+public:
+    explicit ShutdownController(
+        const std::shared_ptr<HrmNotificationService> &hrmNotificationService,
+        const std::shared_ptr<CyclingCadenceAndSpeedNotificationService> &cscNotificationService,
+        const std::shared_ptr<PowerNotificationService> &powerNotificationService,
+        const std::shared_ptr<FecService> &fecService,
+        const std::shared_ptr<ScannerService> &scannerService,
+        const std::shared_ptr<DeviceRegistry> &registry,
+        const std::shared_ptr<AppState> &state
+    )
+        : Controller(model, state, history), hrmNotificationService(hrmNotificationService),
+          cscNotificationService(cscNotificationService), powerNotificationService(powerNotificationService),
+          fecService(fecService), scannerService(scannerService), registry(registry) {
+    }
+
+    void handleRequest() override;
+
+private:
+    std::shared_ptr<HrmNotificationService> hrmNotificationService;
+    std::shared_ptr<CyclingCadenceAndSpeedNotificationService> cscNotificationService;
+    std::shared_ptr<PowerNotificationService> powerNotificationService;
+    std::shared_ptr<FecService> fecService;
+    std::shared_ptr<ScannerService> scannerService;
+    std::shared_ptr<DeviceRegistry> registry;
 };

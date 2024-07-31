@@ -9,7 +9,7 @@ class Notifications {
 public:
     Channel<std::shared_ptr<Device> > deviceDiscovered;
     Channel<std::shared_ptr<Device> > deviceSelected;
-    Channel<MeasurementsUpdate> newMeasurements;
+    Channel<MeasurementsUpdate> measurements;
 };
 
 

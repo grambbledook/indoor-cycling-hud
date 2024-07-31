@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "Service.h"
+
 std::ostream &operator<<(std::ostream &os, const ApplicationState &state) {
     switch (state) {
         case ApplicationState::STARTING: os << "STARTING";
@@ -90,38 +92,83 @@ void WorkoutWindowController::handleRequest() {
     state->state = ApplicationState::IN_WORKOUT;
 }
 
-void DeviceDialogController::handleRequest() {
+void ShowDeviceDialogController::handleRequest() {
     if (state->state != ApplicationState::WAITING_FOR_SENSORS and state->state !=
         ApplicationState::WAITING_FOR_TRAINER) {
         std::cout << "  Wrong state: " << state->state << std::endl;
         return;
     }
 
-    if (not history->empty()) {
+    if (!history->empty()) {
         const auto previous = history->top();
 
         QWidget &window = *previous;
-        if (auto *d = dynamic_cast<DeviceDialog *>(&window)) {
-            if (d->selectedItem) {
-                std::cout << "  Device selected: " << d->selectedItem->name.value << std::endl;
-                model->setDevice(d->selectedItem);
-            }
-
-            d->close();
-            history->pop();
-            scanneService->stopScan();
-            return;
-        }
-
         const auto devices = model->getDevices(nullptr);
-
         const auto dialog = createDialog(devices, &window);
 
         qtAdapter->setDeviceDialog(dialog);
         dialog->show();
         dialog->setFocus();
 
-        scanneService->startScan();
+        scannerService->startScan();
         history->push(dialog);
     }
+}
+
+void ConnectToDeviceController::handleRequest() {
+    if (state->state == ApplicationState::EXITING) {
+        std::cout << "  Wrong state: " << state->state << std::endl;
+        return;
+    }
+
+    if (history->empty()) {
+        std::cout << "  History stack is empty" << std::endl;
+        return;
+    }
+
+    const auto previous = history->top();
+
+    QWidget &window = *previous;
+    const auto dialog = dynamic_cast<DeviceDialog *>(&window);
+    if (!dialog) {
+        std::cout << "  Wrong window type" << std::endl;
+        return;
+    }
+    const auto device = dialog->selectedItem;
+    if (!device) {
+        std::cout << "  No device selected" << std::endl;
+        return;
+    }
+
+    dialog->close();
+    history->pop();
+    scannerService->stopScan();
+
+    if (device->services.contains(Services::HRM)) {
+        hrmNotificationService->setDevice(device);
+    }
+
+    if (device->services.contains(Services::CSC)) {
+        cscNotificationService->setDevice(device);
+    }
+
+    if (device->services.contains(Services::PWR)) {
+        powerNotificationService->setDevice(device);
+    }
+
+    if (device->services.contains(Services::FEC_BIKE_TRAINER)) {
+        fecService->setDevice(device);
+    }
+}
+
+void ShutdownController::handleRequest() {
+    if (state->state != ApplicationState::IN_WORKOUT) {
+        std::cout << "  Wrong state: " << state->state << std::endl;
+        return;
+    }
+
+    state->state == ApplicationState::EXITING;
+
+    registry->stop();
+    exit(0);
 }

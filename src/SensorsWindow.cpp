@@ -8,12 +8,32 @@
 
 #include <QGridLayout>
 
+#include "Events.h"
+#include "Measurements.h"
 #include "Service.h"
+
 
 SensorsWindow::SensorsWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent): AppWindow(
     handler, parent) {
+
+    eventHandlers.insert({
+         getDeviceSelectedType(), [this](QEvent *event) {
+            const auto device = dynamic_cast<DeviceSelectedEvent *>(event);
+            deviceSelected(device->getDevice());
+        }
+    });
+
+    eventHandlers.insert({
+         getMeasurementReceivedType(), [this](QEvent *event) {
+             const auto data = dynamic_cast<MeasurementReceivedEvent *>(event);
+             std::cout << "SensorsWindow::MeasurementReceivedEvent" << std::endl;
+             measurementsReceived(data->getData());
+         }
+     });
+
     heartRateMonitorPanel = new SelectDevicePanel(
         &Services::HRM,
+        Measurements::HEART_RATE,
         Constants::Icons::HEART_RATE_MONITOR,
         Constants::Icons::HEART_RATE_MONITOR_HOVER,
         handler, this
@@ -21,6 +41,7 @@ SensorsWindow::SensorsWindow(const std::shared_ptr<ControllerHandler> &handler, 
 
      cadencePanel = new SelectDevicePanel(
         &Services::CSC,
+        Measurements::CADENCE,
         Constants::Icons::CADENCE_SENSOR,
         Constants::Icons::CADENCE_SENSOR_HOVER,
         handler, this
@@ -28,6 +49,7 @@ SensorsWindow::SensorsWindow(const std::shared_ptr<ControllerHandler> &handler, 
 
      speedPanel = new SelectDevicePanel(
         &Services::CSC,
+        Measurements::SPEED,
         Constants::Icons::SPEED_SENSOR,
         Constants::Icons::SPEED_SENSOR_HOVER,
         handler, this
@@ -35,6 +57,7 @@ SensorsWindow::SensorsWindow(const std::shared_ptr<ControllerHandler> &handler, 
 
      powerPanel = new SelectDevicePanel(
         &Services::PWR,
+        Measurements::POWER,
         Constants::Icons::POWER_SENSOR,
         Constants::Icons::POWER_SENSOR_HOVER,
         handler, this
@@ -62,13 +85,20 @@ SensorsWindow::SensorsWindow(const std::shared_ptr<ControllerHandler> &handler, 
     setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
 }
 
-void SensorsWindow::deviceSelected(const std::shared_ptr<Device> &device) {
+void SensorsWindow::deviceSelected(const std::shared_ptr<Device> &device) const {
     std::cout << "SensorsWindow::deviceSelected" << std::endl;
 
     heartRateMonitorPanel->deviceSelected(device);
     cadencePanel->deviceSelected(device);
     speedPanel->deviceSelected(device);
     powerPanel->deviceSelected(device);
+}
+
+void SensorsWindow::measurementsReceived(const MeasurementsUpdate & measurements_update) const {
+    heartRateMonitorPanel->measurementsReceived(measurements_update);
+    cadencePanel->measurementsReceived(measurements_update);
+    speedPanel->measurementsReceived(measurements_update);
+    powerPanel->measurementsReceived(measurements_update);
 }
 
 void SensorsWindow::back() {

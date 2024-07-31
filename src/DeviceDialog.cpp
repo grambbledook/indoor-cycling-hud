@@ -85,7 +85,7 @@ void DeviceDialog::closeEvent(QCloseEvent *event) {
         std::cout << "  DeviceDialog::closeEvent: emitting deviceSelected" << selectedItem << std::endl;
     }
 
-    handler->next(Constants::Screens::DEVICE_DIALOG);
+    handler->next(Constants::Commands::CONNECT);
     update();
     event->accept();
 }
