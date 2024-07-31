@@ -1,12 +1,25 @@
 #pragma once
 #include <QWidget>
 
+#include "DataFields.h"
+
 class MetricsPanel final : public QWidget {
     Q_OBJECT
 
 public:
-    explicit MetricsPanel(std::string text, QWidget *parent = nullptr);
+    explicit MetricsPanel(Data::DataField dataField, QWidget *parent = nullptr);
+
+public slots:
+    void next();
+    void prev();
+
+    void measurementsReceived(const MeasurementsUpdate &data);
 
 private:
-    std::string text;
+    void updateTextLabel();
+private:
+    Data::DataField dataField;
+
+    TextLabel *label;
+    ValueLabel *valueLabel;
 };

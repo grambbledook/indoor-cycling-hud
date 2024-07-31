@@ -4,18 +4,28 @@
 
 #include <iostream>
 
-#include "MetricsPanel.h"
 #include <Labels.h>
 
 #include <QGridLayout>
 
 #include "Constants.h"
+#include "Events.h"
 
-WorkoutWindow::WorkoutWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent): AppWindow(handler, parent) {
-    const auto heart_rate_monitor_panel = new MetricsPanel(Constants::Labels::HEART_RATE, this);
-    const auto cadence_sensor_panel = new MetricsPanel(Constants::Labels::CADENCE, this);
-    const auto power_meter_panel = new MetricsPanel(Constants::Labels::INSTANT_POWER, this);
-    const auto speed_sensor_panel = new MetricsPanel(Constants::Labels::SPEED, this);
+
+WorkoutWindow::WorkoutWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent): AppWindow(
+    handler, parent) {
+    eventHandlers.insert({
+        getMeasurementReceivedType(), [this](QEvent *event) {
+            const auto data = dynamic_cast<MeasurementReceivedEvent *>(event);
+            std::cout << "WorkoutWindow::MeasurementReceivedEvent" << std::endl;
+            measurementsReceived(data->getData());
+        }
+    });
+
+    heartRateMonitorPanel = new MetricsPanel(Data::HEART_RATE, this);
+    cadenceSensorPanel = new MetricsPanel(Data::CADENCE, this);
+    powerMeterPanel = new MetricsPanel(Data::SPEED, this);
+    speedSensorPanel = new MetricsPanel(Data::POWER, this);
 
     const auto finishLabel = new ButtonLabel(Constants::Buttons::FINISH, this);
     connect(finishLabel, &ButtonLabel::clicked, this, &WorkoutWindow::next);
@@ -26,14 +36,22 @@ WorkoutWindow::WorkoutWindow(const std::shared_ptr<ControllerHandler> &handler, 
     centralWidget->setLayout(layout);
     setCentralWidget(centralWidget);
 
-    layout->addWidget(heart_rate_monitor_panel, 0, 0);
-    layout->addWidget(cadence_sensor_panel, 1, 0);
-    layout->addWidget(power_meter_panel, 2, 0);
-    layout->addWidget(speed_sensor_panel, 3, 0);
+    layout->addWidget(heartRateMonitorPanel, 0, 0);
+    layout->addWidget(cadenceSensorPanel, 1, 0);
+    layout->addWidget(powerMeterPanel, 2, 0);
+    layout->addWidget(speedSensorPanel, 3, 0);
     layout->addWidget(finishLabel, 4, 0, 1, 1, Qt::AlignmentFlag::AlignCenter);
 
     setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
 }
+
+void WorkoutWindow::measurementsReceived(const MeasurementsUpdate &data) {
+    heartRateMonitorPanel->measurementsReceived(data);
+    cadenceSensorPanel->measurementsReceived(data);
+    speedSensorPanel->measurementsReceived(data);
+    powerMeterPanel->measurementsReceived(data);
+}
+
 
 void WorkoutWindow::next() {
     std::cout << "WorkoutWindow::next" << std::endl;

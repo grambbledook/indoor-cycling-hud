@@ -167,7 +167,7 @@ void ShutdownController::handleRequest() {
         return;
     }
 
-    state->state == ApplicationState::EXITING;
+    state->state = ApplicationState::EXITING;
 
     registry->stop();
     exit(0);

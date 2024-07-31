@@ -8,27 +8,30 @@
 
 #include "Constants.h"
 
-MetricsPanel::MetricsPanel(std::string text, QWidget *parent): QWidget(parent), text(std::move(text)) {
+MetricsPanel::MetricsPanel(Data::DataField dataField, QWidget *parent): QWidget(parent), dataField(dataField) {
     auto const panel_layout = new QVBoxLayout(this);
-    auto const button_layout = new QHBoxLayout(this);
-    auto const value_layout = new QGridLayout(this);
+    auto const buttonLayout = new QHBoxLayout(this);
+    auto const valueLayout = new QGridLayout(this);
 
-    auto const left_button = new ButtonLabel(Constants::Buttons::LEFT, false, this);
-    auto const right_button = new ButtonLabel(Constants::Buttons::RIGHT, false, this);
+    auto const leftButton = new ButtonLabel(Constants::Buttons::LEFT, false, this);
+    connect(leftButton, &ButtonLabel::clicked, this, &MetricsPanel::prev);
 
-    auto const label = new TextLabel(this->text, LabelSize::SMALL, this);
-    auto const value_label = new ValueLabel("0", LabelSize::LARGE, this);
+    auto const rightButton = new ButtonLabel(Constants::Buttons::RIGHT, false, this);
+    connect(rightButton, &ButtonLabel::clicked, this, &MetricsPanel::next);
+
+    label = new TextLabel(this->dataField.text, LabelSize::SMALL, this);
+    valueLabel = new ValueLabel("0", LabelSize::LARGE, this);
     auto const spacer = new QSpacerItem(20, 10, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
-    value_layout->addWidget(label, 0, 0, 1, 1, Qt::AlignmentFlag::AlignCenter);
-    value_layout->addItem(spacer, 1, 0, 1, 1, Qt::AlignmentFlag::AlignCenter);
-    value_layout->addWidget(value_label, 2, 0, 1, 1, Qt::AlignmentFlag::AlignCenter);
+    valueLayout->addWidget(label, 0, 0, 1, 1, Qt::AlignmentFlag::AlignCenter);
+    valueLayout->addItem(spacer, 1, 0, 1, 1, Qt::AlignmentFlag::AlignCenter);
+    valueLayout->addWidget(valueLabel, 2, 0, 1, 1, Qt::AlignmentFlag::AlignCenter);
 
-    button_layout->addWidget(left_button, Qt::AlignmentFlag::AlignLeft);
-    button_layout->addLayout(value_layout, Qt::AlignmentFlag::AlignCenter);
-    button_layout->addWidget(right_button, Qt::AlignmentFlag::AlignRight);
+    buttonLayout->addWidget(leftButton, Qt::AlignmentFlag::AlignLeft);
+    buttonLayout->addLayout(valueLayout, Qt::AlignmentFlag::AlignCenter);
+    buttonLayout->addWidget(rightButton, Qt::AlignmentFlag::AlignRight);
 
-    panel_layout->addLayout(button_layout);
+    panel_layout->addLayout(buttonLayout);
     auto const panel = new QFrame(this);
     panel->setLayout(panel_layout);
     panel->setObjectName(Constants::Classes::FRAME_WITH_BORDERS);
@@ -38,4 +41,28 @@ MetricsPanel::MetricsPanel(std::string text, QWidget *parent): QWidget(parent), 
     setLayout(main_layout);
 
     setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
+}
+
+void MetricsPanel::next() {
+    auto idx = Data::index(dataField);
+
+    idx = (++idx) % Data::DATA_FIELDS.size();
+    dataField = Data::DATA_FIELDS[idx];
+    updateTextLabel();
+}
+
+void MetricsPanel::prev() {
+    auto idx = Data::index(dataField);
+
+    idx = ((--idx) + Data::DATA_FIELDS.size()) % Data::DATA_FIELDS.size();
+    dataField = Data::DATA_FIELDS[idx];
+    updateTextLabel();
+}
+
+void MetricsPanel::measurementsReceived(const MeasurementsUpdate &data) {
+    valueLabel->setText(QString::fromStdString(dataField.value(data)));
+}
+
+void MetricsPanel::updateTextLabel() {
+    label->setText(QString::fromStdString(dataField.text));
 }
