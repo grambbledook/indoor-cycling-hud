@@ -2,16 +2,15 @@
 #include <mutex>
 
 #include "Channel.h"
-#include "Events.h"
-#include "Stats.h"
+#include "ModelEvents.h"
+#include "BluetoothEvents.h"
 
 class Notifications {
 public:
-    Channel<std::shared_ptr<Device> > deviceDiscovered;
-    Channel<std::shared_ptr<Device> > deviceSelected;
-    Channel<MeasurementsUpdate> measurements;
+    Channel<DeviceDiscovered> deviceDiscovered;
+    Channel<DeviceSelected> deviceSelected;
+    Channel<WorkoutData> measurements;
 };
-
 
 template<typename A>
 struct State {

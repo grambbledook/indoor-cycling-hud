@@ -20,7 +20,7 @@ BleClient::BleClient(Device device) : device(std::move(device)) {
 
 void BleClient::connect() {
     try {
-        const auto deviceAddress = WinrtUtils::address_to_uint64_t(device.address);
+        const auto deviceAddress = WinrtUtils::addressToUint64T(device.address);
 
         std::cout << "Attempting to connect to device with address: " << device.address.value << std::endl;
         auto connectionResult = BluetoothLEDevice::FromBluetoothAddressAsync(deviceAddress).get();
@@ -168,12 +168,12 @@ void BleClient::fetchCharacteristics() {
         const auto services = connection->GetGattServicesAsync().get();
 
         for (const auto &service: services.Services()) {
-            auto serviceUuid = WinrtUtils::uuid_from_guid(service.Uuid());
+            auto serviceUuid = WinrtUtils::uuidFromGuid(service.Uuid());
             std::cout << "  Service UUID: " << serviceUuid.value << std::endl;
 
             auto characteristics = service.GetCharacteristicsAsync().get();
             for (const auto &characteristic: characteristics.Characteristics()) {
-                auto charUuid = WinrtUtils::uuid_from_guid(characteristic.Uuid());
+                auto charUuid = WinrtUtils::uuidFromGuid(characteristic.Uuid());
                 std::cout << "    Characteristic UUID: " << charUuid.value << std::endl;
 
                 this->characteristics[charUuid] = characteristic;

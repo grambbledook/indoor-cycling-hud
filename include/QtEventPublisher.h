@@ -22,23 +22,26 @@ public:
         this->deviceDialog = deviceDialog;
     }
 
-    void deviceDiscovered(const std::shared_ptr<Device> &device) const {
+    void deviceDiscovered(const DeviceDiscovered &data) const {
         std::cout << "QtEventPublisher::deviceDiscovered" << std::endl;
-        auto event = new DeviceDiscoveredEvent(device);
-        std::cout << "  Device discovered: " << device->name.value << std::endl;
+        auto event = new DeviceDiscoveredEvent(data);
+        std::cout << "  Device discovered: " << data.device->name.value << std::endl;
         QCoreApplication::postEvent(deviceDialog.get(), event);
         std::cout << "  Event posted" << typeid(event).name() <<std::endl;
     }
 
-    void deviceSelected(const std::shared_ptr<Device> &device) const {
-        const auto firstEvent = new DeviceSelectedEvent(device);
+    void deviceSelected(const DeviceSelected &data) const {
+        auto a = std::make_shared<DeviceSelected>(data);
+        auto b = std::make_shared<DeviceSelected>(data);
+
+        const auto firstEvent = new DeviceSelectedEvent(data);
         QCoreApplication::postEvent(trainerWindow.get(), firstEvent);
 
-        const auto secondEvent = new DeviceSelectedEvent(device);
+        const auto secondEvent = new DeviceSelectedEvent(data);
         QCoreApplication::postEvent(sensorsWindow.get(), secondEvent);
     }
 
-    void measurementReceived(const MeasurementsUpdate &data) const {
+    void measurementReceived(const WorkoutData &data) const {
         std::cout << "QtEventPublisher::measurementReceived" << std::endl;
 
         const auto firstEvent = new MeasurementReceivedEvent(data);

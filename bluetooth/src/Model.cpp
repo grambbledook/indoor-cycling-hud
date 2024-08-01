@@ -1,13 +1,10 @@
 #include <algorithm>
 #include <iostream>
-
-#include "Events.h"
-#include "Model.h"
-
 #include <memory>
 
+#include "BluetoothServices.h"
 #include "Formula.h"
-#include "Service.h"
+#include "Model.h"
 
 
 void Model::addDevice(const std::shared_ptr<Device> &device) {
@@ -24,7 +21,7 @@ void Model::addDevice(const std::shared_ptr<Device> &device) {
         return;
     }
     devices[device->deviceId()] = newDevice;
-    notifications.deviceDiscovered.publish(newDevice);
+    notifications.deviceDiscovered.publish(DeviceDiscovered{newDevice});
 }
 
 std::vector<std::shared_ptr<Device> > Model::getDevices(const GattService *service = nullptr) {
@@ -41,17 +38,17 @@ std::vector<std::shared_ptr<Device> > Model::getDevices(const GattService *servi
 }
 
 void Model::setDevice(const std::shared_ptr<Device> &device) {
-    if (device->services.contains(Services::HRM)) {
+    if (device->services.contains(BLE::Services::HRM)) {
         setHeartRateMonitor(device);
     }
-    if (device->services.contains(Services::CSC)) {
+    if (device->services.contains(BLE::Services::CSC)) {
         setCadenceSensor(device);
         setSpeedSensor(device);
     }
-    if (device->services.contains(Services::PWR)) {
+    if (device->services.contains(BLE::Services::PWR)) {
         setPowerMeter(device);
     }
-    if (device->services.contains(Services::FEC_BIKE_TRAINER)) {
+    if (device->services.contains(BLE::Services::FEC_BIKE_TRAINER)) {
         setBikeTrainer(device);
     }
 }
@@ -63,7 +60,7 @@ void Model::setHeartRateMonitor(const std::shared_ptr<Device> &device) {
     }
     std::cout << "Model::setHeartRateMonitor: " << device->deviceId() << std::endl;
     hrmState.device = device;
-    notifications.deviceSelected.publish(hrmState.device);
+    notifications.deviceSelected.publish(DeviceSelected{Service::HEART_RATE, hrmState.device});
 }
 
 void Model::setCadenceSensor(const std::shared_ptr<Device> &device) {
@@ -72,7 +69,7 @@ void Model::setCadenceSensor(const std::shared_ptr<Device> &device) {
     }
 
     cadenceState.device = device;
-    notifications.deviceSelected.publish(cadenceState.device);
+    notifications.deviceSelected.publish(DeviceSelected{Service::CADENCE, cadenceState.device});
 }
 
 void Model::setSpeedSensor(const std::shared_ptr<Device> &device) {
@@ -81,7 +78,7 @@ void Model::setSpeedSensor(const std::shared_ptr<Device> &device) {
     }
 
     speedState.device = device;
-    publishUpdate();
+    notifications.deviceSelected.publish(DeviceSelected{Service::SPEED, speedState.device});
 }
 
 void Model::setPowerMeter(const std::shared_ptr<Device> &device) {
@@ -90,7 +87,7 @@ void Model::setPowerMeter(const std::shared_ptr<Device> &device) {
     }
 
     powerState.device = device;
-    notifications.deviceSelected.publish(powerState.device);
+    notifications.deviceSelected.publish(DeviceSelected{Service::POWER, powerState.device});
 }
 
 void Model::setBikeTrainer(const std::shared_ptr<Device> &device) {
@@ -200,11 +197,11 @@ void Model::recordTrainerData(const MeasurementEvent<SpecificTrainerData> &event
 }
 
 void Model::publishUpdate() {
-    const auto aggregate = MeasurementsUpdate{
-        CroppedStatistics{hrmState.stats.latest, hrmState.stats.average},
-        CroppedStatistics{cadenceState.stats.latest, cadenceState.stats.average},
-        CroppedStatistics{speedState.stats.latest, speedState.stats.average},
-        CroppedStatistics{powerState.stats.latest, powerState.stats.average},
+    const auto aggregate = WorkoutData{
+        Aggregate{hrmState.stats.latest, hrmState.stats.average},
+        Aggregate{cadenceState.stats.latest, cadenceState.stats.average},
+        Aggregate{speedState.stats.latest, speedState.stats.average},
+        Aggregate{powerState.stats.latest, powerState.stats.average},
     };
 
     notifications.measurements.publish(aggregate);

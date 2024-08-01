@@ -3,11 +3,11 @@
 #include <iostream>
 
 #include "BleClient.h"
+#include "BluetoothServices.h"
 #include "DeviceRegistry.h"
 #include "NotificationService.h"
 #include "Scanner.h"
 #include "ScannerService.h"
-#include "Service.h"
 
 using namespace winrt;
 using namespace Windows::Foundation;
@@ -41,7 +41,7 @@ void WinRT::runTest() {
     scanner->startScan();
     std::cin.get();
 
-    const auto hrms = model->getDevices(&Services::HRM);
+    const auto hrms = model->getDevices(&BLE::Services::HRM);
     if (not hrms.empty()) {
         const auto &device = hrms.front();
         hrm->setDevice(device);
@@ -50,7 +50,7 @@ void WinRT::runTest() {
         std::cin.get();
     }
 
-    const auto cscs = model->getDevices(&Services::CSC);
+    const auto cscs = model->getDevices(&BLE::Services::CSC);
     if (not cscs.empty()) {
         const auto &device = cscs.front();
         csc->setDevice(device);
@@ -59,7 +59,7 @@ void WinRT::runTest() {
         std::cin.get();
     }
 
-    const auto pwrs = model->getDevices(&Services::PWR);
+    const auto pwrs = model->getDevices(&BLE::Services::PWR);
     if (not pwrs.empty()) {
         const auto &device = pwrs.front();
         pwr->setDevice(device);
@@ -68,7 +68,7 @@ void WinRT::runTest() {
         std::cin.get();
     }
 
-    const auto fecs = model->getDevices(&Services::FEC_BIKE_TRAINER);
+    const auto fecs = model->getDevices(&BLE::Services::FEC_BIKE_TRAINER);
     if (not fecs.empty()) {
         const auto &device = fecs.front();
         fec->setDevice(device);
@@ -83,7 +83,7 @@ void WinRT::runTest() {
 }
 
 void WinRT::subscribeToNotifications(const Notifications &notifications) {
-    notifications.measurements.subscribe([](const MeasurementsUpdate &data) {
+    notifications.measurements.subscribe([](const WorkoutData &data) {
         std::cout << "Received measuremment_update event:" << typeid(data).name() << std::endl;
         std::cout << "  HRM: " << data.hrm.val << ", AVG: " << data.hrm.avg << std::endl;
         std::cout << "  CAD: " << data.cadence.val << ", AVG: " << data.cadence.avg << std::endl;
@@ -91,19 +91,20 @@ void WinRT::subscribeToNotifications(const Notifications &notifications) {
         std::cout << "  PWR: " << data.power.val << ", AVG: " << data.power.avg << std::endl;
     });
 
-    notifications.deviceDiscovered.subscribe([](const std::shared_ptr<Device> &device) {
-        std::cout << "Device discovered: " << device->deviceId() << std::endl;
+    notifications.deviceDiscovered.subscribe([](const DeviceDiscovered &event) {
+        std::cout << "Device discovered: " << event.device->deviceId() << std::endl;
         std::cout << "  Services: [";
-        for (const auto &[type, a, b]: device->services) {
+        for (const auto &[type, a, b]: event.device->services) {
             std::cout << type << ", ";
         }
         std::cout << "]" << std::endl;
     });
 
-    notifications.deviceSelected.subscribe([](const std::shared_ptr<Device> &device) {
-        std::cout << "Device selected: " << device->deviceId() << std::endl;
+    notifications.deviceSelected.subscribe([](const DeviceSelected &event) {
+        std::cout << "Device selected: " << event.device->deviceId() << std::endl;
+        std::cout << " As: " << &event.service << std::endl;
         std::cout << "  Services: [";
-        for (const auto &[type, a, b]: device->services) {
+        for (const auto &[type, a, b]: event.device->services) {
             std::cout << type << ", ";
         }
         std::cout << "]" << std::endl;

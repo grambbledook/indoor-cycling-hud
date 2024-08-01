@@ -1,11 +1,7 @@
 #pragma once
 
 #include <QEvent>
-#include <memory>
-#include "Data.h"
-#include "Stats.h"
-const auto DeviceDiscoveredType = static_cast<QEvent::Type>(QEvent::registerEventType());
-const auto DeviceSelectedType = static_cast<QEvent::Type>(QEvent::registerEventType());
+#include "ModelEvents.h"
 
 // this code poses danger as it is inlined and static variable might be creted in multiple translation units
 inline QEvent::Type getDeviceDiscoveredType() {
@@ -25,36 +21,36 @@ inline QEvent::Type getMeasurementReceivedType() {
 
 class DeviceDiscoveredEvent final : public QEvent {
 public:
-    explicit DeviceDiscoveredEvent(std::shared_ptr<Device> device)
-        : QEvent(getDeviceDiscoveredType()), device(std::move(device)) {
+    explicit DeviceDiscoveredEvent(const DeviceDiscovered &event)
+        : QEvent(getDeviceDiscoveredType()), event(event) {
     }
 
-    [[nodiscard]] std::shared_ptr<Device> getDevice() const { return device; }
+    [[nodiscard]] DeviceDiscovered getEvent() const { return event; }
 
 private:
-    std::shared_ptr<Device> device;
+    DeviceDiscovered event;
 };
 
 class DeviceSelectedEvent final : public QEvent {
 public:
-    explicit DeviceSelectedEvent(std::shared_ptr<Device> device)
-        : QEvent(getDeviceSelectedType()), device(std::move(device)) {
+    explicit DeviceSelectedEvent(const DeviceSelected &event)
+        : QEvent(getDeviceSelectedType()), event(event) {
     }
 
-    [[nodiscard]] std::shared_ptr<Device> getDevice() const { return device; }
+    [[nodiscard]] DeviceSelected getEvent() const { return event; }
 
 private:
-    std::shared_ptr<Device> device;
+     DeviceSelected event;
 };
 
 class MeasurementReceivedEvent final : public QEvent {
 public:
-    explicit MeasurementReceivedEvent(MeasurementsUpdate data)
+    explicit MeasurementReceivedEvent(WorkoutData data)
         : QEvent(getMeasurementReceivedType()), data(data) {
     }
 
-    [[nodiscard]] MeasurementsUpdate getData() const { return data; }
+    [[nodiscard]] WorkoutData getData() const { return data; }
 
 private:
-    MeasurementsUpdate data;
+    WorkoutData data;
 };

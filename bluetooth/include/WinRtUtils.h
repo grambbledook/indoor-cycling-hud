@@ -3,9 +3,8 @@
 #include "Data.h"
 #include <winrt/base.h>
 
-
 namespace WinrtUtils {
-    inline winrt::guid to_guid(const UUID &uuid) {
+    inline winrt::guid toGuid(const UUID &uuid) {
         uint32_t Data1;
         uint16_t Data2, Data3;
         std::array<uint8_t, 8> Data4;
@@ -40,7 +39,7 @@ namespace WinrtUtils {
         return winrt::guid(Data1, Data2, Data3, Data4);
     }
 
-    inline UUID uuid_from_guid(const winrt::guid &guid) {
+    inline UUID uuidFromGuid(const winrt::guid &guid) {
         std::ostringstream oss;
         oss << std::hex << std::setfill('0')
                 << std::setw(8) << guid.Data1 << '-'
@@ -57,12 +56,11 @@ namespace WinrtUtils {
         return UUID{oss.str()};
     }
 
-
-    inline Name name_from_hstring(const winrt::hstring &wstr) {
+    inline Name nameFromHstring(const winrt::hstring &wstr) {
         return Name{std::string{wstr.begin(), wstr.end()}};
     }
 
-    inline Address address_from_long(const uint64_t &uint) {
+    inline Address addressFromLong(const uint64_t &uint) {
         std::ostringstream oss;
         oss << std::hex << std::setfill('0')
                 << std::setw(2) << ((uint >> 40) & 0xFF) << ":"
@@ -75,7 +73,7 @@ namespace WinrtUtils {
         return Address{oss.str()};
     }
 
-    inline uint64_t address_to_uint64_t(const Address &address) {
+    inline uint64_t addressToUint64T(const Address &address) {
         uint64_t result = 0;
         std::istringstream iss(address.value);
         std::string byte_str;

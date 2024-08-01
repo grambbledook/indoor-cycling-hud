@@ -1,8 +1,5 @@
 #pragma once
 
-// include/AppState.h
-#pragma once
-
 enum class ApplicationState {
     STARTING,
     WAITING_FOR_TRAINER,
@@ -11,13 +8,10 @@ enum class ApplicationState {
     EXITING
 };
 
-
-
 class AppState {
 public:
-    AppState() : state(ApplicationState::STARTING), x(300), y(300) {
+    AppState() : state(ApplicationState::STARTING) {
     }
 
     ApplicationState state;
-    int x, y;
 };

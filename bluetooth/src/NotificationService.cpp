@@ -4,7 +4,7 @@
 #include <utility>
 
 #include "BluetoothConstants.h"
-#include "Service.h"
+#include "BluetoothServices.h"
 
 
 template<DerivedFromMeasurement T>
@@ -47,7 +47,7 @@ void INotificationService<T>::unsetDevice(std::shared_ptr<Device> device) {
 
 HrmNotificationService::HrmNotificationService(std::shared_ptr<DeviceRegistry> &registry,
                                                std::shared_ptr<Model> &model): INotificationService(
-    registry, model, Services::HRM) {
+    registry, model, BLE::Services::HRM) {
 }
 
 
@@ -72,7 +72,7 @@ void HrmNotificationService::processMeasurement(const std::shared_ptr<Device> &d
 
 CyclingCadenceAndSpeedNotificationService::CyclingCadenceAndSpeedNotificationService(
     std::shared_ptr<DeviceRegistry> &registry, std::shared_ptr<Model> &model): INotificationService(
-    registry, model, Services::CSC) {
+    registry, model, BLE::Services::CSC) {
 }
 
 void CyclingCadenceAndSpeedNotificationService::processFeatureAndSetDevices(BleClient &client,
@@ -126,7 +126,7 @@ void CyclingCadenceAndSpeedNotificationService::processMeasurement(const std::sh
 
 PowerNotificationService::PowerNotificationService(std::shared_ptr<DeviceRegistry> &registry,
                                                    std::shared_ptr<Model> &model): INotificationService(
-    registry, model, Services::PWR) {
+    registry, model, BLE::Services::PWR) {
 }
 
 void PowerNotificationService::processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) {
@@ -142,7 +142,7 @@ void PowerNotificationService::processMeasurement(const std::shared_ptr<Device> 
 }
 
 FecService::FecService(std::shared_ptr<DeviceRegistry> &registry, std::shared_ptr<Model> &model): INotificationService(
-    registry, model, Services::FEC_BIKE_TRAINER) {
+    registry, model, BLE::Services::FEC_BIKE_TRAINER) {
 }
 
 void FecService::processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) {

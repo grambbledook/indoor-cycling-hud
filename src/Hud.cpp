@@ -34,15 +34,15 @@ int main(int argc, char **argv) {
     auto model = std::make_shared<Model>();
     auto trainerWindow = std::make_shared<TrainerWindow>(controllerHandler);
     auto trainerWindowController = std::make_shared<TrainerWindowController>(
-        trainerWindow, appState, history, model);
+        trainerWindow, appState, history);
 
     auto sensorsWindow = std::make_shared<SensorsWindow>(controllerHandler);
     auto sensorWindowController = std::make_shared<SensorsWindowController>(
-        sensorsWindow, appState, history, model);
+        sensorsWindow, appState, history);
 
     auto workoutWindow = std::make_shared<WorkoutWindow>(controllerHandler);
     auto workoutWindowController = std::make_shared<WorkoutWindowController>(
-        workoutWindow, appState, history, model);
+        workoutWindow, appState, history);
 
     auto qtAdapter = std::make_shared<QtEventPublisher>(
         trainerWindow, sensorsWindow, workoutWindow
@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
     const auto pwr = std::make_shared<PowerNotificationService>(registry, model);
     const auto fec = std::make_shared<FecService>(registry, model);
     auto connectToDeviceController = std::make_shared<ConnectToDeviceController>(
-        hrm, csc, pwr, fec, scanner, appState, history, model);
+        hrm, csc, pwr, fec, scanner, appState, history);
 
     const auto shutdownController = std::make_shared<ShutdownController>(
         hrm, csc, pwr, fec, scanner, registry, appState);
@@ -79,12 +79,5 @@ int main(int argc, char **argv) {
     );
 
     viewNavigator->nextScreen(Constants::Screens::TRAINER);
-
-    std::cout << "FIRST PASS:" << std::endl;
-    std::cout << "  DeviceDiscoveredType: " << getDeviceDiscoveredType() << std::endl;
-    std::cout << "  DeviceSelectedType: " << getDeviceSelectedType() << std::endl;
-    std::cout << "SECOND PASS:" << std::endl;
-    std::cout << "  DeviceDiscoveredType: " << getDeviceDiscoveredType() << std::endl;
-    std::cout << "  DeviceSelectedType: " << getDeviceSelectedType() << std::endl;
     return app->exec();
 }

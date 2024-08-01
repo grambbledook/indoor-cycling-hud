@@ -38,6 +38,7 @@ struct GattService {
     bool operator==(const GattService &other) const {
         return service_uuid == other.service_uuid;
     }
+
     struct Hash {
         std::size_t operator()(const GattService &service) const noexcept {
             return UUID::Hash{}(service.service_uuid);
@@ -65,3 +66,22 @@ struct Device {
         return name.value + ":" + address.value;
     }
 };
+
+enum class Service {
+    HEART_RATE,
+    CADENCE,
+    SPEED,
+    POWER,
+    BIKE_TRAINER
+};
+
+inline std::string asString(const Service &as) {
+    switch (as) {
+        case Service::HEART_RATE: return "HEART_RATE";
+        case Service::CADENCE: return "CADENCE";
+        case Service::SPEED: return "SPEED";
+        case Service::POWER: return "POWER";
+        case Service::BIKE_TRAINER: return "BIKE_TRAINER";
+        default: std::unreachable();
+    }
+}

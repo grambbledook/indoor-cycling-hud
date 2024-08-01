@@ -5,7 +5,7 @@
 #include <QObject>
 
 #include "ControllerHandler.h"
-#include "Data.h"
+#include "Events.h"
 
 class DeviceDialog final : public QDialog {
     Q_OBJECT
@@ -22,9 +22,6 @@ public:
     bool event(QEvent *event) override;
 
     void paintEvent(QPaintEvent *event) override;
-
-signals:
-    void deviceSelected(std::shared_ptr<Device> device);
 
 public slots:
     void renderDevice(const std::shared_ptr<Device> &device) const;

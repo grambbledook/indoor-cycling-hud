@@ -7,9 +7,9 @@
 
 #include <QGridLayout>
 
+#include "BluetoothConstants.h"
 #include "Events.h"
-#include "Measurements.h"
-#include "Service.h"
+#include "SupportedServices.h"
 
 TrainerWindow::TrainerWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent): AppWindow(
     handler, parent) {
@@ -19,15 +19,14 @@ TrainerWindow::TrainerWindow(const std::shared_ptr<ControllerHandler> &handler, 
     eventHandlers.insert({
          getDeviceSelectedType(), [this](QEvent *event) {
             const auto device = dynamic_cast<DeviceSelectedEvent *>(event);
-            deviceSelected(device->getDevice());
+            deviceSelected(device->getEvent());
         }
     });
 
     auto *layout = new QGridLayout(this);
 
     selectTrainerPanel = new SelectDevicePanel(
-        &Services::FEC_BIKE_TRAINER,
-        Measurements::TRAINER,
+        BIKE_TRAINER,
         Constants::Icons::BIKE_TRAINER,
         Constants::Icons::BIKE_TRAINER_HOVER,
         handler, this
@@ -46,9 +45,9 @@ TrainerWindow::TrainerWindow(const std::shared_ptr<ControllerHandler> &handler, 
     setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
 }
 
-void TrainerWindow::deviceSelected(const std::shared_ptr<Device> &device) const {
+void TrainerWindow::deviceSelected(const DeviceSelected event) const {
     std::cout << "TrainerWindow::deviceSelected" << std::endl;
-    selectTrainerPanel->deviceSelected(device);
+    selectTrainerPanel->deviceSelected(event);
 }
 
 void TrainerWindow::next() {

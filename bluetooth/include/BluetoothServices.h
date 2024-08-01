@@ -1,14 +1,14 @@
 #pragma once
+
 #include <ranges>
 #include <vector>
 #include <unordered_map>
-
 #include "Data.h"
 
 using namespace std::ranges;
 using namespace std::ranges::views;
 
-namespace Services {
+namespace BLE::Services {
     const auto HRM = GattService(
         "Heart Rate Monitor",
         UUID("0000180d-0000-1000-8000-00805f9b34fb"),
@@ -38,5 +38,4 @@ namespace Services {
     const std::unordered_map<UUID, GattService, UUID::Hash> SUPPORTED_SERVICES_MAP = SUPPORTED_SERVICES
             | views::transform([](const GattService &s) { return std::make_pair(s.service_uuid, s); })
             | to<std::unordered_map<UUID, GattService, UUID::Hash>>();
-
 }

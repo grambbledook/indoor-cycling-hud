@@ -48,8 +48,7 @@ file(GLOB_RECURSE SOURCES
 #        ${BLE_DIR}/*.h
 )
 
-add_library(Bluetooth STATIC ${SOURCES}
-        include/Stats.h)
+add_library(Bluetooth STATIC ${SOURCES})
 
 target_include_directories(Bluetooth PUBLIC ${INCLUDE_DIR})
 target_include_directories(Bluetooth PUBLIC ${SOURCE_DIR})

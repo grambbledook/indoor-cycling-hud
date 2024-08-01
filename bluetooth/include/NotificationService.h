@@ -1,9 +1,8 @@
 #pragma once
 
-#include "Data.h" // Assuming this includes Measurement and Device definitions
 #include <memory>
-#include <Events.h>
 
+#include <BluetoothEvents.h>
 #include "DeviceRegistry.h"
 #include "Model.h"
 

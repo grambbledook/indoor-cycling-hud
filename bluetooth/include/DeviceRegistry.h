@@ -1,8 +1,6 @@
 #pragma once
 
 #include <unordered_map>
-#include <vector>
-#include <functional>
 #include <mutex>
 #include <memory>
 #include "BleClient.h" // Assuming this is the class similar to the Python BleClient

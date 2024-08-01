@@ -11,7 +11,7 @@
 #include <winrt/Windows.Devices.Enumeration.h>
 #include <winrt/Windows.Storage.Streams.h>
 
-#include "Service.h"
+#include "BluetoothServices.h"
 #include "WinRtUtils.h"
 
 using namespace winrt;
@@ -37,16 +37,16 @@ void Scanner::startScan(const std::function<void(std::shared_ptr<Device>)> &rece
             for (auto i = 0; i < services_size; i++) {
                 auto cs = services.GetAt(i);
 
-                if (auto candidate_service_uuid = WinrtUtils::uuid_from_guid(cs); Services::SUPPORTED_SERVICES_MAP.
+                if (auto candidate_service_uuid = WinrtUtils::uuidFromGuid(cs); BLE::Services::SUPPORTED_SERVICES_MAP.
                     contains(candidate_service_uuid)) {
-                    supported_services.insert(Services::SUPPORTED_SERVICES_MAP.at(candidate_service_uuid));
+                    supported_services.insert(BLE::Services::SUPPORTED_SERVICES_MAP.at(candidate_service_uuid));
                 }
             }
 
             if (supported_services.empty()) return;
 
             if (name.empty()) {
-                std::cout << "No name found for device with address: " << WinrtUtils::address_from_long(address).value
+                std::cout << "No name found for device with address: " << WinrtUtils::addressFromLong(address).value
                         << std::endl;
                 const auto device = Windows::Devices::Bluetooth::BluetoothLEDevice::FromBluetoothAddressAsync(address).
                         get();
@@ -58,11 +58,11 @@ void Scanner::startScan(const std::function<void(std::shared_ptr<Device>)> &rece
 
                 std::cout << "  Got device name: ";
                 name = device.Name();
-                std::cout << WinrtUtils::name_from_hstring(name).value << std::endl;
+                std::cout << WinrtUtils::nameFromHstring(name).value << std::endl;
             };
 
             const auto device = std::make_shared<Device>(
-                WinrtUtils::name_from_hstring(name), WinrtUtils::address_from_long(address), supported_services
+                WinrtUtils::nameFromHstring(name), WinrtUtils::addressFromLong(address), supported_services
             );
 
             receiver(device);
@@ -82,5 +82,4 @@ void Scanner::stopScan() const {
 
     std::cout << "Stopping scan routine...\n";
     watcher->Stop();
-    // uninit_apartment();
 }

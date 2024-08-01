@@ -1,6 +1,5 @@
 #pragma once
 
-
 namespace BLE::Tacx {
     namespace Power {
         const auto IN_RANGE = "OK";
@@ -17,3 +16,4 @@ namespace BLE::Tacx {
         const auto UNKNOWN = "UNKNOWN";
     }
 }
+

@@ -7,7 +7,6 @@
 #include <QPainter>
 
 #include "Constants.h"
-#include "Events.h"
 #include "Labels.h"
 #include "StyleSheets.h"
 
@@ -86,7 +85,6 @@ void DeviceDialog::closeEvent(QCloseEvent *event) {
     }
 
     handler->next(Constants::Commands::CONNECT);
-    update();
     event->accept();
 }
 
@@ -100,7 +98,7 @@ bool DeviceDialog::event(QEvent *event) {
         return QDialog::event(event);
     }
 
-    const std::shared_ptr<Device> device = deviceEvent->getDevice();
+    const std::shared_ptr<Device> device = deviceEvent->getEvent().device;
     renderDevice(device);
     return true;
 }
@@ -109,6 +107,6 @@ void DeviceDialog::paintEvent(QPaintEvent *event) {
     const auto painter = std::make_unique<QPainter>(this);
 
     painter->setOpacity(0.75);
-    painter->setBrush(QBrush(QColor(200, 200, 200, 128)));
+    painter->setBrush(QBrush(QColor(255, 255, 255, 128)));
     painter->drawRect(this->rect());
 }

@@ -59,7 +59,7 @@ void MetricsPanel::prev() {
     updateTextLabel();
 }
 
-void MetricsPanel::measurementsReceived(const MeasurementsUpdate &data) {
+void MetricsPanel::measurementsReceived(const WorkoutData &data) {
     valueLabel->setText(QString::fromStdString(dataField.value(data)));
 }
 

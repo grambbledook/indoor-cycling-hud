@@ -2,13 +2,10 @@
 
 #include <any>
 #include <functional>
-#include <iostream>
-#include <memory>
 #include <memory>
 #include <vector>
 #include <winrt/Windows.Devices.Bluetooth.h>
 #include "Data.h"
-#include "WinRtUtils.h"
 
 using namespace winrt;
 using namespace Windows::Devices::Bluetooth;

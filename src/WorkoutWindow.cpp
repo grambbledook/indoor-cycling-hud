@@ -45,7 +45,7 @@ WorkoutWindow::WorkoutWindow(const std::shared_ptr<ControllerHandler> &handler, 
     setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
 }
 
-void WorkoutWindow::measurementsReceived(const MeasurementsUpdate &data) {
+void WorkoutWindow::measurementsReceived(const WorkoutData &data) {
     heartRateMonitorPanel->measurementsReceived(data);
     cadenceSensorPanel->measurementsReceived(data);
     speedSensorPanel->measurementsReceived(data);

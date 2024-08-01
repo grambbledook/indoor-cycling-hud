@@ -14,7 +14,7 @@ ViewNavigator::ViewNavigator(
 ): connectToDeviceController(connectToDeviceController), controllerHandler(controllerHandler),
    deviceDialogController(deviceDialogController), trainerWindowController(trainerWindowController),
    sensorsWindowController(sensorsWindowController), shutdownController(shutdownController),
-   workoutWindowController(workoutWindowController), x(300), y(300) {
+   workoutWindowController(workoutWindowController) {
     controllerHandler->subscribe([this](const std::string &screen) {
         this->nextScreen(screen);
     });

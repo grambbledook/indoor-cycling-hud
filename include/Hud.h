@@ -1,10 +1,8 @@
-#include <QApplication>
-#include <QLineEdit>
-#include <QVBoxLayout>
-#include <QtPlugin>
+//
+// Created by denis on 8/1/2024.
+//
 
-#include "Constants.h"
-#include "SensorsWindow.h"
-#include "TrainerWindow.h"
-#include "ViewNavigator.h"
-#include "WorkoutWindow.h"
+#ifndef HUD_H
+#define HUD_H
+
+#endif //HUD_H

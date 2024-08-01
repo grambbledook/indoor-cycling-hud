@@ -1,9 +1,5 @@
 #pragma once
 
-#include <TrainerWindow.h>
-#include <SensorsWindow.h>
-#include <WorkoutWindow.h>
-
 #include "Controller.h"
 #include "DeviceDialog.h"
 
@@ -33,7 +29,4 @@ private:
     std::shared_ptr<SensorsWindowController> sensorsWindowController;
     std::shared_ptr<WorkoutWindowController> workoutWindowController;
     std::shared_ptr<ShutdownController> shutdownController;
-
-    int x;
-    int y;
 };

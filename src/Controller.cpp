@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "Service.h"
+#include "BluetoothServices.h"
 
 std::ostream &operator<<(std::ostream &os, const ApplicationState &state) {
     switch (state) {
@@ -134,29 +134,32 @@ void ConnectToDeviceController::handleRequest() {
         std::cout << "  Wrong window type" << std::endl;
         return;
     }
+
+    dialog->close();
+    history->pop();
+
     const auto device = dialog->selectedItem;
     if (!device) {
         std::cout << "  No device selected" << std::endl;
         return;
     }
 
-    dialog->close();
-    history->pop();
+
     scannerService->stopScan();
 
-    if (device->services.contains(Services::HRM)) {
+    if (device->services.contains(BLE::Services::HRM)) {
         hrmNotificationService->setDevice(device);
     }
 
-    if (device->services.contains(Services::CSC)) {
+    if (device->services.contains(BLE::Services::CSC)) {
         cscNotificationService->setDevice(device);
     }
 
-    if (device->services.contains(Services::PWR)) {
+    if (device->services.contains(BLE::Services::PWR)) {
         powerNotificationService->setDevice(device);
     }
 
-    if (device->services.contains(Services::FEC_BIKE_TRAINER)) {
+    if (device->services.contains(BLE::Services::FEC_BIKE_TRAINER)) {
         fecService->setDevice(device);
     }
 }

@@ -22,10 +22,9 @@ public:
     virtual ~Controller() = default;
 
     explicit Controller(
-        const std::shared_ptr<Model> &model,
         const std::shared_ptr<AppState> &state,
         const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history)
-        : model(model), state(state), history(history) {
+        : history(history), state(state) {
     }
 
     virtual void handleRequest() = 0;
@@ -51,9 +50,9 @@ public:
     explicit ViewController(
         const std::shared_ptr<T> view,
         const std::shared_ptr<AppState> &state,
-        const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history,
-        const std::shared_ptr<Model> &model)
-        : Controller<T>(model, state, history), view(view) {
+        const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history
+    )
+        : Controller<T>(state, history), view(view) {
     }
 
 public:
@@ -65,9 +64,9 @@ public:
     explicit TrainerWindowController(
         const std::shared_ptr<TrainerWindow> &view,
         const std::shared_ptr<AppState> &state,
-        const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history,
-        const std::shared_ptr<Model> &model)
-        : ViewController(view, state, history, model) {
+        const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history
+    )
+        : ViewController(view, state, history) {
     }
 
     void handleRequest() override;
@@ -78,9 +77,9 @@ public:
     explicit SensorsWindowController(
         const std::shared_ptr<SensorsWindow> &view,
         const std::shared_ptr<AppState> &state,
-        const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history,
-        const std::shared_ptr<Model> &model)
-        : ViewController(view, state, history, model) {
+        const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history
+    )
+        : ViewController(view, state, history) {
     }
 
     void handleRequest() override;
@@ -91,9 +90,9 @@ public:
     explicit WorkoutWindowController(
         const std::shared_ptr<WorkoutWindow> &view,
         const std::shared_ptr<AppState> &state,
-        const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history,
-        const std::shared_ptr<Model> &model)
-        : ViewController(view, state, history, model) {
+        const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history
+    )
+        : ViewController(view, state, history) {
     }
 
     void handleRequest() override;
@@ -108,14 +107,16 @@ public:
         createDialog,
         const std::shared_ptr<AppState> &state,
         const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history,
-        const std::shared_ptr<Model> &model)
-        : Controller(model, state, history), createDialog(createDialog), scannerService(scannerService),
+        const std::shared_ptr<Model> &model
+    )
+        : Controller(state, history), createDialog(createDialog), model(model), scannerService(scannerService),
           qtAdapter(qtAdapter) {
     }
 
     void handleRequest() override;
 
 private:
+    std::shared_ptr<Model> model;
     std::shared_ptr<ScannerService> scannerService;
     std::function<std::shared_ptr<DeviceDialog>(std::vector<std::shared_ptr<Device> >, QWidget *)> createDialog;
     std::shared_ptr<QtEventPublisher> qtAdapter;
@@ -131,11 +132,11 @@ public:
         const std::shared_ptr<ScannerService> &scannerService,
 
         const std::shared_ptr<AppState> &state,
-        const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history,
-        const std::shared_ptr<Model> &model
+        const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history
     )
-        : Controller(model, state, history), hrmNotificationService(hrmNotificationService),
-          cscNotificationService(cscNotificationService), powerNotificationService(powerNotificationService),
+        : Controller(state, history), hrmNotificationService(hrmNotificationService),
+          cscNotificationService(cscNotificationService),
+          powerNotificationService(powerNotificationService),
           fecService(fecService), scannerService(scannerService) {
     }
 
@@ -161,7 +162,7 @@ public:
         const std::shared_ptr<DeviceRegistry> &registry,
         const std::shared_ptr<AppState> &state
     )
-        : Controller(model, state, history), hrmNotificationService(hrmNotificationService),
+        : Controller(state, history), hrmNotificationService(hrmNotificationService),
           cscNotificationService(cscNotificationService), powerNotificationService(powerNotificationService),
           fecService(fecService), scannerService(scannerService), registry(registry) {
     }

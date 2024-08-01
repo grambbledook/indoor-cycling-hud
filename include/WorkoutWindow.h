@@ -2,13 +2,12 @@
 #include "AppWindow.h"
 
 #include "MetricsPanel.h"
-class MetricsPanel;
 
 class WorkoutWindow final : public AppWindow {
     Q_OBJECT
 
 public:
-    void measurementsReceived(const MeasurementsUpdate &data);
+    void measurementsReceived(const WorkoutData &data);
 
     explicit WorkoutWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent = nullptr);
 

@@ -4,8 +4,6 @@
 #include <iostream>
 
 #include "Constants.h"
-#include "Events.h"
-#include "bluetooth/include/Events.h"
 
 AppWindow::AppWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent) : QMainWindow(parent),
                                                                                            m_drag(false), m_DragPosition(QPoint(0, 0)), controllerHandler(handler) {

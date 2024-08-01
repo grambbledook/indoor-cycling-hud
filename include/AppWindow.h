@@ -6,7 +6,7 @@
 #include <QPaintEvent>
 
 #include "ControllerHandler.h"
-#include "Data.h"
+#include "Events.h"
 
 class AppWindow : public QMainWindow {
     Q_OBJECT
@@ -25,9 +25,6 @@ public:
     void paintEvent(QPaintEvent *event) override;
 
     bool event(QEvent *event) override;
-
-signals:
-    virtual void nextScreen(std::string screen);
 
 public slots:
     virtual void back();

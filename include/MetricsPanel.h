@@ -13,7 +13,7 @@ public slots:
     void next();
     void prev();
 
-    void measurementsReceived(const MeasurementsUpdate &data);
+    void measurementsReceived(const WorkoutData &data);
 
 private:
     void updateTextLabel();
