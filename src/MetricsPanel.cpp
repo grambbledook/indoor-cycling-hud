@@ -49,6 +49,7 @@ void MetricsPanel::next() {
     idx = (++idx) % Data::DATA_FIELDS.size();
     dataField = Data::DATA_FIELDS[idx];
     updateTextLabel();
+    updateValueLabel();
 }
 
 void MetricsPanel::prev() {
@@ -57,12 +58,22 @@ void MetricsPanel::prev() {
     idx = ((--idx) + Data::DATA_FIELDS.size()) % Data::DATA_FIELDS.size();
     dataField = Data::DATA_FIELDS[idx];
     updateTextLabel();
+    updateValueLabel();
 }
 
 void MetricsPanel::measurementsReceived(const WorkoutData &data) {
-    valueLabel->setText(QString::fromStdString(dataField.value(data)));
+    this->data = std::make_shared<WorkoutData>(data);
+    updateValueLabel();
 }
 
 void MetricsPanel::updateTextLabel() {
     label->setText(QString::fromStdString(dataField.text));
+}
+void MetricsPanel::updateValueLabel() {
+    if (!data) {
+        valueLabel->setText(QString::fromStdString("--"));
+        return;
+    }
+
+    valueLabel->setText(QString::fromStdString(dataField.value(*data)));
 }

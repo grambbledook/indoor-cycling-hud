@@ -17,9 +17,13 @@ public slots:
 
 private:
     void updateTextLabel();
-private:
-    Data::DataField dataField;
 
+    void updateValueLabel();
+
+private:
     TextLabel *label;
     ValueLabel *valueLabel;
+
+    Data::DataField dataField;
+    std::shared_ptr<WorkoutData> data;
 };
