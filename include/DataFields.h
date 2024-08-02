@@ -44,13 +44,13 @@ namespace Data {
     };
 
     const auto SPEED = DataField{
-        "Speed",
-        [](const WorkoutData &data) { return std::to_string(data.speed.val); }
+        "Speed KMH",
+        [](const WorkoutData &data) { return std::format("{:.1f}", data.speed.val * 0.0036); }
     };
 
     const auto AVG_SPEED = DataField{
         "avg. Speed",
-        [](const WorkoutData &data) { return std::to_string(data.speed.avg); }
+        [](const WorkoutData &data) { return std::format("{:.1f}", data.speed.val * 0.0036); }
     };
 
     const auto POWER = DataField{
@@ -58,7 +58,9 @@ namespace Data {
         [](const WorkoutData &data) { return std::to_string(data.power.val); }
     };
 
-    const std::vector DATA_FIELDS = {HEART_RATE, AVG_HEART_RATE, CADENCE, AVG_CADENCE, SPEED, AVG_SPEED, POWER};
+    const std::vector DATA_FIELDS = {
+        HEART_RATE, AVG_HEART_RATE, CADENCE, AVG_CADENCE, SPEED, AVG_SPEED, POWER
+    };
 
     inline int index(const DataField &field) {
         for (auto i = 0; i < DATA_FIELDS.size(); i++) {

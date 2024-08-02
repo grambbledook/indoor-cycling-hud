@@ -50,7 +50,6 @@ void SelectDevicePanel::deviceSelected(const DeviceSelected &event) {
         return;
     }
 
-    std::cout << "SelectDevicePanel::deviceSelected" << std::endl;
     const auto name = QString::fromStdString(event.device->name.value);
     if (selectIcon) {
         selectIcon->setToolTip(name);
@@ -62,34 +61,27 @@ void SelectDevicePanel::deviceSelected(const DeviceSelected &event) {
 }
 
 void SelectDevicePanel::measurementsReceived(const WorkoutData &measurements_update) {
-    std::cout << "SelectDevicePanel::measurementsReceived" << std::endl;
-
     if (service.service == HEART_RATE.service) {
-        std::cout << "  SelectDevicePanel::measurementsReceived: HEART_RATE" << std::endl;
         const auto heart_rate = measurements_update.hrm.val;
         metricLabel->setText(QString::number(heart_rate));
     }
 
     if (service.service == CADENCE.service) {
-        std::cout << "  SelectDevicePanel::measurementsReceived: CADENCE" << std::endl;
         const auto cadence = measurements_update.cadence.val;
         metricLabel->setText(QString::number(cadence));
     }
 
     if (service.service == SPEED.service) {
-        std::cout << "  SelectDevicePanel::measurementsReceived: SPEED" << std::endl;
         const auto speed = measurements_update.speed.val;
         metricLabel->setText(QString::number(speed));
     }
 
     if (service.service == POWER.service) {
-        std::cout << "  SelectDevicePanel::measurementsReceived: POWER" << std::endl;
         const auto power = measurements_update.power.val;
         metricLabel->setText(QString::number(power));
     }
 }
 
 void SelectDevicePanel::handleDeviceButtonClick() const {
-    std::cout << "SelectDevicePanel::show_device_dialog()" << std::endl;
     handler->next(Constants::Screens::DEVICE_DIALOG);
 }

@@ -52,7 +52,6 @@ void WorkoutWindow::measurementsReceived(const WorkoutData &data) {
     powerMeterPanel->measurementsReceived(data);
 }
 
-
 void WorkoutWindow::next() {
     std::cout << "WorkoutWindow::next" << std::endl;
     controllerHandler->next(Constants::Screens::WORKOUT_SUMMARY);

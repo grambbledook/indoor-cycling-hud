@@ -55,10 +55,8 @@ void Model::setDevice(const std::shared_ptr<Device> &device) {
 
 void Model::setHeartRateMonitor(const std::shared_ptr<Device> &device) {
     if (hrmState.device and hrmState.device->deviceId() == device->deviceId()) {
-        std::cout << "Model::setHeartRateMonitor: " << "alredy set" << std::endl;
         return;
     }
-    std::cout << "Model::setHeartRateMonitor: " << device->deviceId() << std::endl;
     hrmState.device = device;
     notifications.deviceSelected.publish(DeviceSelected{Service::HEART_RATE, hrmState.device});
 }
@@ -67,7 +65,6 @@ void Model::setCadenceSensor(const std::shared_ptr<Device> &device) {
     if (cadenceState.device and cadenceState.device->deviceId() == device->deviceId()) {
         return;
     }
-
     cadenceState.device = device;
     notifications.deviceSelected.publish(DeviceSelected{Service::CADENCE, cadenceState.device});
 }
@@ -76,7 +73,6 @@ void Model::setSpeedSensor(const std::shared_ptr<Device> &device) {
     if (speedState.device and speedState.device->deviceId() == device->deviceId()) {
         return;
     }
-
     speedState.device = device;
     notifications.deviceSelected.publish(DeviceSelected{Service::SPEED, speedState.device});
 }
@@ -85,7 +81,6 @@ void Model::setPowerMeter(const std::shared_ptr<Device> &device) {
     if (powerState.device and powerState.device->deviceId() == device->deviceId()) {
         return;
     }
-
     powerState.device = device;
     notifications.deviceSelected.publish(DeviceSelected{Service::POWER, powerState.device});
 }
@@ -96,21 +91,16 @@ void Model::setBikeTrainer(const std::shared_ptr<Device> &device) {
 
 void Model::recordHeartData(const MeasurementEvent<HrmMeasurement> &event) {
     if (*hrmState.device != *event.device) {
-        std::cout << "Device mismatch." << std::endl;
-        std::cout << "  Should be: " << hrmState.device->deviceId() << " but was: " << event.device->deviceId() <<
-                std::endl;
         return;
     }
 
     hrmState.recordMetric(event.measurement.hrm);
     hrmState.aggregateMetric(event.measurement.hrm);
-    std::cout << "  HRM: " << hrmState.stats.latest << " AVG: " << hrmState.stats.average << std::endl;
 
     publishUpdate();
 }
 
 void Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event) {
-    std::cout << "Model::recordCadenceData" << std::endl;
     if (*cadenceState.device != *event.device) {
         return;
     }
@@ -119,10 +109,8 @@ void Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event)
 
     auto [events, dataPresent] = cadenceState.getLastN(2);
     auto [prevCcr, prevLcet, ccr, lcet] = std::tuple_cat(events[0], events[1]);
-    std::cout << "  Prev[" << prevCcr << ", " << prevLcet << "], Cur[" << ccr << ", " << lcet << "]" << std::endl;
 
     if (lcet == prevLcet and dataPresent) {
-        std::cout << "  Same timestamp. Skipping..." << std::endl;
         cadenceState.unrecordMetric();
         return;
     }
@@ -135,17 +123,12 @@ void Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event)
     const auto cadence = totalRevolutions * BLE::Math::MS_IN_MIN / timeDelta;
 
     cadenceState.aggregateMetric(cadence);
-    std::cout << "  CADENCE: " << cadenceState.stats.latest << " AVG: " << cadenceState.stats.average << std::endl;
 
     publishUpdate();
 }
 
 void Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) {
-    std::cout << "Model::recordSpeedData" << std::endl;
     if (*speedState.device != *event.device) {
-        std::cout << "  Device mismatch." << std::endl;
-        std::cout << "  Should be: " << speedState.device->deviceId() << " but was: " << event.device->deviceId() <<
-                std::endl;
         return;
     }
 
@@ -154,7 +137,6 @@ void Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) {
     auto [events, dataPresent] = speedState.getLastN(2);
     auto [prevCwr, prevLwet, cwr, lwet] = std::tuple_cat(events[0], events[1]);
 
-    std::cout << "  Prev[" << prevCwr << ", " << prevLwet << "], Cur[" << cwr << ", " << lwet << "]" << std::endl;
     if (lwet == prevLwet and dataPresent) {
         speedState.unrecordMetric();
         return;
@@ -165,12 +147,10 @@ void Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) {
     const auto totalRevolutions = cwr - prevCwr;
     const auto timeDelta = lwet - prevLwet + lwetResetCorrection;
 
-    const auto totalKmh = totalRevolutions * BLE::Wheels::DEFAULT_TIRE_CIRCUMFERENCE_MM / BLE::Math::MM_IN_KM;
-    const auto speed = totalKmh * BLE::Math::MS_IN_HOUR / timeDelta;
+    const auto distanceTraveled = totalRevolutions * BLE::Wheels::DEFAULT_TIRE_CIRCUMFERENCE_MM;
+    const auto speedMms = distanceTraveled * BLE::Math::MS_IN_SECOND / timeDelta;;
 
-    speedState.aggregateMetric(speed);
-    std::cout << "  SPEED: " << speedState.stats.latest << " AVG: " << speedState.stats.average << std::endl;
-
+    speedState.aggregateMetric(speedMms);
     publishUpdate();
 }
 
@@ -181,8 +161,6 @@ void Model::recordPowerData(const MeasurementEvent<PowerMeasurement> &event) {
 
     powerState.recordMetric(event.measurement.power);
     powerState.aggregateMetric(event.measurement.power);
-    std::cout << "  POWER: " << powerState.stats.latest << " AVG: " << powerState.stats.average << std::endl;
-
     publishUpdate();
 }
 
