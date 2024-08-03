@@ -28,21 +28,20 @@ int main(int argc, char **argv) {
 
     auto controllerHandler = std::make_shared<ControllerHandler>();
 
-    auto parent = new QWidget();
     auto deviceDialog = [&controllerHandler](std::vector<std::shared_ptr<Device> > data, QWidget *parent) {
         return std::make_shared<DeviceDialog>(data, controllerHandler, parent);
     };
 
     auto model = std::make_shared<Model>();
-    auto trainerWindow = std::make_shared<TrainerWindow>(controllerHandler, parent);
+    auto trainerWindow = std::make_shared<TrainerWindow>(controllerHandler);
     auto trainerWindowController = std::make_shared<TrainerWindowController>(
         trainerWindow, appState, history);
 
-    auto sensorsWindow = std::make_shared<SensorsWindow>(controllerHandler, parent);
+    auto sensorsWindow = std::make_shared<SensorsWindow>(controllerHandler);
     auto sensorWindowController = std::make_shared<SensorsWindowController>(
         sensorsWindow, appState, history);
 
-    auto workoutWindow = std::make_shared<WorkoutWindow>(controllerHandler, parent);
+    auto workoutWindow = std::make_shared<WorkoutWindow>(controllerHandler);
     auto workoutWindowController = std::make_shared<WorkoutWindowController>(
         workoutWindow, appState, history);
 
@@ -70,15 +69,24 @@ int main(int argc, char **argv) {
     auto connectToDeviceController = std::make_shared<ConnectToDeviceController>(
         hrm, csc, pwr, fec, scanner, appState, history);
 
+    auto switchThemeController = std::make_shared<SwitchThemeController>(
+        trainerWindow, sensorsWindow, workoutWindow, appState, history
+    );
+
     const auto shutdownController = std::make_shared<ShutdownController>(
         hrm, csc, pwr, fec, scanner, registry, appState);
 
-    auto viewNavigator = std::make_unique<ViewNavigator>(
+    const auto viewNavigator = std::make_unique<ViewNavigator>(
         controllerHandler,
         deviceDialogController, connectToDeviceController, trainerWindowController, sensorWindowController,
-        workoutWindowController, shutdownController
+        workoutWindowController, switchThemeController, shutdownController
     );
-    auto trainer = std::make_shared<SystemTray>();
+    const auto tray = std::make_shared<SystemTray>(controllerHandler);
+    tray->switchTheme();
+    tray->show();
+
     viewNavigator->nextScreen(Constants::Screens::TRAINER);
+
+
     return app->exec();
 }

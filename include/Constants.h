@@ -53,5 +53,7 @@ namespace Constants {
 
     namespace Commands {
         const auto CONNECT = "CONNECT";
+        const auto SWITCH_THEME = "SWITCH_THEME";
+        const auto QUIT = "QUIT";
     }
 }

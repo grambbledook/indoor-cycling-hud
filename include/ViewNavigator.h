@@ -15,6 +15,7 @@ public:
         const std::shared_ptr<TrainerWindowController> &trainerWindowController,
         const std::shared_ptr<SensorsWindowController> &sensorsWindowController,
         const std::shared_ptr<WorkoutWindowController> &workoutWindowController,
+        const std::shared_ptr<SwitchThemeController> &switchThemeController,
         const std::shared_ptr<ShutdownController> &shutdownController
     );
 
@@ -28,5 +29,6 @@ private:
     std::shared_ptr<TrainerWindowController> trainerWindowController;
     std::shared_ptr<SensorsWindowController> sensorsWindowController;
     std::shared_ptr<WorkoutWindowController> workoutWindowController;
+    std::shared_ptr<SwitchThemeController> switchThemeController;
     std::shared_ptr<ShutdownController> shutdownController;
 };

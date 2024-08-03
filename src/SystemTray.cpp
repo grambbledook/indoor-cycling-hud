@@ -3,10 +3,10 @@
 #include <QApplication>
 #include <QMenu>
 
-#include "BluetoothConstants.h"
-#include "StyleSheets.h"
+#include "Constants.h"
 
-SystemTray::SystemTray(QWidget *parent): QSystemTrayIcon(parent), parent(parent) {
+SystemTray::SystemTray(
+    const std::shared_ptr<ControllerHandler> &handler): QSystemTrayIcon(nullptr), handler(handler) {
     auto tray_icon = new QSystemTrayIcon(this);
     tray_icon->setIcon(QIcon("assets/hrm.png"));
 
@@ -16,20 +16,17 @@ SystemTray::SystemTray(QWidget *parent): QSystemTrayIcon(parent), parent(parent)
     auto quit_action = new QAction("Quit", this);
     connect(quit_action, &QAction::triggered, this, &SystemTray::quit);
 
-    auto tray_icon_menu = new QMenu();
+    const auto tray_icon_menu = new QMenu();
     tray_icon_menu->addAction(switch_theme);
     tray_icon_menu->addAction(quit_action);
     tray_icon->setContextMenu(tray_icon_menu);
     tray_icon->show();
 }
 
-void SystemTray::switchTheme(bool checked) {
-    static auto dark = StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM;
-    static auto bright = StyleSheets::THEME_BRIGHT + StyleSheets::SCALE_MEDIUM;
-
-    parent->setStyleSheet(checked ? dark.data() : bright.data());
+void SystemTray::switchTheme() {
+    handler->next(Constants::Commands::SWITCH_THEME);
 }
 
 void SystemTray::quit() {
-    QApplication::quit();
+    handler->next(Constants::Commands::QUIT);
 }

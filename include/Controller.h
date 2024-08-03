@@ -150,6 +150,26 @@ private:
     std::shared_ptr<ScannerService> scannerService;
 };
 
+class SwitchThemeController final : public Controller<QWidget> {
+public:
+    explicit SwitchThemeController(
+        const std::shared_ptr<TrainerWindow> &trainerWindow,
+        const std::shared_ptr<SensorsWindow> &sensorsWindow,
+        const std::shared_ptr<WorkoutWindow> &workoutWindow,
+        const std::shared_ptr<AppState> &state,
+        const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history
+    )
+        : Controller(state, history), trainerWindow(trainerWindow), sensorsWindow(sensorsWindow),
+          workoutWindow(workoutWindow) {
+    }
+
+    void handleRequest() override;
+
+private:
+    std::shared_ptr<TrainerWindow> trainerWindow;
+    std::shared_ptr<SensorsWindow> sensorsWindow;
+    std::shared_ptr<WorkoutWindow> workoutWindow;
+};
 
 class ShutdownController final : public Controller<DeviceDialog> {
 public:

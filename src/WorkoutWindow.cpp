@@ -41,8 +41,6 @@ WorkoutWindow::WorkoutWindow(const std::shared_ptr<ControllerHandler> &handler, 
     layout->addWidget(powerMeterPanel, 2, 0);
     layout->addWidget(speedSensorPanel, 3, 0);
     layout->addWidget(finishLabel, 4, 0, 1, 1, Qt::AlignmentFlag::AlignCenter);
-
-    setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
 }
 
 void WorkoutWindow::measurementsReceived(const WorkoutData &data) {
@@ -54,5 +52,5 @@ void WorkoutWindow::measurementsReceived(const WorkoutData &data) {
 
 void WorkoutWindow::next() {
     std::cout << "WorkoutWindow::next" << std::endl;
-    controllerHandler->next(Constants::Screens::WORKOUT_SUMMARY);
+    controllerHandler->next(Constants::Commands::QUIT);
 }

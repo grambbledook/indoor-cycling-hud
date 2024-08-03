@@ -1,8 +1,10 @@
 #include "Controller.h"
 
 #include <iostream>
+#include <QApplication>
 
 #include "BluetoothServices.h"
+#include "StyleSheets.h"
 
 std::ostream &operator<<(std::ostream &os, const ApplicationState &state) {
     switch (state) {
@@ -164,14 +166,27 @@ void ConnectToDeviceController::handleRequest() {
     }
 }
 
-void ShutdownController::handleRequest() {
-    if (state->state != ApplicationState::IN_WORKOUT) {
-        std::cout << "  Wrong state: " << state->state << std::endl;
-        return;
-    }
+void SwitchThemeController::handleRequest() {
+    state->darkThemeEnabled = !state->darkThemeEnabled;
 
+    const auto theme = state->darkThemeEnabled? StyleSheets::THEME_DARK : StyleSheets::THEME_BRIGHT;
+    const auto size = StyleSheets::SCALE_MEDIUM;
+
+    const auto sheet = (theme + size).data();
+
+    workoutWindow->setStyleSheet(sheet);
+    sensorsWindow->setStyleSheet(sheet);
+    trainerWindow->setStyleSheet(sheet);
+    workoutWindow->update();
+    sensorsWindow->update();
+    trainerWindow->update();
+}
+
+void ShutdownController::handleRequest() {
     state->state = ApplicationState::EXITING;
 
     registry->stop();
-    exit(0);
+    QApplication::quit();
 }
+
+

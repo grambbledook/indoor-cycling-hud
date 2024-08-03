@@ -44,56 +44,66 @@ namespace StyleSheets {
                                     })MEDIUM";
 
     inline std::string THEME_DARK = R"DARK(
-                                    QListWidget {
-                                        background-color: transparent;
-                                        color: black;
-                                        font-weight: bold;
-                                        font-size: 20px;
-                                        text-align: center;
-                                    }
-                                    QFrame#frame_with_borders {
-                                        border: 1px solid black;
-                                    }
-                                    QListWidget::item {
-                                        background-color: transparent;
-                                    }
-                                    QListWidget::item:selected {
-                                        background-color: #808080;
-                                    }
-                                    QLabel {
-                                        color: black;
-                                    }
-                                    ButtonLabel#with_borders {
-                                        border: 2px solid black;
-                                    }
-                                    ClickableLabel {
-                                        border: 1px solid black;
-                                    })DARK";
+        QListWidget {
+            background-color: rgba(0, 0, 0, 0.8); /* Black background with 80% opacity */
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            text-align: center;
+        }
+        QFrame#frame_with_borders {
+            border: 1px solid white;
+            background-color: rgba(0, 0, 0, 0.8); /* Black background with 80% opacity */
+        }
+        QListWidget::item {
+            background-color: transparent;
+        }
+        QListWidget::item:selected {
+            background-color: #808080;
+        }
+        QLabel {
+            color: white;
+            background-color: rgba(0, 0, 0, 0.8); /* Black background with 80% opacity */
+        }
+        ButtonLabel#with_borders {
+            border: 2px solid white;
+            background-color: rgba(0, 0, 0, 0.8); /* Black background with 80% opacity */
+        }
+        ClickableLabel {
+            border: 1px solid white;
+            background-color: rgba(0, 0, 0, 0.8); /* Black background with 80% opacity */
+        }
+    )DARK";
 
     inline std::string THEME_BRIGHT = R"BRIGHT(
-                                    QListWidget {
-                                        background-color: transparent;
-                                        color: black;
-                                        font-weight: bold;
-                                        font-size: 20px;
-                                        text-align: center;
-                                    }
-                                    QFrame#frame_with_borders {
-                                        border: 1px solid black;
-                                    }
-                                    QListWidget::item {
-                                        background-color: transparent;
-                                    }
-                                    QListWidget::item:selected {
-                                        background-color: #808080;
-                                    }
-                                    QLabel {
-                                        color: black;
-                                    }
-                                    ButtonLabel#with_borders {
-                                        border: 2px solid black;
-                                    }
-                                    ClickableLabel {
-                                        border: 1px solid black;
-                                    })BRIGHT";
+        QListWidget {
+            background-color: rgba(255, 255, 255, 0.8); /* White background with 80% opacity */
+            color: black;
+            font-weight: bold;
+            font-size: 20px;
+            text-align: center;
+        }
+        QFrame#frame_with_borders {
+            border: 1px solid black;
+            background-color: rgba(255, 255, 255, 0.8); /* White background with 80% opacity */
+        }
+        QListWidget::item {
+            background-color: transparent;
+        }
+        QListWidget::item:selected {
+            background-color: #808080;
+        }
+        QLabel {
+            color: black;
+            background-color: rgba(255, 255, 255, 0.8); /* White background with 80% opacity */
+        }
+        ButtonLabel#with_borders {
+            border: 2px solid black;
+            background-color: rgba(255, 255, 255, 0.8); /* White background with 80% opacity */
+        }
+        ClickableLabel {
+            border: 1px solid black;
+            background-color: rgba(255, 255, 255, 0.8); /* White background with 80% opacity */
+        }
+    )BRIGHT";
 }

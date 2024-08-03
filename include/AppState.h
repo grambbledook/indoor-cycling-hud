@@ -14,4 +14,5 @@ public:
     }
 
     ApplicationState state;
+    bool darkThemeEnabled = false;
 };

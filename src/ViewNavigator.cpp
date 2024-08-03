@@ -10,11 +10,12 @@ ViewNavigator::ViewNavigator(
     const std::shared_ptr<TrainerWindowController> &trainerWindowController,
     const std::shared_ptr<SensorsWindowController> &sensorsWindowController,
     const std::shared_ptr<WorkoutWindowController> &workoutWindowController,
+    const std::shared_ptr<SwitchThemeController> &switchThemeController,
     const std::shared_ptr<ShutdownController> &shutdownController
 ): connectToDeviceController(connectToDeviceController), controllerHandler(controllerHandler),
    deviceDialogController(deviceDialogController), trainerWindowController(trainerWindowController),
    sensorsWindowController(sensorsWindowController), shutdownController(shutdownController),
-   workoutWindowController(workoutWindowController) {
+   switchThemeController(switchThemeController), workoutWindowController(workoutWindowController) {
     controllerHandler->subscribe([this](const std::string &screen) {
         this->nextScreen(screen);
     });
@@ -41,7 +42,11 @@ void ViewNavigator::nextScreen(const std::string &command) const {
         connectToDeviceController->handleRequest();
     }
 
-    if (command == Constants::Screens::WORKOUT_SUMMARY) {
+    if (command == Constants::Commands::SWITCH_THEME) {
+        switchThemeController->handleRequest();
+    }
+
+    if (command == Constants::Commands::QUIT) {
         shutdownController->handleRequest();
     }
 }

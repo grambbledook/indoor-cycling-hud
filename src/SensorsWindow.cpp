@@ -74,8 +74,6 @@ SensorsWindow::SensorsWindow(const std::shared_ptr<ControllerHandler> &handler, 
     const auto centralWidget = new QWidget(this);
     centralWidget->setLayout(layout);
     setCentralWidget(centralWidget);
-
-    setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
 }
 
 void SensorsWindow::deviceSelected(const DeviceSelected &event) const {
