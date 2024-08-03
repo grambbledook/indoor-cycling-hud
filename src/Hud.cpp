@@ -10,6 +10,7 @@
 #include "Controller.h"
 #include "QtEventPublisher.h"
 #include "SensorsWindow.h"
+#include "SystemTray.h"
 #include "TrainerWindow.h"
 #include "ViewNavigator.h"
 #include "WorkoutWindow.h"
@@ -27,20 +28,21 @@ int main(int argc, char **argv) {
 
     auto controllerHandler = std::make_shared<ControllerHandler>();
 
+    auto parent = new QWidget();
     auto deviceDialog = [&controllerHandler](std::vector<std::shared_ptr<Device> > data, QWidget *parent) {
         return std::make_shared<DeviceDialog>(data, controllerHandler, parent);
     };
 
     auto model = std::make_shared<Model>();
-    auto trainerWindow = std::make_shared<TrainerWindow>(controllerHandler);
+    auto trainerWindow = std::make_shared<TrainerWindow>(controllerHandler, parent);
     auto trainerWindowController = std::make_shared<TrainerWindowController>(
         trainerWindow, appState, history);
 
-    auto sensorsWindow = std::make_shared<SensorsWindow>(controllerHandler);
+    auto sensorsWindow = std::make_shared<SensorsWindow>(controllerHandler, parent);
     auto sensorWindowController = std::make_shared<SensorsWindowController>(
         sensorsWindow, appState, history);
 
-    auto workoutWindow = std::make_shared<WorkoutWindow>(controllerHandler);
+    auto workoutWindow = std::make_shared<WorkoutWindow>(controllerHandler, parent);
     auto workoutWindowController = std::make_shared<WorkoutWindowController>(
         workoutWindow, appState, history);
 
@@ -60,7 +62,6 @@ int main(int argc, char **argv) {
     auto deviceDialogController = std::make_shared<ShowDeviceDialogController>(
         qtAdapter, scanner, deviceDialog, appState, history, model);
 
-
     auto registry = std::make_shared<DeviceRegistry>();
     const auto hrm = std::make_shared<HrmNotificationService>(registry, model);
     const auto csc = std::make_shared<CyclingCadenceAndSpeedNotificationService>(registry, model);
@@ -77,7 +78,7 @@ int main(int argc, char **argv) {
         deviceDialogController, connectToDeviceController, trainerWindowController, sensorWindowController,
         workoutWindowController, shutdownController
     );
-
+    auto trainer = std::make_shared<SystemTray>();
     viewNavigator->nextScreen(Constants::Screens::TRAINER);
     return app->exec();
 }
