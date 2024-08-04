@@ -44,8 +44,11 @@ namespace StyleSheets {
                                     })MEDIUM";
 
     inline std::string THEME_DARK = R"DARK(
+        QWidget#panel {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
         QListWidget {
-            background-color: rgba(0, 0, 0, 0.8); /* Black background with 80% opacity */
+            background-color: rgba(0, 0, 0, 0.8);
             color: white;
             font-weight: bold;
             font-size: 16px;
@@ -53,7 +56,6 @@ namespace StyleSheets {
         }
         QFrame#frame_with_borders {
             border: 1px solid white;
-            background-color: rgba(0, 0, 0, 0.8); /* Black background with 80% opacity */
         }
         QListWidget::item {
             background-color: transparent;
@@ -63,21 +65,21 @@ namespace StyleSheets {
         }
         QLabel {
             color: white;
-            background-color: rgba(0, 0, 0, 0.8); /* Black background with 80% opacity */
         }
         ButtonLabel#with_borders {
             border: 2px solid white;
-            background-color: rgba(0, 0, 0, 0.8); /* Black background with 80% opacity */
         }
         ClickableLabel {
             border: 1px solid white;
-            background-color: rgba(0, 0, 0, 0.8); /* Black background with 80% opacity */
         }
     )DARK";
 
     inline std::string THEME_BRIGHT = R"BRIGHT(
+        QWidget#panel {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
         QListWidget {
-            background-color: rgba(255, 255, 255, 0.8); /* White background with 80% opacity */
+            background-color: rgba(255, 255, 255, 0.8);
             color: black;
             font-weight: bold;
             font-size: 20px;
@@ -85,7 +87,6 @@ namespace StyleSheets {
         }
         QFrame#frame_with_borders {
             border: 1px solid black;
-            background-color: rgba(255, 255, 255, 0.8); /* White background with 80% opacity */
         }
         QListWidget::item {
             background-color: transparent;
@@ -95,15 +96,12 @@ namespace StyleSheets {
         }
         QLabel {
             color: black;
-            background-color: rgba(255, 255, 255, 0.8); /* White background with 80% opacity */
         }
         ButtonLabel#with_borders {
             border: 2px solid black;
-            background-color: rgba(255, 255, 255, 0.8); /* White background with 80% opacity */
         }
         ClickableLabel {
             border: 1px solid black;
-            background-color: rgba(255, 255, 255, 0.8); /* White background with 80% opacity */
         }
     )BRIGHT";
 }

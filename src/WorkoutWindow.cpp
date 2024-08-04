@@ -32,7 +32,7 @@ WorkoutWindow::WorkoutWindow(const std::shared_ptr<ControllerHandler> &handler, 
 
     const auto layout = new QGridLayout(this);
     const auto centralWidget = new QWidget(this);
-
+    centralWidget->setObjectName(Constants::Classes::PANEL);
     centralWidget->setLayout(layout);
     setCentralWidget(centralWidget);
 

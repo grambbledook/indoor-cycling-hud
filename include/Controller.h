@@ -4,6 +4,7 @@
 #include <utility>
 #include <stack>
 #include <memory>
+#include <QApplication>
 
 #include "AppState.h"
 #include "DeviceDialog.h"
@@ -153,6 +154,7 @@ private:
 class SwitchThemeController final : public Controller<QWidget> {
 public:
     explicit SwitchThemeController(
+        QApplication *app,
         const std::shared_ptr<TrainerWindow> &trainerWindow,
         const std::shared_ptr<SensorsWindow> &sensorsWindow,
         const std::shared_ptr<WorkoutWindow> &workoutWindow,
@@ -166,6 +168,7 @@ public:
     void handleRequest() override;
 
 private:
+    QApplication *app;
     std::shared_ptr<TrainerWindow> trainerWindow;
     std::shared_ptr<SensorsWindow> sensorsWindow;
     std::shared_ptr<WorkoutWindow> workoutWindow;

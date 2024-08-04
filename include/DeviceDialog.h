@@ -21,8 +21,6 @@ public:
 
     bool event(QEvent *event) override;
 
-    void paintEvent(QPaintEvent *event) override;
-
 public slots:
     void renderDevice(const std::shared_ptr<Device> &device) const;
 

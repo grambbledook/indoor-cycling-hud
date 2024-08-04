@@ -7,20 +7,21 @@
 
 AppWindow::AppWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent) : QMainWindow(parent),
                                                                                            m_drag(false), m_DragPosition(QPoint(0, 0)), controllerHandler(handler) {
+
     setWindowFlags(Qt::WindowType::WindowStaysOnTopHint | Qt::WindowType::FramelessWindowHint);
-    setAttribute(Qt::WidgetAttribute::WA_TranslucentBackground);
+    setAttribute(Qt::WidgetAttribute::WA_TranslucentBackground, true);
     setObjectName(Constants::Classes::APP_WINDOW);
 }
 
 AppWindow::~AppWindow() = default;
 
-void AppWindow::paintEvent(QPaintEvent *event) {
-    const auto painter = std::make_unique<QPainter>(this);
+// void AppWindow::paintEvent(QPaintEvent *event) {
+    // const auto painter = std::make_unique<QPainter>(this);
 
-    painter->setOpacity(0.25);
-    painter->setBrush(QBrush(QColor(200, 200, 200, 128)));
-    painter->drawRect(this->rect());
-}
+    // painter->setOpacity(0.25);
+    // painter->setBrush(QBrush(QColor(200, 200, 200, 128)));
+    // painter->drawRect(this->rect());
+// }
 
 
 void AppWindow::mousePressEvent(QMouseEvent *event) {

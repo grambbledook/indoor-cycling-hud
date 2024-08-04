@@ -169,17 +169,25 @@ void ConnectToDeviceController::handleRequest() {
 void SwitchThemeController::handleRequest() {
     state->darkThemeEnabled = !state->darkThemeEnabled;
 
-    const auto theme = state->darkThemeEnabled? StyleSheets::THEME_DARK : StyleSheets::THEME_BRIGHT;
+    const auto theme = state->darkThemeEnabled ? StyleSheets::THEME_DARK : StyleSheets::THEME_BRIGHT;
     const auto size = StyleSheets::SCALE_MEDIUM;
 
-    const auto sheet = (theme + size).data();
+    const auto sheet = QString::fromStdString(theme + size);
 
+    app->setStyleSheet(sheet);
+
+    if (!history->empty()) {
+        const auto possiblyDialog = history->top();
+        possiblyDialog->setStyleSheet(sheet);
+        possiblyDialog->update();
+    }
     workoutWindow->setStyleSheet(sheet);
     sensorsWindow->setStyleSheet(sheet);
     trainerWindow->setStyleSheet(sheet);
     workoutWindow->update();
     sensorsWindow->update();
     trainerWindow->update();
+
 }
 
 void ShutdownController::handleRequest() {
@@ -188,5 +196,3 @@ void ShutdownController::handleRequest() {
     registry->stop();
     QApplication::quit();
 }
-
-

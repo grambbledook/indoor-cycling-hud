@@ -33,7 +33,14 @@ DeviceDialog::DeviceDialog(
     layout->addWidget(listWidget.get());
     layout->addLayout(hLayout);
 
-    setLayout(layout);
+    const auto centralWidget = new QWidget(this);
+    centralWidget->setObjectName(Constants::Classes::PANEL);
+    centralWidget->setLayout(layout);
+
+    const auto mainLayout = new QVBoxLayout();
+    mainLayout->addWidget(centralWidget);
+    setLayout(mainLayout);
+
     setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
     setWindowFlags(Qt::WindowType::FramelessWindowHint | Qt::WindowType::Dialog);
     setAttribute(Qt::WidgetAttribute::WA_TranslucentBackground);
@@ -101,12 +108,4 @@ bool DeviceDialog::event(QEvent *event) {
     const std::shared_ptr<Device> device = deviceEvent->getEvent().device;
     renderDevice(device);
     return true;
-}
-
-void DeviceDialog::paintEvent(QPaintEvent *event) {
-    const auto painter = std::make_unique<QPainter>(this);
-
-    painter->setOpacity(0.75);
-    painter->setBrush(QBrush(QColor(255, 255, 255, 128)));
-    painter->drawRect(this->rect());
 }

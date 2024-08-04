@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
         hrm, csc, pwr, fec, scanner, appState, history);
 
     auto switchThemeController = std::make_shared<SwitchThemeController>(
-        trainerWindow, sensorsWindow, workoutWindow, appState, history
+        app, trainerWindow, sensorsWindow, workoutWindow, appState, history
     );
 
     const auto shutdownController = std::make_shared<ShutdownController>(
@@ -86,7 +86,6 @@ int main(int argc, char **argv) {
     tray->show();
 
     viewNavigator->nextScreen(Constants::Screens::TRAINER);
-
 
     return app->exec();
 }

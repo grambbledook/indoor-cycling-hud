@@ -39,7 +39,9 @@ TrainerWindow::TrainerWindow(const std::shared_ptr<ControllerHandler> &handler, 
     layout->addWidget(nextLabel, 1, 0, Qt::AlignCenter);
 
     const auto centralWidget = new QWidget(this);
+    centralWidget->setObjectName(Constants::Classes::PANEL);
     centralWidget->setLayout(layout);
+
     setCentralWidget(centralWidget);
 }
 

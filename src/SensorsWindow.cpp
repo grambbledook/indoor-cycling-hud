@@ -72,6 +72,7 @@ SensorsWindow::SensorsWindow(const std::shared_ptr<ControllerHandler> &handler, 
     layout->addWidget(nextLabel, 3, 1, Qt::AlignCenter);
 
     const auto centralWidget = new QWidget(this);
+    centralWidget->setObjectName(Constants::Classes::PANEL);
     centralWidget->setLayout(layout);
     setCentralWidget(centralWidget);
 }
