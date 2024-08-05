@@ -3,7 +3,7 @@
 #include <iostream>
 #include <QApplication>
 
-#include "DeviceServices.h"
+#include "BleDeviceServices.h"
 #include "StyleSheets.h"
 
 std::ostream &operator<<(std::ostream &os, const ApplicationState &state) {

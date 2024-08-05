@@ -15,7 +15,7 @@
 #include "ViewNavigator.h"
 #include "WorkoutWindow.h"
 
-#include "service/include/DeviceServices.h"
+#include "BleDeviceServices.h"
 
 using namespace winrt;
 

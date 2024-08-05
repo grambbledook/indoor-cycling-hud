@@ -3,7 +3,7 @@
 
 #include "Channel.h"
 #include "ModelEvents.h"
-#include "DeviceEvents.h"
+#include "BleDeviceEvents.h"
 
 class Notifications {
 public:

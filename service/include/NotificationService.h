@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include <DeviceEvents.h>
+#include <BleDeviceEvents.h>
 #include "ClientRegistry.h"
 #include "Model.h"
 
