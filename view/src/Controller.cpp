@@ -3,7 +3,7 @@
 #include <iostream>
 #include <QApplication>
 
-#include "BluetoothServices.h"
+#include "DeviceServices.h"
 #include "StyleSheets.h"
 
 std::ostream &operator<<(std::ostream &os, const ApplicationState &state) {

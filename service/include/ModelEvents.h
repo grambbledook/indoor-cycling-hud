@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "Data.h"
+#include "Service.h"
 
 struct Statistics {
     int latest;

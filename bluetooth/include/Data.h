@@ -2,7 +2,6 @@
 
 #include <functional>
 #include <algorithm>
-#include <iostream>
 #include <memory>
 #include <string>
 #include <unordered_set>
@@ -10,10 +9,18 @@
 
 struct Address {
     const std::string value;
+
+    bool operator==(const Address &other) const {
+        return value == other.value;
+    }
 };
 
 struct Name {
     const std::string value;
+
+    bool operator==(const Name &other) const {
+        return value == other.value;
+    }
 };
 
 struct UUID {
@@ -66,22 +73,3 @@ struct Device {
         return name.value + ":" + address.value;
     }
 };
-
-enum class Service {
-    HEART_RATE,
-    CADENCE,
-    SPEED,
-    POWER,
-    BIKE_TRAINER
-};
-
-inline std::string asString(const Service &as) {
-    switch (as) {
-        case Service::HEART_RATE: return "HEART_RATE";
-        case Service::CADENCE: return "CADENCE";
-        case Service::SPEED: return "SPEED";
-        case Service::POWER: return "POWER";
-        case Service::BIKE_TRAINER: return "BIKE_TRAINER";
-        default: std::unreachable();
-    }
-}

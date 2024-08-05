@@ -3,7 +3,7 @@
 
 #include "Channel.h"
 #include "ModelEvents.h"
-#include "BluetoothEvents.h"
+#include "DeviceEvents.h"
 
 class Notifications {
 public:

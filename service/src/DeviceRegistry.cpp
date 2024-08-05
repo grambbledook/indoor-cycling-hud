@@ -1,4 +1,4 @@
-#include "DeviceRegistry.h"
+#include "ClientRegistry.h"
 
 #include <unordered_map>
 #include <functional>

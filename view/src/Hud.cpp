@@ -15,7 +15,7 @@
 #include "ViewNavigator.h"
 #include "WorkoutWindow.h"
 
-#include "WinRT.h"
+#include "service/include/DeviceServices.h"
 
 using namespace winrt;
 
@@ -56,7 +56,8 @@ int main(int argc, char **argv) {
     model->notifications.measurements.subscribe(
         std::bind(&QtEventPublisher::measurementReceived, qtAdapter, std::placeholders::_1));
 
-    auto scanner = std::make_shared<ScannerService>(model, Scanner());
+    auto scanner1 = Scanner(BLE::Services::SUPPORTED_SERVICES_MAP);
+    auto scanner = std::make_shared<ScannerService>(model, scanner1);
 
     auto deviceDialogController = std::make_shared<ShowDeviceDialogController>(
         qtAdapter, scanner, deviceDialog, appState, history, model);

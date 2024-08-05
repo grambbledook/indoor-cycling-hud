@@ -11,7 +11,6 @@
 #include <winrt/Windows.Devices.Enumeration.h>
 #include <winrt/Windows.Storage.Streams.h>
 
-#include "BluetoothServices.h"
 #include "WinRtUtils.h"
 
 using namespace winrt;
@@ -20,13 +19,18 @@ using namespace Windows::Foundation::Collections;
 using namespace Windows::Devices::Bluetooth::Advertisement;
 using namespace Windows::Devices::Bluetooth::Advertisement;
 
+
+Scanner::Scanner(const std::unordered_map<UUID, GattService, UUID::Hash> &supportedGattServices): supportedGattServices(
+    supportedGattServices) {
+}
 void Scanner::startScan(const std::function<void(std::shared_ptr<Device>)> &receiver) {
     resetPreviousScans();
 
     watcher->ScanningMode(BluetoothLEScanningMode::Active);
 
     watcher->Received(
-        [receiver](BluetoothLEAdvertisementWatcher const &, BluetoothLEAdvertisementReceivedEventArgs const &args) {
+        [receiver, this](BluetoothLEAdvertisementWatcher const &,
+                         BluetoothLEAdvertisementReceivedEventArgs const &args) {
             auto name = args.Advertisement().LocalName();
             const uint64_t address = args.BluetoothAddress();
 
@@ -37,9 +41,9 @@ void Scanner::startScan(const std::function<void(std::shared_ptr<Device>)> &rece
             for (auto i = 0; i < services_size; i++) {
                 auto cs = services.GetAt(i);
 
-                if (auto candidate_service_uuid = WinrtUtils::uuidFromGuid(cs); BLE::Services::SUPPORTED_SERVICES_MAP.
-                    contains(candidate_service_uuid)) {
-                    supported_services.insert(BLE::Services::SUPPORTED_SERVICES_MAP.at(candidate_service_uuid));
+                if (auto candidate_service_uuid = WinrtUtils::uuidFromGuid(cs); supportedGattServices.contains(
+                    candidate_service_uuid)) {
+                    supported_services.insert(supportedGattServices.at(candidate_service_uuid));
                 }
             }
 

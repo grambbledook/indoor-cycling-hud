@@ -4,7 +4,7 @@
 #include <utility>
 
 #include "BluetoothConstants.h"
-#include "BluetoothServices.h"
+#include "DeviceServices.h"
 
 
 template<DerivedFromMeasurement T>

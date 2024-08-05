@@ -2,8 +2,8 @@
 
 #include <memory>
 
-#include <BluetoothEvents.h>
-#include "DeviceRegistry.h"
+#include <DeviceEvents.h>
+#include "ClientRegistry.h"
 #include "Model.h"
 
 template<DerivedFromMeasurement T>

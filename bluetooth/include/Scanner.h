@@ -11,6 +11,8 @@ using namespace Windows::Devices::Bluetooth::Advertisement;
 
 class Scanner {
 public:
+    explicit Scanner(const std::unordered_map<UUID, GattService, UUID::Hash> &supportedGattServices);
+
     void startScan(const std::function<void(std::shared_ptr<Device>)> &receiver);
 
     void stopScan() const;
@@ -18,5 +20,6 @@ public:
     void resetPreviousScans();
 
 private:
+    const std::unordered_map<UUID, GattService, UUID::Hash> supportedGattServices;
     std::shared_ptr<BluetoothLEAdvertisementWatcher> watcher;
 };
