@@ -1,4 +1,4 @@
-# hud
+# indoor cycling hud
 A simple GUI app that displays a HUD (Heads-Up Display) on the screen. 
 It is intended to be used during indoor cycling on top of other full screen apps or in addition to watching youtube videos.
 
@@ -8,33 +8,39 @@ This is a hobby project and my first GUI app. It is not guaranteed to be accurat
 ## Supported Features
 
 ### Supported Devices
-[ ] Heart Rate Monitors (Bluetooth LE) \
-[ ] Cycling Speed and Cadence Sensors (Bluetooth LE) \
-[ ] Power Meters (Bluetooth LE) \
+[x] Heart Rate Monitors (Bluetooth LE) \
+[x] Cycling Speed and Cadence Sensors (Bluetooth LE) \
+[x] Power Meters (Bluetooth LE) \
 [ ] Indoor Cycling Trainers (FE-C over BLE) \
-[ ] Indoor Cycling Trainers (Bluetooth LE) \
+[ ] Indoor Cycling Trainers (Bluetooth LE) 
 
-### Display features
-[ ] Display of current heart rate \
-[ ] Display of current cycling speed \
-[ ] Display of current cycling cadence \
-[ ] Display of instantaneous cycling power \
-[ ] Display of 3s average cycling power \
-[ ] Display of total distance 
+### Data Fields
+[x] Instant and average heart rate \
+[x] Instant and average cycling speed \
+[x] Instant and average cycling cadence \
+[x] Instantaneous cycling power \
+[ ] 3s average cycling power \
+[ ] Total time and distance 
 
 ### In-door training features
-[ ] Set and update target power zone \
-[ ] Set and update target grade 
+[ ] ERG Mode \
+[ ] Set and update target power \
+[ ] Set and update target grade \
+[ ] Structured workouts
+
+### UI features
+[x] Overlay mode \
+[x] Switching between dark/bright color schemes
 
 # Screenshots
 ### Select trainer view
-<img src="https://github.com/grambbledook/indoor-cycling-hud/blob/b4f8e147d4775c8699e706c539d0030ed5b34b5fb4f8e147d4775c8699e706c539d0030ed5b34b5f/_docs/select_trainer_view.png" width="200" height="200"/>
+<img src="https://github.com/grambbledook/indoor-cycling-hud/blob/89a8229f3a72081b729f71e90409470b3024999e/_docs/select_trainer_view.png" width="150" height="150"/>
 
 ### Select sensors view
-<img src="https://github.com/grambbledook/indoor-cycling-hud/blob/b4f8e147d4775c8699e706c539d0030ed5b34b5f/_docs/select_sensors_view.png" width="200" height="200"/>
+<img src="https://github.com/grambbledook/indoor-cycling-hud/blob/89a8229f3a72081b729f71e90409470b3024999e/_docs/select_sensors_view.png" width="250" height="250"/>
 
 ### Workout view
-<img src="https://github.com/grambbledook/indoor-cycling-hud/blob/b4f8e147d4775c8699e706c539d0030ed5b34b5f/_docs/workout_view.png" width="200" height="400"/>
+<img src="https://github.com/grambbledook/indoor-cycling-hud/blob/89a8229f3a72081b729f71e90409470b3024999e/_docs/workout_view.png" width="150" height="400"/>
 
 # Useful links
 Tacx Trainers supported protocols: https://developer.garmin.com/tacx-trainer/overview/ 
