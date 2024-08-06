@@ -1,8 +1,39 @@
 #pragma once
 #include <sqlite3.h>
+#include <sqlite_utils.h>
 #include <filesystem>
 
+#include <stdexcept>
+#include <string>
+
 #include "ModelEvents.h"
+
+constexpr auto create_table_sql = R"CREATE(
+    CREATE TABLE measurements (
+        ts INTEGER PRIMARY KEY,
+        value INTEGER,
+        type VARCHAR(3)
+    );
+
+    CREATE INDEX idx_ts_type ON measurements(ts, type) WHERE type IS NOT NULL;
+)CREATE";
+
+constexpr auto insert_sql = R"INSERT(
+    INSERT INTO measurements (ts, value, type)
+    VALUES (?, ?, ?);
+)INSERT";
+
+constexpr auto select_sql = R"QUERY(
+    SELECT
+        value,
+        AVG(value) AS avg_value,
+        MIN(value) AS min_value,
+        MAX(value) AS max_value
+    FROM measurements
+    WHERE type = ?
+    GROUP BY type;
+)QUERY";
+
 
 class WorkoutDataStorage {
 public:
@@ -10,7 +41,7 @@ public:
 
     ~WorkoutDataStorage();
 
-    void aggregateHeartRate(long long timestamp, long measurement);
+    void aggregateHeartRate(long long ts, long val);
 
     Aggregate getHeartRate();
 
@@ -26,14 +57,13 @@ public:
 
     Aggregate getPower();
 
-    struct sqlite3_deleter {
-        void operator()(sqlite3 *db) const {
-            sqlite3_free(db);
-        }
-    };
+private:
+    void insert(long long ts, long value, const std::string &type);
+
+    Aggregate select(const std::string &type);
 
 private:
     static long id;
-    std::unique_ptr<sqlite3, sqlite3_deleter> connection;
+    std::unique_ptr<SQLiteConnection> connection;
     std::filesystem::path db_file;
 };
