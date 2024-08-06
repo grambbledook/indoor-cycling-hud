@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(HelloWorld LANGUAGES CXX)
 add_subdirectory(bluetooth)
-add_subdirectory(service)
+add_subdirectory(model)
 
 message(PROJECT="BAZA")
 message(CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}")
@@ -36,7 +36,7 @@ set(ASSETS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/assets)
 set(INCLUDE_DIR view/include)
 set(SOURCE_DIR view/src)
 set(BLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bluetooth/include)
-set(SERVICE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/service/include)
+set(MODEL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/model/include)
 
 include_directories(${ASSETS_DIR})
 include_directories(${INCLUDE_DIR})
@@ -58,7 +58,7 @@ target_include_directories(HelloWorld PRIVATE ${INCLUDE_DIR})
 target_include_directories(HelloWorld PRIVATE ${SOURCE_DIR})
 target_include_directories(HelloWorld PRIVATE ${ASSETS_DIR})
 target_include_directories(Bluetooth PUBLIC ${BLE_DIR})
-target_include_directories(Service PUBLIC ${SERVICE_DIR})
+target_include_directories(Model PUBLIC ${MODEL_DIR})
 
 #--------------------Link Libraries--------------------------
-target_link_libraries(HelloWorld Qt6::Widgets Qt6::Core Bluetooth Service)
+target_link_libraries(HelloWorld Qt6::Widgets Qt6::Core Bluetooth Model)

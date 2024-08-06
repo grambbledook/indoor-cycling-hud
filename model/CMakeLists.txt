@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(Service LANGUAGES CXX)
+project(Model LANGUAGES CXX)
 
 SET(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo" CACHE STRING "" FORCE)
@@ -26,14 +26,14 @@ file(GLOB_RECURSE SOURCES
         ${INCLUDE_DIR}/*.h
 )
 
-add_library(Service STATIC ${SOURCES})
+add_library(Model STATIC ${SOURCES})
 
-target_include_directories(Service PUBLIC ${INCLUDE_DIR})
-target_include_directories(Service PUBLIC ${SOURCE_DIR})
+target_include_directories(Model PUBLIC ${INCLUDE_DIR})
+target_include_directories(Model PUBLIC ${SOURCE_DIR})
 target_include_directories(Bluetooth PUBLIC ${BLE_DIR})
 
 #--------------------Link Libraries--------------------------
-target_link_libraries(Service PUBLIC Bluetooth)
+target_link_libraries(Model PUBLIC Bluetooth)
 
 if (WIN32)
     add_definitions(-DWIN32_LEAN_AND_MEAN)
