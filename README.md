@@ -2,6 +2,9 @@
 A simple GUI app that displays a HUD (Heads-Up Display) on the screen. 
 It is intended to be used during indoor cycling on top of other full screen apps or in addition to watching youtube videos.
 
+# Disclaimer
+This is a hobby project and my first GUI app. It is not guaranteed to be accurate or reliable. Use at your own risk.
+
 ## Supported Features
 
 ### Supported Devices
@@ -23,8 +26,15 @@ It is intended to be used during indoor cycling on top of other full screen apps
 [ ] Set and update target power zone \
 [ ] Set and update target grade 
 
-# Disclaimer
-This is a hobby project and my first GUI app. It is not guaranteed to be accurate or reliable. Use at your own risk.
+# Screenshots
+### Select trainer view
+<img src="https://github.com/grambbledook/indoor-cycling-hud/blob/b4f8e147d4775c8699e706c539d0030ed5b34b5fb4f8e147d4775c8699e706c539d0030ed5b34b5f/_docs/select_trainer_view.png" width="200" height="200"/>
+
+### Select sensors view
+<img src="https://github.com/grambbledook/indoor-cycling-hud/blob/b4f8e147d4775c8699e706c539d0030ed5b34b5f/_docs/select_sensors_view.png" width="200" height="200"/>
+
+### Workout view
+<img src="https://github.com/grambbledook/indoor-cycling-hud/blob/b4f8e147d4775c8699e706c539d0030ed5b34b5f/_docs/workout_view.png" width="200" height="400"/>
 
 # Useful links
 Tacx Trainers supported protocols: https://developer.garmin.com/tacx-trainer/overview/ 

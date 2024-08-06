@@ -40,9 +40,9 @@ std::shared_ptr<QPixmap> ClickableLabel::pixmap(const std::string &path) {
             if (color.alpha() == 0) {
                 continue;
             }
-            auto r = 0xFF ^ 0xFF;
-            auto g = 0xFF ^ 0xFF;
-            auto b = 0xFF ^ 0xFF;
+            auto r = 0xFF;
+            auto g = 0xFF;
+            auto b = 0xFF;
             color.setRgb(r, g, b);
             image.setPixel(x, y, color.rgba());
         }
