@@ -28,8 +28,9 @@ list(APPEND CMAKE_PREFIX_PATH $ENV{QT_HOME} $ENV{CMAKE_MODULES_HOME})
 
 message(CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}")
 
-find_package(Qt6Core CONFIG REQUIRED)
-find_package(Qt6Widgets CONFIG REQUIRED)
+find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Concurrent)
 
 #--------------------Include Project Files-------------------
 set(ASSETS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/assets)
@@ -61,4 +62,4 @@ target_include_directories(Bluetooth PUBLIC ${BLE_DIR})
 target_include_directories(Model PUBLIC ${MODEL_DIR})
 
 #--------------------Link Libraries--------------------------
-target_link_libraries(HelloWorld Qt6::Widgets Qt6::Core Bluetooth Model)
+target_link_libraries(HelloWorld Qt6::Widgets Qt6::Core Qt6::Concurrent Bluetooth Model)

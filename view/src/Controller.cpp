@@ -1,7 +1,9 @@
 #include "Controller.h"
 
+#include <future>
 #include <iostream>
 #include <QApplication>
+#include <QtConcurrent/QtConcurrent>
 
 #include "BleDeviceServices.h"
 #include "StyleSheets.h"
@@ -146,24 +148,27 @@ void ConnectToDeviceController::handleRequest() {
         return;
     }
 
-
     scannerService->stopScan();
 
-    if (device->services.contains(BLE::Services::HRM)) {
-        hrmNotificationService->setDevice(device);
-    }
+    auto setupConnection = [this, device]() {
+        if (device->services.contains(BLE::Services::HRM)) {
+            hrmNotificationService->setDevice(device);
+        }
 
-    if (device->services.contains(BLE::Services::CSC)) {
-        cscNotificationService->setDevice(device);
-    }
+        if (device->services.contains(BLE::Services::CSC)) {
+            cscNotificationService->setDevice(device);
+        }
 
-    if (device->services.contains(BLE::Services::PWR)) {
-        powerNotificationService->setDevice(device);
-    }
+        if (device->services.contains(BLE::Services::PWR)) {
+            powerNotificationService->setDevice(device);
+        }
 
-    if (device->services.contains(BLE::Services::FEC_BIKE_TRAINER)) {
-        fecService->setDevice(device);
-    }
+        if (device->services.contains(BLE::Services::FEC_BIKE_TRAINER)) {
+            fecService->setDevice(device);
+        }
+    };
+
+    auto future = QtConcurrent::run(setupConnection);
 }
 
 void SwitchThemeController::handleRequest() {
