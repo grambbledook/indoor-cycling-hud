@@ -1,10 +1,10 @@
 #include "ClientRegistry.h"
-
 #include <unordered_map>
 #include <functional>
 #include <iostream>
 #include <mutex>
 #include <memory>
+#include <spdlog/spdlog.h>
 
 DeviceRegistry::DeviceRegistry() = default;
 
@@ -13,33 +13,33 @@ DeviceRegistry::~DeviceRegistry() {
 }
 
 std::shared_ptr<BleClient> DeviceRegistry::connect(const Device &device) {
-    std::cout << "DeviceRegistry::connect" << std::endl;
+    spdlog::info("DeviceRegistry::connect");
     std::lock_guard guard(mutex);
-    std::cout << "    lock acquired" << std::endl;
+    spdlog::info("    lock acquired");
 
     if (!clients.contains(device.deviceId())) {
-        std::cout << "    Creating new client for device: " << device.deviceId() << std::endl;
+        spdlog::info("    Creating new client for device: {}", device.deviceId());
         clients[device.deviceId()] = std::make_shared<BleClient>(device);
-        std::cout << "    Created new client for device: " << device.deviceId() << std::endl;
+        spdlog::info("    Created new client for device: {}", device.deviceId());
     }
 
     auto client = clients[device.deviceId()];
-    std::cout << "    Checking if client is connected to device: " << device.deviceId() << std::endl;
+    spdlog::info("    Checking if client is connected to device: {}", device.deviceId());
     if (!client->isConnected()) {
-        std::cout << "    Connecting to device: " << device.deviceId() << std::endl;
+        spdlog::info("    Connecting to device: {}", device.deviceId());
         client->connect();
     }
 
-    std::cout << "    Connected to device: " << device.deviceId() << std::endl;
+    spdlog::info("    Connected to device: {}", device.deviceId());
     return client;
 }
 
 void DeviceRegistry::stop() {
     std::lock_guard guard(mutex);
-    std::cout << "Stopping all clients." << std::endl;
+    spdlog::info("Stopping all clients.");
 
     for (const auto &[_, client]: clients) {
         client->disconnect();
     }
-    std::cout << "All clients stopped." << std::endl;
+    spdlog::info("All clients stopped.");
 }

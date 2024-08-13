@@ -1,24 +1,18 @@
 cmake_minimum_required(VERSION 3.10)
 project(Bluetooth LANGUAGES CXX)
 
-
-
 SET(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo" CACHE STRING "" FORCE)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Zi /Od")
 set(CMAKE_EXE_LINKER_FLAGS "/DEBUG")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-#--------------------Include QT------------------------------
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-list(APPEND CMAKE_PREFIX_PATH $ENV{CMAKE_MODULES_HOME})
-
-message(PROJECT="BLUETOOTH")
-message(CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}")
-message(CMAKE_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
-message(CMAKE_CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+#--------------------Include spdlog------------------------------
+find_package(spdlog CONFIG REQUIRED)
 
 #--------------------Include WinRT------------------------------
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+list(APPEND CMAKE_PREFIX_PATH $ENV{CMAKE_MODULES_HOME})
 
 # Add the Windows SDK include directories
 include_directories(
@@ -57,6 +51,7 @@ include_directories(${WindowsSDK_INCLUDE_DIR})
 
 #--------------------Link Libraries--------------------------
 target_link_libraries(Bluetooth PUBLIC WindowsApp.lib windowsapp)
+target_link_libraries(Bluetooth PRIVATE spdlog::spdlog)
 
 if (WIN32)
     add_definitions(-DWIN32_LEAN_AND_MEAN)

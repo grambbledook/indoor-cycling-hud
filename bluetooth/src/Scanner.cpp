@@ -1,8 +1,8 @@
 #include <functional>
+#include <spdlog/spdlog.h>
 
 #include "Scanner.h"
 
-#include <iostream>
 #include <winrt/Windows.Devices.Bluetooth.Advertisement.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Foundation.h>
@@ -19,10 +19,10 @@ using namespace Windows::Foundation::Collections;
 using namespace Windows::Devices::Bluetooth::Advertisement;
 using namespace Windows::Devices::Bluetooth::Advertisement;
 
-
 Scanner::Scanner(const std::unordered_map<UUID, GattService, UUID::Hash> &supportedGattServices): supportedGattServices(
     supportedGattServices) {
 }
+
 void Scanner::startScan(const std::function<void(std::shared_ptr<Device>)> &receiver) {
     resetPreviousScans();
 
@@ -50,19 +50,17 @@ void Scanner::startScan(const std::function<void(std::shared_ptr<Device>)> &rece
             if (supported_services.empty()) return;
 
             if (name.empty()) {
-                std::cout << "No name found for device with address: " << WinrtUtils::addressFromLong(address).value
-                        << std::endl;
+                spdlog::info("No name found for device with address: {}", WinrtUtils::addressFromLong(address).value);
                 const auto device = Windows::Devices::Bluetooth::BluetoothLEDevice::FromBluetoothAddressAsync(address).
                         get();
 
                 if (!device) {
-                    std::cerr << "  Failed to connect to device." << std::endl;
+                    spdlog::error("  Failed to connect to device.");
                     return;
                 }
 
-                std::cout << "  Got device name: ";
+                spdlog::info("  Got device name: {}", WinrtUtils::nameFromHstring(name).value);
                 name = device.Name();
-                std::cout << WinrtUtils::nameFromHstring(name).value << std::endl;
             };
 
             const auto device = std::make_shared<Device>(
@@ -73,7 +71,7 @@ void Scanner::startScan(const std::function<void(std::shared_ptr<Device>)> &rece
         });
 
     watcher->Start();
-    std::cout << "Scanning for BLE devices...\n";
+    spdlog::info("Scanning for BLE devices...");
 }
 
 void Scanner::resetPreviousScans() {
@@ -84,6 +82,6 @@ void Scanner::resetPreviousScans() {
 void Scanner::stopScan() const {
     if (!watcher) return;
 
-    std::cout << "Stopping scan routine...\n";
+    spdlog::info("Stopping scan routine...");
     watcher->Stop();
 }

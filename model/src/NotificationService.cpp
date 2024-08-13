@@ -1,24 +1,20 @@
 #include "NotificationService.h"
-
-#include <iostream>
+#include <spdlog/spdlog.h>
 #include <utility>
-
 #include "BluetoothConstants.h"
 #include "BleDeviceServices.h"
 
-
 template<DerivedFromMeasurement T>
-INotificationService<
-    T>::INotificationService(std::shared_ptr<DeviceRegistry> &registry,
-                             std::shared_ptr<Model> &model,
-                             const GattService &service): registry(registry),
-                                                          service(service),
-                                                          model(model) {
+INotificationService<T>::INotificationService(std::shared_ptr<DeviceRegistry> &registry,
+                                              std::shared_ptr<Model> &model,
+                                              const GattService &service): registry(registry),
+                                                                           service(service),
+                                                                           model(model) {
 }
 
 template<DerivedFromMeasurement T>
 void INotificationService<T>::setDevice(std::shared_ptr<Device> device) {
-    std::cout << "INotificationService::set_device" << std::endl;
+    spdlog::info("INotificationService::set_device");
 
     const auto client = this->registry->connect(*device);
 
@@ -28,35 +24,33 @@ void INotificationService<T>::setDevice(std::shared_ptr<Device> device) {
         this->processMeasurement(device, data);
     };
 
-    std::cout << "  INotificationService::set_device: Subscribing to " << service.type << " service" << std::endl;
+    spdlog::info("  INotificationService::set_device: Subscribing to {} service", service.type);
     const auto result = client->subscribe(service.characteristic_uuid, lambda);
-    std::cout << "  Subscribed to " << service.type << " service: " << result << std::endl;
+    spdlog::info("  Subscribed to {} service: {}", service.type, result);
 }
 
 template<DerivedFromMeasurement T>
 void INotificationService<T>::unsetDevice(std::shared_ptr<Device> device) {
-    std::cout << "INotificationService::unset_device" << std::endl;
+    spdlog::info("INotificationService::unset_device");
 
     const auto client = this->registry->connect(*device);
 
-    std::cout << "  INotificationService::unset_device: Unsubscribing from " << service.type << " service" << std::endl;
+    spdlog::info("  INotificationService::unset_device: Unsubscribing from {} service", service.type);
     const auto result = client->unsubscribe(service.characteristic_uuid);
-    std::cout << "  Unsubscribed from " << service.type << " service: " << result << std::endl;
+    spdlog::info("  Unsubscribed from {} service: {}", service.type, result);
 }
-
 
 HrmNotificationService::HrmNotificationService(std::shared_ptr<DeviceRegistry> &registry,
                                                std::shared_ptr<Model> &model): INotificationService(
     registry, model, BLE::Services::HRM) {
 }
 
-
 void HrmNotificationService::processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) {
     model->setHeartRateMonitor(device);
 }
 
 void HrmNotificationService::processMeasurement(const std::shared_ptr<Device> &device,
-                                                 const std::vector<uint8_t> &data) {
+                                                const std::vector<uint8_t> &data) {
     const auto flag = data[0];
 
     int hrm;
@@ -76,11 +70,11 @@ CyclingCadenceAndSpeedNotificationService::CyclingCadenceAndSpeedNotificationSer
 }
 
 void CyclingCadenceAndSpeedNotificationService::processFeatureAndSetDevices(BleClient &client,
-    std::shared_ptr<Device> &device) {
+                                                                            std::shared_ptr<Device> &device) {
     auto [data, success] = client.read(UUID("00002a5c-0000-1000-8000-00805f9b34fb"));
 
     if (not success) {
-        std::cerr << "Failed to read CSC feature." << std::endl;
+        spdlog::error("Failed to read CSC feature.");
         return;
     }
 
@@ -95,7 +89,7 @@ void CyclingCadenceAndSpeedNotificationService::processFeatureAndSetDevices(BleC
 }
 
 void CyclingCadenceAndSpeedNotificationService::processMeasurement(const std::shared_ptr<Device> &device,
-                                                                    const std::vector<uint8_t> &data) {
+                                                                   const std::vector<uint8_t> &data) {
     const auto flag = data[0];
     auto offset = 1;
 
@@ -116,8 +110,7 @@ void CyclingCadenceAndSpeedNotificationService::processMeasurement(const std::sh
     if (flag & 0b10) {
         const auto ccr = static_cast<uint16_t>(data[0 + offset]) |
                          static_cast<uint16_t>(data[1 + offset]) << 8;
-        const auto lcet = static_cast<uint16_t>(data[2 + offset]) |
-                          static_cast<uint16_t>(data[3 + offset]) << 8;
+        const auto lcet = static_cast<uint16_t>(data[2 + offset]) << 8;
 
         const CadenceMeasurement cadence(ccr, lcet);
         model->recordCadenceData(MeasurementEvent(device, cadence));
@@ -134,7 +127,7 @@ void PowerNotificationService::processFeatureAndSetDevices(BleClient &client, st
 }
 
 void PowerNotificationService::processMeasurement(const std::shared_ptr<Device> &device,
-                                                   const std::vector<uint8_t> &data) {
+                                                  const std::vector<uint8_t> &data) {
     const auto value = static_cast<int>(data[2]) | (static_cast<int>(data[3]) << 8);
 
     const PowerMeasurement power(value);
@@ -220,10 +213,10 @@ void FecService::processMeasurement(const std::shared_ptr<Device> &device, const
             );
             model->recordTrainerData(MeasurementEvent(device, event));
         } else {
-            std::cout << "Unknown page type: " << pageType << std::endl;
+            spdlog::info("Unknown page type: {}", pageType);
         }
     } catch (const std::exception &e) {
-        std::cout << "Error processing measurement: " << e.what() << std::endl;
+        spdlog::error("Error processing measurement: {}", e.what());
     }
 }
 

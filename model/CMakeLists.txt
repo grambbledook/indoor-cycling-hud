@@ -36,12 +36,13 @@ target_include_directories(Model PUBLIC ${INCLUDE_DIR})
 target_include_directories(Model PUBLIC ${SOURCE_DIR})
 target_include_directories(Bluetooth PUBLIC ${BLE_DIR})
 #--------------------Find Packages---------------------------
+find_package(spdlog CONFIG REQUIRED)
 find_package(unofficial-sqlite3 CONFIG REQUIRED)
-
 
 #--------------------Link Libraries--------------------------
 target_link_libraries(Model PUBLIC Bluetooth)
 target_link_libraries(Model PUBLIC unofficial::sqlite3::sqlite3)
+target_link_libraries(Model PRIVATE spdlog::spdlog)
 
 if (WIN32)
     add_definitions(-DWIN32_LEAN_AND_MEAN)

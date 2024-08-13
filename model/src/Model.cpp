@@ -1,11 +1,10 @@
 #include <algorithm>
-#include <iostream>
 #include <memory>
+#include <spdlog/spdlog.h>
 
 #include "BleDeviceServices.h"
 #include "Formula.h"
 #include "Model.h"
-
 
 void Model::addDevice(const std::shared_ptr<Device> &device) {
     std::lock_guard guard(mutex);
@@ -24,17 +23,17 @@ void Model::addDevice(const std::shared_ptr<Device> &device) {
     notifications.deviceDiscovered.publish(DeviceDiscovered{newDevice});
 }
 
-std::vector<std::shared_ptr<Device> > Model::getDevices(const GattService *service = nullptr) {
+std::vector<std::shared_ptr<Device>> Model::getDevices(const GattService *service) {
     if (service == nullptr) {
         return devices
                | std::views::transform([](const auto &pair) { return pair.second; })
-               | std::ranges::to<std::vector<std::shared_ptr<Device> > >();
+               | std::ranges::to<std::vector<std::shared_ptr<Device>>>();
     }
 
     return devices
            | std::views::filter([service](const auto &pair) { return pair.second->services.contains(*service); })
            | std::views::transform([](const auto &pair) { return pair.second; })
-           | std::ranges::to<std::vector<std::shared_ptr<Device> > >();
+           | std::ranges::to<std::vector<std::shared_ptr<Device>>>();
 }
 
 void Model::setDevice(const std::shared_ptr<Device> &device) {
@@ -86,7 +85,7 @@ void Model::setPowerMeter(const std::shared_ptr<Device> &device) {
 }
 
 void Model::setBikeTrainer(const std::shared_ptr<Device> &device) {
-    std::cout << "Model::setBikeTrainer: " << device->deviceId() << std::endl;
+    spdlog::info("Model::setBikeTrainer: {}", device->deviceId());
 }
 
 void Model::recordHeartData(const MeasurementEvent<HrmMeasurement> &event) {
@@ -148,7 +147,7 @@ void Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) {
     const auto timeDelta = lwet - prevLwet + lwetResetCorrection;
 
     const auto distanceTraveled = totalRevolutions * BLE::Wheels::DEFAULT_TIRE_CIRCUMFERENCE_MM;
-    const auto speedMms = distanceTraveled * BLE::Math::MS_IN_SECOND / timeDelta;;
+    const auto speedMms = distanceTraveled * BLE::Math::MS_IN_SECOND / timeDelta;
 
     speedState.aggregateMetric(speedMms);
     publishUpdate();

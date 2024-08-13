@@ -4,6 +4,7 @@
 #include <sqlite_utils.h>
 #include <filesystem>
 #include <chrono>
+#include <spdlog/spdlog.h>
 
 long WorkoutDataStorage::id = 0L;
 
@@ -22,11 +23,11 @@ WorkoutDataStorage::WorkoutDataStorage() {
     char *err_msg = nullptr;
     const auto rc = sqlite3_exec(connection->get(), create_table_sql, nullptr, nullptr, &err_msg);
     if (err_msg) {
-        std::cout << "BLAHA " << err_msg << std::endl;
+        spdlog::error("SQLite error: {}", err_msg);
     }
 
     if (rc != SQLITE_OK) {
-        throw std::runtime_error("Failed to Create table");
+        throw std::runtime_error("Failed to create table");
     }
 }
 
