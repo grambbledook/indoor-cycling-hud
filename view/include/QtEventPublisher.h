@@ -1,5 +1,6 @@
 #pragma once
 #include <mutex>
+#include <spdlog/spdlog.h>
 
 #include "DeviceDialog.h"
 #include "Events.h"
@@ -18,16 +19,12 @@ public:
 
     void setDeviceDialog(const std::shared_ptr<DeviceDialog> &deviceDialog) {
         std::lock_guard guard(mutex);
-        std::cout << "Setting device dialog: " << deviceDialog << std::endl;
         this->deviceDialog = deviceDialog;
     }
 
     void deviceDiscovered(const DeviceDiscovered &data) const {
-        std::cout << "QtEventPublisher::deviceDiscovered" << std::endl;
         auto event = new DeviceDiscoveredEvent(data);
-        std::cout << "  Device discovered: " << data.device->name.value << std::endl;
         QCoreApplication::postEvent(deviceDialog.get(), event);
-        std::cout << "  Event posted" << typeid(event).name() <<std::endl;
     }
 
     void deviceSelected(const DeviceSelected &data) const {
@@ -42,15 +39,11 @@ public:
     }
 
     void measurementReceived(const WorkoutData &data) const {
-        std::cout << "QtEventPublisher::measurementReceived" << std::endl;
-
         const auto firstEvent = new MeasurementReceivedEvent(data);
         QCoreApplication::postEvent(sensorsWindow.get(), firstEvent);
-        std::cout << "  Event one posted" << typeid(firstEvent).name() <<std::endl;
 
         const auto secondEvent = new MeasurementReceivedEvent(data);
         QCoreApplication::postEvent(workoutWindow.get(), secondEvent);
-        std::cout << "  Event two posted" << typeid(secondEvent).name() <<std::endl;
     }
 
 private:

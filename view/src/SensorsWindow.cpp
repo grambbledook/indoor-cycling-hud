@@ -2,14 +2,13 @@
 #include "SensorsWindow.h"
 
 #include <Constants.h>
-#include <iostream>
+#include <spdlog/spdlog.h>
 #include <Labels.h>
 
 #include <QGridLayout>
 
 #include "Events.h"
 #include "SupportedServices.h"
-
 
 SensorsWindow::SensorsWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent): AppWindow(
     handler, parent) {
@@ -23,7 +22,6 @@ SensorsWindow::SensorsWindow(const std::shared_ptr<ControllerHandler> &handler, 
     eventHandlers.insert({
         getMeasurementReceivedType(), [this](QEvent *event) {
             const auto data = dynamic_cast<MeasurementReceivedEvent *>(event);
-            std::cout << "SensorsWindow::MeasurementReceivedEvent" << std::endl;
             measurementsReceived(data->getData());
         }
     });
@@ -78,7 +76,7 @@ SensorsWindow::SensorsWindow(const std::shared_ptr<ControllerHandler> &handler, 
 }
 
 void SensorsWindow::deviceSelected(const DeviceSelected &event) const {
-    std::cout << "SensorsWindow::deviceSelected" << std::endl;
+    spdlog::info("SensorsWindow::deviceSelected");
 
     if (event.service == Service::HEART_RATE) {
         heartRateMonitorPanel->deviceSelected(event);

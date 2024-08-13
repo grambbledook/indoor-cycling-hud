@@ -1,6 +1,6 @@
 #include "DeviceDialog.h"
 
-#include <iostream>
+#include <spdlog/spdlog.h>
 #include <qboxlayout.h>
 #include <qevent.h>
 #include <QListWidget>
@@ -11,14 +11,14 @@
 #include "StyleSheets.h"
 
 DeviceDialog::DeviceDialog(
-    const std::vector<std::shared_ptr<Device> > &data,
+    const std::vector<std::shared_ptr<Device>> &data,
     const std::shared_ptr<ControllerHandler> &handler, QWidget *parent
-): QDialog(parent),
-   handler(handler), listWidget(std::make_shared<QListWidget>(this)) {
+) : QDialog(parent),
+    handler(handler), listWidget(std::make_shared<QListWidget>(this)) {
     connect(listWidget.get(), &QListWidget::itemClicked, this, &DeviceDialog::itemSelected);
     connect(listWidget.get(), &QListWidget::itemDoubleClicked, this, &DeviceDialog::itemConfirmed);
 
-    for (const auto &device: data) {
+    for (const auto &device : data) {
         renderDevice(device);
     }
     const auto closeLabel = new ButtonLabel(Constants::Buttons::OK, true, this);
@@ -71,24 +71,24 @@ void DeviceDialog::renderDevice(const std::shared_ptr<Device> &device) const {
 }
 
 void DeviceDialog::itemSelected(const QListWidgetItem *item) {
-    std::cout << "DeviceDialog::itemSelected" << std::endl;
+    spdlog::info("DeviceDialog::itemSelected");
 
     auto data = item->data(Qt::ItemDataRole::UserRole);
     if (data.isNull()) {
-        std::cout << "  No data found" << std::endl;
+        spdlog::info("  No data found");
     }
 
-    const auto device = get<std::shared_ptr<Device> >(data);
+    const auto device = get<std::shared_ptr<Device>>(data);
 
-    std::cout << "  Selected device: " << device->name.value << std::endl;
+    spdlog::info("  Selected device: {}", device->name.value);
     selectedItem = device;
 }
 
 void DeviceDialog::closeEvent(QCloseEvent *event) {
-    std::cout << "DeviceDialog::closeEvent" << std::endl;
+    spdlog::info("DeviceDialog::closeEvent");
 
     if (selectedItem) {
-        std::cout << "  DeviceDialog::closeEvent: emitting deviceSelected" << selectedItem << std::endl;
+        spdlog::info("  DeviceDialog::closeEvent: emitting deviceSelected {}", fmt::ptr(selectedItem));
     }
 
     handler->next(Constants::Commands::CONNECT);

@@ -1,32 +1,46 @@
 #include "Controller.h"
 
 #include <future>
-#include <iostream>
+#include <spdlog/spdlog.h>
 #include <QApplication>
 #include <QtConcurrent/QtConcurrent>
 
 #include "BleDeviceServices.h"
 #include "StyleSheets.h"
 
-std::ostream &operator<<(std::ostream &os, const ApplicationState &state) {
-    switch (state) {
-        case ApplicationState::STARTING: os << "STARTING";
-            break;
-        case ApplicationState::WAITING_FOR_SENSORS: os << "WAITING_FOR_SENSORS";
-            break;
-        case ApplicationState::WAITING_FOR_TRAINER: os << "WAITING_FOR_TRAINER";
-            break;
-        case ApplicationState::IN_WORKOUT: os << "IN_WORKOUT";
-            break;
-        default: os << "EXITING";
-            break;
+template <>
+struct fmt::formatter<ApplicationState> {
+    constexpr auto parse(format_parse_context& ctx) {
+        return ctx.begin();
     }
-    return os;
-}
+
+    template <typename FormatContext>
+    auto format(const ApplicationState& state, FormatContext& ctx) {
+        std::string stateStr;
+        switch (state) {
+            case ApplicationState::STARTING:
+                stateStr = "STARTING";
+            break;
+            case ApplicationState::WAITING_FOR_TRAINER:
+                stateStr = "WAITING_FOR_TRAINER";
+            break;
+            case ApplicationState::WAITING_FOR_SENSORS:
+                stateStr = "WAITING_FOR_SENSORS";
+            break;
+            case ApplicationState::IN_WORKOUT:
+                stateStr = "IN_WORKOUT";
+            break;
+            case ApplicationState::EXITING:
+                stateStr = "EXITING";
+            break;
+        }
+        return fmt::format_to(ctx.out(), "{}", stateStr);
+    }
+};
 
 void TrainerWindowController::handleRequest() {
     if (state->state != ApplicationState::STARTING and state->state != ApplicationState::WAITING_FOR_SENSORS) {
-        std::cout << "  Wrong state: " << state->state << std::endl;
+        spdlog::info("  Wrong state: {}", state->state);
         return;
     }
 
@@ -50,7 +64,7 @@ void TrainerWindowController::handleRequest() {
 
 void SensorsWindowController::handleRequest() {
     if (state->state != ApplicationState::WAITING_FOR_TRAINER) {
-        std::cout << "  Wrong state: " << state->state << std::endl;
+        spdlog::info("  Wrong state: {}", state->state);
         return;
     }
 
@@ -74,7 +88,7 @@ void SensorsWindowController::handleRequest() {
 
 void WorkoutWindowController::handleRequest() {
     if (state->state != ApplicationState::WAITING_FOR_SENSORS) {
-        std::cout << "  Wrong state: " << state->state << std::endl;
+        spdlog::info("  Wrong state: {}", state->state);
         return;
     }
 
@@ -97,9 +111,8 @@ void WorkoutWindowController::handleRequest() {
 }
 
 void ShowDeviceDialogController::handleRequest() {
-    if (state->state != ApplicationState::WAITING_FOR_SENSORS and state->state !=
-        ApplicationState::WAITING_FOR_TRAINER) {
-        std::cout << "  Wrong state: " << state->state << std::endl;
+    if (state->state != ApplicationState::WAITING_FOR_SENSORS and state->state != ApplicationState::WAITING_FOR_TRAINER) {
+        spdlog::info("  Wrong state: {}", state->state);
         return;
     }
 
@@ -121,12 +134,12 @@ void ShowDeviceDialogController::handleRequest() {
 
 void ConnectToDeviceController::handleRequest() {
     if (state->state == ApplicationState::EXITING) {
-        std::cout << "  Wrong state: " << state->state << std::endl;
+        spdlog::info("  Wrong state: {}", state->state);
         return;
     }
 
     if (history->empty()) {
-        std::cout << "  History stack is empty" << std::endl;
+        spdlog::info("  History stack is empty");
         return;
     }
 
@@ -135,7 +148,7 @@ void ConnectToDeviceController::handleRequest() {
     QWidget &window = *previous;
     const auto dialog = dynamic_cast<DeviceDialog *>(&window);
     if (!dialog) {
-        std::cout << "  Wrong window type" << std::endl;
+        spdlog::info("  Wrong window type");
         return;
     }
 
@@ -144,7 +157,7 @@ void ConnectToDeviceController::handleRequest() {
 
     const auto device = dialog->selectedItem;
     if (!device) {
-        std::cout << "  No device selected" << std::endl;
+        spdlog::info("  No device selected");
         return;
     }
 
@@ -192,7 +205,6 @@ void SwitchThemeController::handleRequest() {
     workoutWindow->update();
     sensorsWindow->update();
     trainerWindow->update();
-
 }
 
 void ShutdownController::handleRequest() {

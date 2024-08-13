@@ -2,7 +2,7 @@
 #include "StyleSheets.h"
 #include "TrainerWindow.h"
 
-#include <iostream>
+#include <spdlog/spdlog.h>
 #include <Labels.h>
 
 #include <QGridLayout>
@@ -13,9 +13,9 @@
 
 TrainerWindow::TrainerWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent): AppWindow(
     handler, parent) {
-    std::cout << "TrainerWindow::TrainerWindow" << std::endl;
+    spdlog::info("TrainerWindow::TrainerWindow");
     const int device_selected_type = getDeviceSelectedType();
-    std::cout << "  TrainerWindow::DeviceSelectedType: " << device_selected_type << std::endl;
+    spdlog::info("  TrainerWindow::DeviceSelectedType: {}", device_selected_type);
     eventHandlers.insert({
          getDeviceSelectedType(), [this](QEvent *event) {
             const auto device = dynamic_cast<DeviceSelectedEvent *>(event);
@@ -46,11 +46,11 @@ TrainerWindow::TrainerWindow(const std::shared_ptr<ControllerHandler> &handler, 
 }
 
 void TrainerWindow::deviceSelected(const DeviceSelected event) const {
-    std::cout << "TrainerWindow::deviceSelected" << std::endl;
+    spdlog::info("TrainerWindow::deviceSelected");
     selectTrainerPanel->deviceSelected(event);
 }
 
 void TrainerWindow::next() {
-    std::cout << "TrainerWindow::next" << std::endl;
+    spdlog::info("TrainerWindow::next");
     controllerHandler->next(Constants::Screens::SENSORS);
 }

@@ -32,6 +32,9 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 find_package(Qt6 REQUIRED COMPONENTS Concurrent)
 
+#--------------------Include spdlog-----------------------
+find_package(spdlog CONFIG REQUIRED)
+
 #--------------------Include Project Files-------------------
 set(ASSETS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/assets)
 set(INCLUDE_DIR view/include)
@@ -60,6 +63,8 @@ target_include_directories(HelloWorld PRIVATE ${SOURCE_DIR})
 target_include_directories(HelloWorld PRIVATE ${ASSETS_DIR})
 target_include_directories(Bluetooth PUBLIC ${BLE_DIR})
 target_include_directories(Model PUBLIC ${MODEL_DIR})
+target_include_directories(Model PUBLIC ${MODEL_DIR})
 
 #--------------------Link Libraries--------------------------
-target_link_libraries(HelloWorld Qt6::Widgets Qt6::Core Qt6::Concurrent Bluetooth Model)
+target_link_libraries(HelloWorld PRIVATE Qt6::Widgets Qt6::Core Qt6::Concurrent Bluetooth Model)
+target_link_libraries(HelloWorld PRIVATE spdlog::spdlog)

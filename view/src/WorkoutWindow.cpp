@@ -2,7 +2,7 @@
 #include "StyleSheets.h"
 #include "WorkoutWindow.h"
 
-#include <iostream>
+#include <spdlog/spdlog.h>
 
 #include <Labels.h>
 
@@ -11,13 +11,11 @@
 #include "Constants.h"
 #include "Events.h"
 
-
 WorkoutWindow::WorkoutWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent): AppWindow(
     handler, parent) {
     eventHandlers.insert({
         getMeasurementReceivedType(), [this](QEvent *event) {
             const auto data = dynamic_cast<MeasurementReceivedEvent *>(event);
-            std::cout << "WorkoutWindow::MeasurementReceivedEvent" << std::endl;
             measurementsReceived(data->getData());
         }
     });
@@ -51,6 +49,6 @@ void WorkoutWindow::measurementsReceived(const WorkoutData &data) {
 }
 
 void WorkoutWindow::next() {
-    std::cout << "WorkoutWindow::next" << std::endl;
+    spdlog::info("WorkoutWindow::next");
     controllerHandler->next(Constants::Commands::QUIT);
 }
