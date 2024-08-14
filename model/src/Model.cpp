@@ -90,12 +90,11 @@ void Model::setBikeTrainer(const std::shared_ptr<Device> &device) {
 
 void Model::startWorkout() {
     spdlog::info("Model::startWorkout");
-    storage = std::make_unique<WorkoutDataStorage>();
+    storage->newWorkout();
 }
 
 void Model::stopWorkout() {
     spdlog::info("Model::stopWorkout");
-    storage.reset();
 }
 
 void Model::recordHeartData(const MeasurementEvent<HrmMeasurement> &event) {
@@ -105,7 +104,7 @@ void Model::recordHeartData(const MeasurementEvent<HrmMeasurement> &event) {
 
     hrmState.recordMetric(event.measurement.hrm);
     hrmState.aggregateMetric(event.measurement.hrm);
-    storage->aggregateHeartRate(now(), event.measurement.hrm);
+    storage->aggregateHeartRate(event.measurement.hrm);
     publishUpdate();
 }
 
@@ -132,7 +131,7 @@ void Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event)
     const auto cadence = totalRevolutions * BLE::Math::MS_IN_MIN / timeDelta;
 
     cadenceState.aggregateMetric(cadence);
-    storage->aggregateCadence(now(), cadence);
+    storage->aggregateCadence(cadence);
 
     publishUpdate();
 }
@@ -162,7 +161,7 @@ void Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) {
 
     speedState.aggregateMetric(speedMms);
     if (storage) {
-        storage->aggregateSpeed(now(), speedMms);
+        storage->aggregateSpeed(speedMms);
     }
 
     publishUpdate();
@@ -175,7 +174,7 @@ void Model::recordPowerData(const MeasurementEvent<PowerMeasurement> &event) {
 
     powerState.recordMetric(event.measurement.power);
     powerState.aggregateMetric(event.measurement.power);
-    storage->aggregatePower(now(), event.measurement.power);
+    storage->aggregatePower(event.measurement.power);
     publishUpdate();
 }
 

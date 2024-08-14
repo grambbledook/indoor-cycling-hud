@@ -39,7 +39,9 @@ void DeviceRegistry::stop() {
     spdlog::info("Stopping all clients.");
 
     for (const auto &[_, client]: clients) {
-        client->disconnect();
+        if (client->isConnected()) {
+            client->disconnect();
+        }
     }
     spdlog::info("All clients stopped.");
 }

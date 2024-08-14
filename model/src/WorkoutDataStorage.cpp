@@ -9,6 +9,45 @@
 long WorkoutDataStorage::id = 0L;
 
 WorkoutDataStorage::WorkoutDataStorage() {
+    newWorkout();
+}
+
+WorkoutDataStorage::~WorkoutDataStorage() {
+}
+
+void WorkoutDataStorage::aggregateHeartRate(const long val) {
+    insert(val, "hrm");
+}
+
+Aggregate WorkoutDataStorage::getHeartRate() {
+    return select("hrm");
+}
+
+void WorkoutDataStorage::aggregateCadence(const long val) {
+    insert(val, "cad");
+}
+
+Aggregate WorkoutDataStorage::getCadence() {
+    return select("cad");
+}
+
+void WorkoutDataStorage::aggregateSpeed(const long val) {
+    insert(val, "spd");
+}
+
+Aggregate WorkoutDataStorage::getSpeed() {
+    return select("spd");
+}
+
+void WorkoutDataStorage::aggregatePower(const long val) {
+    insert(val, "pwr");
+}
+
+Aggregate WorkoutDataStorage::getPower() {
+    return select("pwr");
+}
+
+void WorkoutDataStorage::newWorkout() {
     const auto temp_dir = std::filesystem::temp_directory_path() / "hud";
     create_directory(temp_dir);
 
@@ -31,67 +70,66 @@ WorkoutDataStorage::WorkoutDataStorage() {
     }
 }
 
-WorkoutDataStorage::~WorkoutDataStorage() {
-}
+void WorkoutDataStorage::insert(long value, const std::string &type) {
+    const auto select = std::make_unique<SQLiteStatement>(connection.get(), select_latest_sql);
+    auto rc = sqlite3_bind_text(select->get(), 1, type.c_str(), -1, SQLITE_TRANSIENT);
+    if (rc != SQLITE_OK) {
+        throw std::runtime_error("Failed to bind type for select");
+    }
 
-void WorkoutDataStorage::aggregateHeartRate(const long long ts, const long val) {
-    insert(ts, val, "hrm");
-}
+    rc = sqlite3_step(select->get());
+    auto latest = 0L; long count = 0L; auto avg = 0L; auto max = 0L; auto min = 0xFFFFFFL;
 
-Aggregate WorkoutDataStorage::getHeartRate() {
-    return select("hrm");
-}
+    if (rc == SQLITE_ROW) {
+        latest = sqlite3_column_int(select->get(), 0);
+        count = sqlite3_column_int(select->get(), 1);
+        avg = sqlite3_column_int(select->get(), 2);
+        max = sqlite3_column_int(select->get(), 3);
+        min = sqlite3_column_int(select->get(), 4);
+    }
 
-void WorkoutDataStorage::aggregateCadence(const long long ts, const long val) {
-    insert(ts, val, "cad");
-}
-
-Aggregate WorkoutDataStorage::getCadence() {
-    return select("cad");
-}
-
-void WorkoutDataStorage::aggregateSpeed(const long long ts, const long val) {
-    insert(ts, val, "spd");
-}
-
-Aggregate WorkoutDataStorage::getSpeed() {
-    return select("spd");
-}
-
-void WorkoutDataStorage::aggregatePower(const long long ts, const long val) {
-    insert(ts, val, "pwr");
-}
-
-Aggregate WorkoutDataStorage::getPower() {
-    return select("pwr");
-}
-
-void WorkoutDataStorage::insert(long long ts, long value, const std::string &type) {
     const auto statement = std::make_unique<SQLiteStatement>(connection.get(), insert_sql);
 
-    auto rc = sqlite3_bind_int64(statement->get(), 1, ts);
-    if (rc != SQLITE_OK) {
-        throw std::runtime_error("Failed to bind timestamp");
-    }
-
-    rc = sqlite3_bind_int64(statement->get(), 2, value);
-    if (rc != SQLITE_OK) {
-        throw std::runtime_error("Failed to bind measurement");
-    }
-
-    rc = sqlite3_bind_text(statement->get(), 3, type.c_str(), -1, SQLITE_TRANSIENT);
+    rc = sqlite3_bind_text(statement->get(), 1, type.c_str(), -1, SQLITE_TRANSIENT);
     if (rc != SQLITE_OK) {
         throw std::runtime_error("Failed to bind type");
     }
 
+    rc = sqlite3_bind_int64(statement->get(), 2, value);
+    if (rc != SQLITE_OK) {
+        throw std::runtime_error("Failed to bind value");
+    }
+
+    rc = sqlite3_bind_int64(statement->get(), 3, count + 1);
+    if (rc != SQLITE_OK) {
+        throw std::runtime_error("Failed to bind count");
+    }
+
+    long total = count * avg + value;
+    rc = sqlite3_bind_int64(statement->get(), 4, total / (count + 1));
+    if (rc != SQLITE_OK) {
+        throw std::runtime_error("Failed to bind average");
+    }
+
+    rc = sqlite3_bind_int64(statement->get(), 5, std::max(value, max));
+    if (rc != SQLITE_OK) {
+        throw std::runtime_error("Failed to bind max");
+    }
+
+    rc = sqlite3_bind_int64(statement->get(), 6, std::min(value, min));
+    if (rc != SQLITE_OK) {
+        throw std::runtime_error("Failed to bind ming");
+    }
+
     rc = sqlite3_step(statement->get());
     if (rc != SQLITE_DONE) {
+        spdlog::error("SQLite error: {}", sqlite3_errmsg(connection->get()));
         throw std::runtime_error("Failed to execute insert statement");
     }
 }
 
 Aggregate WorkoutDataStorage::select(const std::string &type) {
-    const auto statement = std::make_unique<SQLiteStatement>(connection.get(), select_sql);
+    const auto statement = std::make_unique<SQLiteStatement>(connection.get(), select_aggregate_sql);
 
     auto rc = sqlite3_bind_text(statement->get(), 1, type.c_str(), -1, SQLITE_TRANSIENT);
     if (rc != SQLITE_OK) {
@@ -106,10 +144,16 @@ Aggregate WorkoutDataStorage::select(const std::string &type) {
     } else if (rc == SQLITE_ROW) {
         const auto latest = sqlite3_column_int(statement->get(), 0);
         const auto average = sqlite3_column_int(statement->get(), 1);
+        const auto windowAvg = sqlite3_column_int(statement->get(), 2);
+        const auto max = sqlite3_column_int(statement->get(), 3);
+        const auto min = sqlite3_column_int(statement->get(), 4);
 
         aggregate = Aggregate{
             latest,
             average,
+            windowAvg,
+            max, min
+
         };
     }
     return aggregate;

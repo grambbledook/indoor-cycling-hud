@@ -10,8 +10,12 @@
 
 constexpr auto create_tables_sql = R"CREATE(
     CREATE TABLE measurements (
-        ts INTEGER PRIMARY KEY,
+        ts TIMESTAMP PRIMARY KEY,
         value INTEGER,
+        count INTEGER,
+        avg INTEGERR,
+        max INTEGER,
+        min INTEGER,
         type VARCHAR(3)
     );
 
@@ -19,20 +23,41 @@ constexpr auto create_tables_sql = R"CREATE(
 )CREATE";
 
 constexpr auto insert_sql = R"INSERT(
-    INSERT INTO measurements (ts, value, type)
-    VALUES (?, ?, ?);
+    INSERT INTO measurements (ts, type, value, count, avg, max, min)
+    VALUES (datetime('now', 'subsecond'), ?, ?, ?, ?, ?, ?);
 )INSERT";
 
-constexpr auto select_sql = R"QUERY(
+constexpr auto select_latest_sql = R"QUERY(
     SELECT
-        value,
-        AVG(value) AS avg_value,
-        MIN(value) AS min_value,
-        MAX(value) AS max_value
-    FROM measurements
+        value AS value,
+        count AS count,
+        avg AS avg,
+        max AS max,
+        min AS min
+    FROM
+        measurements
     WHERE type = ?
-    GROUP BY type;
+    ORDER BY
+        ts DESC
+    LIMIT 1;
 )QUERY";
+
+constexpr auto select_aggregate_sql = R"QUERY(
+    SELECT
+        value AS value,
+        avg AS avg,
+        AVG(value) OVER () AS three_sec_avg,
+        max AS max,
+        min AS min
+    FROM
+        measurements
+    WHERE type = ?
+        AND ts >= datetime('now', '-3 seconds')
+    ORDER BY
+        ts DESC
+    LIMIT 1;
+)QUERY";
+
 
 
 class WorkoutDataStorage {
@@ -41,24 +66,26 @@ public:
 
     ~WorkoutDataStorage();
 
-    void aggregateHeartRate(long long ts, long val);
+    void aggregateHeartRate(const long val);
 
     Aggregate getHeartRate();
 
-    void aggregateCadence(long long timestamp, long measurement);
+    void aggregateCadence(const long measurement);
 
     Aggregate getCadence();
 
-    void aggregateSpeed(long long timestamp, long measurement);
+    void aggregateSpeed(const long measurement);
 
     Aggregate getSpeed();
 
-    void aggregatePower(long long timestamp, long measurement);
+    void aggregatePower(const long measurement);
 
     Aggregate getPower();
 
+    void newWorkout();
+
 private:
-    void insert(long long ts, long value, const std::string &type);
+    void insert(long value, const std::string &type);
 
     Aggregate select(const std::string &type);
 

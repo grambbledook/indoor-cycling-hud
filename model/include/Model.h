@@ -49,6 +49,10 @@ struct State {
 
 class Model {
 public:
+    Model(): storage(std::make_unique<WorkoutDataStorage>()) {
+    };
+
+
     void addDevice(const std::shared_ptr<Device> &device);
 
     std::vector<std::shared_ptr<Device> > getDevices(const GattService *service);
@@ -87,6 +91,7 @@ private:
     void publishUpdate();
 
     static long long now();
+
 public:
     Notifications notifications;
 
@@ -94,7 +99,7 @@ private:
     std::unordered_map<std::string, std::shared_ptr<Device> > devices;
     std::mutex mutex;
 
-    std::unique_ptr<WorkoutDataStorage> storage = nullptr;
+    std::unique_ptr<WorkoutDataStorage> storage;
 
     State<int> hrmState = {
         __nullptr,

@@ -37,6 +37,9 @@ struct DeviceSelected {
 struct Aggregate {
     int val;
     int avg;
+    int windowedAvg;
+    int max;
+    int min;
 };
 
 struct WorkoutData {
