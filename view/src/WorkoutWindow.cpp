@@ -50,5 +50,5 @@ void WorkoutWindow::measurementsReceived(const WorkoutData &data) {
 
 void WorkoutWindow::next() {
     spdlog::info("WorkoutWindow::next");
-    controllerHandler->next(Constants::Commands::QUIT);
+    controllerHandler->next(Constants::Screens::WORKOUT_SUMMARY);
 }

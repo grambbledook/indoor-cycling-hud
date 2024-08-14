@@ -24,6 +24,8 @@ namespace Constants {
         const std::string FINISH = "Finish";
         const std::string NEXT = "Next";
         const std::string OK = "Ok";
+        const std::string START = "New Workout";
+        const std::string EXIT = "Exit";
 
         const std::string LEFT = "<";
         const std::string RIGHT = ">";
@@ -47,6 +49,7 @@ namespace Constants {
     namespace Screens {
         const std::string TRAINER = "trainer";
         const std::string SENSORS = "sensors";
+        const std::string SELECT_WORKOUT = "select_workout";
         const std::string WORKOUT = "workout";
         const std::string DEVICE_DIALOG = "device_dialog";
         const std::string WORKOUT_SUMMARY = "workout_summary";

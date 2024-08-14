@@ -9,13 +9,17 @@ ViewNavigator::ViewNavigator(
     const std::shared_ptr<ConnectToDeviceController> &connectToDeviceController,
     const std::shared_ptr<TrainerWindowController> &trainerWindowController,
     const std::shared_ptr<SensorsWindowController> &sensorsWindowController,
+    const std::shared_ptr<SelectWorkoutWindowController> &selectWorkoutWindowController,
     const std::shared_ptr<WorkoutWindowController> &workoutWindowController,
+    const std::shared_ptr<WorkoutSummaryWindowController> &workoutSummaryWindowController,
     const std::shared_ptr<SwitchThemeController> &switchThemeController,
     const std::shared_ptr<ShutdownController> &shutdownController
 ): connectToDeviceController(connectToDeviceController), controllerHandler(controllerHandler),
    deviceDialogController(deviceDialogController), trainerWindowController(trainerWindowController),
    sensorsWindowController(sensorsWindowController), shutdownController(shutdownController),
-   switchThemeController(switchThemeController), workoutWindowController(workoutWindowController) {
+   switchThemeController(switchThemeController), workoutWindowController(workoutWindowController),
+   workoutSummaryWindowController(workoutSummaryWindowController),
+   selectWorkoutWindowController(selectWorkoutWindowController) {
     controllerHandler->subscribe([this](const std::string &screen) {
         this->nextScreen(screen);
     });
@@ -30,8 +34,16 @@ void ViewNavigator::nextScreen(const std::string &command) const {
         sensorsWindowController->handleRequest();
     }
 
+    if (command == Constants::Screens::SELECT_WORKOUT) {
+        selectWorkoutWindowController->handleRequest();
+    }
+
     if (command == Constants::Screens::WORKOUT) {
         workoutWindowController->handleRequest();
+    }
+
+    if (command == Constants::Screens::WORKOUT_SUMMARY) {
+        workoutSummaryWindowController->handleRequest();
     }
 
     if (command == Constants::Screens::DEVICE_DIALOG) {

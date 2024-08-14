@@ -107,5 +107,5 @@ void SensorsWindow::back() {
 }
 
 void SensorsWindow::next() {
-    controllerHandler->next(Constants::Screens::WORKOUT);
+    controllerHandler->next(Constants::Screens::SELECT_WORKOUT);
 }

@@ -8,35 +8,56 @@
 #include "BleDeviceServices.h"
 #include "StyleSheets.h"
 
-template <>
+template<>
 struct fmt::formatter<ApplicationState> {
-    constexpr auto parse(format_parse_context& ctx) {
+    constexpr auto parse(format_parse_context &ctx) {
         return ctx.begin();
     }
 
-    template <typename FormatContext>
-    auto format(const ApplicationState& state, FormatContext& ctx) {
+    template<typename FormatContext>
+    auto format(const ApplicationState &state, FormatContext &ctx) {
         std::string stateStr;
         switch (state) {
             case ApplicationState::STARTING:
                 stateStr = "STARTING";
-            break;
+                break;
             case ApplicationState::WAITING_FOR_TRAINER:
                 stateStr = "WAITING_FOR_TRAINER";
-            break;
+                break;
             case ApplicationState::WAITING_FOR_SENSORS:
                 stateStr = "WAITING_FOR_SENSORS";
-            break;
+                break;
             case ApplicationState::IN_WORKOUT:
                 stateStr = "IN_WORKOUT";
-            break;
+                break;
             case ApplicationState::EXITING:
                 stateStr = "EXITING";
-            break;
+                break;
         }
         return fmt::format_to(ctx.out(), "{}", stateStr);
     }
 };
+
+template<typename T, typename T0>
+void ViewController<T, T0>::renderView() {
+    auto x = 300;
+    auto y = 300;
+    if (!this->history->empty()) {
+        const auto previous = this->history->top();
+        this->history->pop();
+        previous->hide();
+
+        x = previous->x();
+        y = previous->y();
+    }
+
+    view->move(x, y);
+
+    view->show();
+    view->setFocus();
+
+    this->history->push(view);
+}
 
 void TrainerWindowController::handleRequest() {
     if (state->state != ApplicationState::STARTING and state->state != ApplicationState::WAITING_FOR_SENSORS) {
@@ -44,20 +65,7 @@ void TrainerWindowController::handleRequest() {
         return;
     }
 
-    auto x = 300;
-    auto y = 300;
-    if (not history->empty()) {
-        const auto previous = history->top();
-        history->pop();
-        x = previous->x();
-        y = previous->y();
-        previous->hide();
-    }
-
-    view->move(x, y);
-    view->show();
-    view->setFocus();
-
+    renderView();
     history->push(view);
     state->state = ApplicationState::WAITING_FOR_TRAINER;
 }
@@ -68,50 +76,53 @@ void SensorsWindowController::handleRequest() {
         return;
     }
 
-    auto x = 300;
-    auto y = 300;
     if (not history->empty()) {
         const auto previous = history->top();
         history->pop();
-        x = previous->x();
-        y = previous->y();
         previous->hide();
     }
 
-    view->move(x, y);
-    view->show();
-    view->setFocus();
-
+    renderView();
     history->push(view);
     state->state = ApplicationState::WAITING_FOR_SENSORS;
 }
 
-void WorkoutWindowController::handleRequest() {
-    if (state->state != ApplicationState::WAITING_FOR_SENSORS) {
+void SelectWorkoutWindowController::handleRequest() {
+    if (state->state != ApplicationState::WAITING_FOR_SENSORS and state->state != ApplicationState::WORKOUT_SUMMARY) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
     }
 
-    auto x = 300;
-    auto y = 300;
-    if (not history->empty()) {
-        const auto previous = history->top();
-        history->pop();
-        x = previous->x();
-        y = previous->y();
-        previous->hide();
+    renderView();
+    history->push(view);
+    state->state = ApplicationState::WAITING_FOR_WORKOUT;
+}
+
+void WorkoutWindowController::handleRequest() {
+    if (state->state != ApplicationState::WAITING_FOR_WORKOUT) {
+        spdlog::info("  Wrong state: {}", state->state);
+        return;
     }
 
-    view->move(x, y);
-    view->show();
-    view->setFocus();
-
-    history->push(view);
+    model->startWorkout();
+    renderView();
     state->state = ApplicationState::IN_WORKOUT;
 }
 
+void WorkoutSummaryWindowController::handleRequest() {
+    if (state->state != ApplicationState::IN_WORKOUT) {
+        spdlog::info("  Wrong state: {}", state->state);
+        return;
+    }
+
+    model->stopWorkout();
+    renderView();
+    state->state = ApplicationState::WORKOUT_SUMMARY;
+}
+
 void ShowDeviceDialogController::handleRequest() {
-    if (state->state != ApplicationState::WAITING_FOR_SENSORS and state->state != ApplicationState::WAITING_FOR_TRAINER) {
+    if (state->state != ApplicationState::WAITING_FOR_SENSORS and state->state !=
+        ApplicationState::WAITING_FOR_TRAINER) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
     }
@@ -201,10 +212,14 @@ void SwitchThemeController::handleRequest() {
     }
     workoutWindow->setStyleSheet(sheet);
     sensorsWindow->setStyleSheet(sheet);
+    selectWorkoutWindow->setStyleSheet(sheet);
     trainerWindow->setStyleSheet(sheet);
+    workoutSummaryWindow->setStyleSheet(sheet);
     workoutWindow->update();
     sensorsWindow->update();
+    selectWorkoutWindow->update();
     trainerWindow->update();
+    workoutSummaryWindow->update();
 }
 
 void ShutdownController::handleRequest() {

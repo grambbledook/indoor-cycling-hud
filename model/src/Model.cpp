@@ -23,17 +23,17 @@ void Model::addDevice(const std::shared_ptr<Device> &device) {
     notifications.deviceDiscovered.publish(DeviceDiscovered{newDevice});
 }
 
-std::vector<std::shared_ptr<Device>> Model::getDevices(const GattService *service) {
+std::vector<std::shared_ptr<Device> > Model::getDevices(const GattService *service) {
     if (service == nullptr) {
         return devices
                | std::views::transform([](const auto &pair) { return pair.second; })
-               | std::ranges::to<std::vector<std::shared_ptr<Device>>>();
+               | std::ranges::to<std::vector<std::shared_ptr<Device> > >();
     }
 
     return devices
            | std::views::filter([service](const auto &pair) { return pair.second->services.contains(*service); })
            | std::views::transform([](const auto &pair) { return pair.second; })
-           | std::ranges::to<std::vector<std::shared_ptr<Device>>>();
+           | std::ranges::to<std::vector<std::shared_ptr<Device> > >();
 }
 
 void Model::setDevice(const std::shared_ptr<Device> &device) {
@@ -88,6 +88,16 @@ void Model::setBikeTrainer(const std::shared_ptr<Device> &device) {
     spdlog::info("Model::setBikeTrainer: {}", device->deviceId());
 }
 
+void Model::startWorkout() {
+    spdlog::info("Model::startWorkout");
+    storage = std::make_unique<WorkoutDataStorage>();
+}
+
+void Model::stopWorkout() {
+    spdlog::info("Model::stopWorkout");
+    storage.reset();
+}
+
 void Model::recordHeartData(const MeasurementEvent<HrmMeasurement> &event) {
     if (*hrmState.device != *event.device) {
         return;
@@ -95,7 +105,7 @@ void Model::recordHeartData(const MeasurementEvent<HrmMeasurement> &event) {
 
     hrmState.recordMetric(event.measurement.hrm);
     hrmState.aggregateMetric(event.measurement.hrm);
-
+    storage->aggregateHeartRate(now(), event.measurement.hrm);
     publishUpdate();
 }
 
@@ -122,6 +132,7 @@ void Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event)
     const auto cadence = totalRevolutions * BLE::Math::MS_IN_MIN / timeDelta;
 
     cadenceState.aggregateMetric(cadence);
+    storage->aggregateCadence(now(), cadence);
 
     publishUpdate();
 }
@@ -150,6 +161,10 @@ void Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) {
     const auto speedMms = distanceTraveled * BLE::Math::MS_IN_SECOND / timeDelta;
 
     speedState.aggregateMetric(speedMms);
+    if (storage) {
+        storage->aggregateSpeed(now(), speedMms);
+    }
+
     publishUpdate();
 }
 
@@ -160,6 +175,7 @@ void Model::recordPowerData(const MeasurementEvent<PowerMeasurement> &event) {
 
     powerState.recordMetric(event.measurement.power);
     powerState.aggregateMetric(event.measurement.power);
+    storage->aggregatePower(now(), event.measurement.power);
     publishUpdate();
 }
 
@@ -174,12 +190,29 @@ void Model::recordTrainerData(const MeasurementEvent<SpecificTrainerData> &event
 }
 
 void Model::publishUpdate() {
-    const auto aggregate = WorkoutData{
-        Aggregate{hrmState.stats.latest, hrmState.stats.average},
-        Aggregate{cadenceState.stats.latest, cadenceState.stats.average},
-        Aggregate{speedState.stats.latest, speedState.stats.average},
-        Aggregate{powerState.stats.latest, powerState.stats.average},
-    };
+    WorkoutData aggregate{};
+
+    if (!storage) {
+        aggregate = WorkoutData{
+            Aggregate{hrmState.stats.latest, hrmState.stats.average},
+            Aggregate{cadenceState.stats.latest, cadenceState.stats.average},
+            Aggregate{speedState.stats.latest, speedState.stats.average},
+            Aggregate{powerState.stats.latest, powerState.stats.average},
+        };
+    } else {
+        const auto hrm = storage->getHeartRate();
+        const auto cadence = storage->getCadence();
+        const auto speed = storage->getSpeed();
+        const auto power = storage->getPower();
+
+        aggregate = WorkoutData{
+            hrm, cadence, speed, power
+        };
+    }
 
     notifications.measurements.publish(aggregate);
+}
+
+long long Model::now() {
+    return duration_cast<std::chrono::milliseconds>(std::chrono::utc_clock::now().time_since_epoch()).count();
 }

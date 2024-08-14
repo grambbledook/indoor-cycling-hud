@@ -4,7 +4,9 @@ enum class ApplicationState {
     STARTING,
     WAITING_FOR_TRAINER,
     WAITING_FOR_SENSORS,
+    WAITING_FOR_WORKOUT,
     IN_WORKOUT,
+    WORKOUT_SUMMARY,
     EXITING
 };
 

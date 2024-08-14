@@ -4,6 +4,7 @@
 #include "Channel.h"
 #include "ModelEvents.h"
 #include "BleDeviceEvents.h"
+#include "WorkoutDataStorage.h"
 
 class Notifications {
 public:
@@ -64,6 +65,10 @@ public:
 
     void setBikeTrainer(const std::shared_ptr<Device> &device);
 
+    void startWorkout();
+
+    void stopWorkout();
+
     void recordHeartData(const MeasurementEvent<HrmMeasurement> &event);
 
     void recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event);
@@ -81,12 +86,15 @@ public:
 private:
     void publishUpdate();
 
+    static long long now();
 public:
     Notifications notifications;
 
 private:
     std::unordered_map<std::string, std::shared_ptr<Device> > devices;
     std::mutex mutex;
+
+    std::unique_ptr<WorkoutDataStorage> storage = nullptr;
 
     State<int> hrmState = {
         __nullptr,

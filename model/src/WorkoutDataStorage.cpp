@@ -21,7 +21,7 @@ WorkoutDataStorage::WorkoutDataStorage() {
     connection = std::make_unique<SQLiteConnection>(db_file.string());
 
     char *err_msg = nullptr;
-    const auto rc = sqlite3_exec(connection->get(), create_table_sql, nullptr, nullptr, &err_msg);
+    const auto rc = sqlite3_exec(connection->get(), create_tables_sql, nullptr, nullptr, &err_msg);
     if (err_msg) {
         spdlog::error("SQLite error: {}", err_msg);
     }

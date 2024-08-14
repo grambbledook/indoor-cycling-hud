@@ -8,7 +8,7 @@
 
 #include "ModelEvents.h"
 
-constexpr auto create_table_sql = R"CREATE(
+constexpr auto create_tables_sql = R"CREATE(
     CREATE TABLE measurements (
         ts INTEGER PRIMARY KEY,
         value INTEGER,

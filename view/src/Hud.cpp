@@ -41,9 +41,17 @@ int main(int argc, char **argv) {
     auto sensorWindowController = std::make_shared<SensorsWindowController>(
         sensorsWindow, appState, history);
 
+    auto selectWorkoutWindow = std::make_shared<SelectWorkoutWindow>(controllerHandler);
+    auto selectWorkoutWindowController = std::make_shared<SelectWorkoutWindowController>(
+        selectWorkoutWindow, appState, history);
+
     auto workoutWindow = std::make_shared<WorkoutWindow>(controllerHandler);
     auto workoutWindowController = std::make_shared<WorkoutWindowController>(
-        workoutWindow, appState, history);
+        workoutWindow, model, appState, history);
+
+    auto workoutSummaryWindow = std::make_shared<WorkoutSummaryWindow>(controllerHandler);
+    auto workoutSummaryWindowController = std::make_shared<WorkoutSummaryWindowController>(
+        workoutSummaryWindow, model, appState, history);
 
     auto qtAdapter = std::make_shared<QtEventPublisher>(
         trainerWindow, sensorsWindow, workoutWindow
@@ -71,7 +79,7 @@ int main(int argc, char **argv) {
         hrm, csc, pwr, fec, scanner, appState, history);
 
     auto switchThemeController = std::make_shared<SwitchThemeController>(
-        app, trainerWindow, sensorsWindow, workoutWindow, appState, history
+        app, trainerWindow, sensorsWindow, selectWorkoutWindow, workoutWindow, workoutSummaryWindow, appState, history
     );
 
     const auto shutdownController = std::make_shared<ShutdownController>(
@@ -80,7 +88,8 @@ int main(int argc, char **argv) {
     const auto viewNavigator = std::make_unique<ViewNavigator>(
         controllerHandler,
         deviceDialogController, connectToDeviceController, trainerWindowController, sensorWindowController,
-        workoutWindowController, switchThemeController, shutdownController
+        selectWorkoutWindowController, workoutWindowController, workoutSummaryWindowController, switchThemeController,
+        shutdownController
     );
     const auto tray = std::make_shared<SystemTray>(controllerHandler);
     tray->switchTheme();
