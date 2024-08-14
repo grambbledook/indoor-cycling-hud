@@ -4,45 +4,103 @@
 #include <gtest/gtest.h>
 #include "WorkoutDataStorage.h"
 
-using AggregateMethod = void (WorkoutDataStorage::*)(const long long, const long);
-using RetrieveMethod = Aggregate (WorkoutDataStorage::*)();
+TEST(WorkoutDataStorageTest, ShouldSuccessfullyReadAggregatedData_HRM) {
+    const auto storage = std::make_unique<WorkoutDataStorage>();
 
-class WorkoutDataStorageTestFixture
-    : public ::testing::TestWithParam<std::tuple<std::string, AggregateMethod, RetrieveMethod>> {
-protected:
-    std::unique_ptr<WorkoutDataStorage> storage;
+    storage->aggregateHeartRate(10);
+    storage->aggregateHeartRate(100);
 
-    void SetUp() override {
-        storage = std::make_unique<WorkoutDataStorage>();
-    }
-};
-
-TEST_P(WorkoutDataStorageTestFixture, ShouldSuccessfullyReadAggregatedData) {
-    const auto &[type, aggregateMethod, retrieveMethod] = GetParam();
-
-    (storage.get()->*aggregateMethod)(1, 10);
-    (storage.get()->*aggregateMethod)(2, 100);
-
-    const auto [val, avg] = (storage.get()->*retrieveMethod)();
+    const auto [val, avg, windowAvg, max, min] = storage->getHeartRate();
     ASSERT_EQ(val, 100);
     ASSERT_EQ(avg, 55);
+    ASSERT_EQ(windowAvg, 55);
+    ASSERT_EQ(max, 100);
+    ASSERT_EQ(min, 10);
 }
 
-TEST_P(WorkoutDataStorageTestFixture, ShouldReturnEmptyAggregatedDataOnMissingData) {
-    const auto &[type, aggregateMethod, retrieveMethod] = GetParam();
+TEST(WorkoutDataStorageTest, ShouldReturnEmptyAggregatedDataOnMissingData_HRM) {
+    const auto storage = std::make_unique<WorkoutDataStorage>();
 
-    const auto [val, avg] = (storage.get()->*retrieveMethod)();
+    const auto [val, avg, windowAvg, max, min] = storage->getHeartRate();
     ASSERT_EQ(val, 0);
     ASSERT_EQ(avg, 0);
+    ASSERT_EQ(windowAvg, 0);
+    ASSERT_EQ(max, 0);
+    ASSERT_EQ(min, 0);
 }
 
-INSTANTIATE_TEST_SUITE_P(
-    WorkoutDataStorageTests,
-    WorkoutDataStorageTestFixture,
-    ::testing::Values(
-        std::make_tuple("hrm", &WorkoutDataStorage::aggregateHeartRate, &WorkoutDataStorage::getHeartRate),
-        std::make_tuple("cad", &WorkoutDataStorage::aggregateCadence, &WorkoutDataStorage::getCadence),
-        std::make_tuple("spd", &WorkoutDataStorage::aggregateSpeed, &WorkoutDataStorage::getSpeed),
-        std::make_tuple("pwr", &WorkoutDataStorage::aggregatePower, &WorkoutDataStorage::getPower)
-    )
-);
+TEST(WorkoutDataStorageTest, ShouldSuccessfullyReadAggregatedData_CADENCE) {
+    const auto storage = std::make_unique<WorkoutDataStorage>();
+
+    storage->aggregateCadence(10);
+    storage->aggregateCadence(100);
+
+    const auto [val, avg, windowAvg, max, min] = storage->getHeartRate();
+    ASSERT_EQ(val, 0);
+    ASSERT_EQ(avg, 0);
+    ASSERT_EQ(windowAvg, 0);
+    ASSERT_EQ(max, 0);
+    ASSERT_EQ(min, 0);
+}
+
+TEST(WorkoutDataStorageTest, ShouldReturnEmptyAggregatedDataOnMissingData_CADENCE) {
+    const auto storage = std::make_unique<WorkoutDataStorage>();
+
+    const auto [val, avg, windowAvg, max, min] = storage->getHeartRate();
+    ASSERT_EQ(val, 0);
+    ASSERT_EQ(avg, 0);
+    ASSERT_EQ(windowAvg, 0);
+    ASSERT_EQ(max, 0);
+    ASSERT_EQ(min, 0);
+}
+
+TEST(WorkoutDataStorageTest, ShouldSuccessfullyReadAggregatedData_SPEED) {
+    const auto storage = std::make_unique<WorkoutDataStorage>();
+
+    storage->aggregateSpeed(10);
+    storage->aggregateSpeed(100);
+
+    const auto [val, avg, windowAvg, max, min] = storage->getSpeed();
+    ASSERT_EQ(val, 100);
+    ASSERT_EQ(avg, 55);
+    ASSERT_EQ(windowAvg, 55);
+    ASSERT_EQ(max, 100);
+    ASSERT_EQ(min, 10);
+}
+
+TEST(WorkoutDataStorageTest, ShouldReturnEmptyAggregatedDataOnMissingData_SPEED) {
+    const auto storage = std::make_unique<WorkoutDataStorage>();
+
+    const auto [val, avg, windowAvg, max, min] = storage->getSpeed();
+    ASSERT_EQ(val, 0);
+    ASSERT_EQ(avg, 0);
+    ASSERT_EQ(windowAvg, 0);
+    ASSERT_EQ(max, 0);
+    ASSERT_EQ(min, 0);
+}
+
+TEST(WorkoutDataStorageTest, ShouldSuccessfullyReadAggregatedData_POWER) {
+    const auto storage = std::make_unique<WorkoutDataStorage>();
+
+    storage->aggregatePower(10);
+    storage->aggregatePower(100);
+
+    const auto [val, avg, windowAvg, max, min] = storage->getPower();
+    ASSERT_EQ(val, 100);
+    ASSERT_EQ(avg, 55);
+    ASSERT_EQ(windowAvg, 55);
+    ASSERT_EQ(max, 100);
+    ASSERT_EQ(min, 10);
+}
+
+TEST(WorkoutDataStorageTest, ShouldReturnEmptyAggregatedDataOnMissingData_POWER) {
+    const auto storage = std::make_unique<WorkoutDataStorage>();
+
+    const auto [val, avg, windowAvg, max, min] = storage->getHeartRate();
+    ASSERT_EQ(val, 0);
+    ASSERT_EQ(avg, 0);
+    ASSERT_EQ(windowAvg, 0);
+    ASSERT_EQ(max, 0);
+    ASSERT_EQ(min, 0);
+}
+
