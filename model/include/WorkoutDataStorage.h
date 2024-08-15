@@ -52,10 +52,18 @@ constexpr auto select_aggregate_sql = R"QUERY(
     FROM
         measurements
     WHERE type = ?
-        AND ts >= datetime('now', '-3 seconds')
+        AND ts >= datetime('now', '-3 seconds', 'subsecond')
     ORDER BY
         ts DESC
     LIMIT 1;
+)QUERY";
+
+constexpr auto select_workout_duration_sql = R"QUERY(
+    SELECT
+        julianday(min(ts) over ()) * 86400000.0 AS start,
+        julianday(max(ts) over ()) * 86400000.0 AS end
+    FROM
+        measurements;
 )QUERY";
 
 
@@ -83,6 +91,8 @@ public:
     Aggregate getPower();
 
     void newWorkout();
+
+    [[nodiscard]] long long getWorkoutDuration() const;
 
 private:
     void insert(long value, const std::string &type);

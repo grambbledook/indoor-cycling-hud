@@ -1,6 +1,7 @@
 #include <filesystem>
 #include <tuple>
-
+#include <thread>
+#include <chrono>
 #include <gtest/gtest.h>
 #include "WorkoutDataStorage.h"
 
@@ -102,5 +103,24 @@ TEST(WorkoutDataStorageTest, ShouldReturnEmptyAggregatedDataOnMissingData_POWER)
     ASSERT_EQ(windowAvg, 0);
     ASSERT_EQ(max, 0);
     ASSERT_EQ(min, 0);
+}
+
+TEST(WorkoutDataStorageTest, ShouldReadAggregatedData_DURATION) {
+    const auto storage = std::make_unique<WorkoutDataStorage>();
+
+    storage->aggregateHeartRate(10);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    storage->aggregateHeartRate(100);
+
+    const auto duration = storage->getWorkoutDuration();
+    ASSERT_GE(duration, 100);
+    ASSERT_LE(duration, 1000);
+}
+
+TEST(WorkoutDataStorageTest, ShouldReturnEmptyAggregatedDataOnMissingData_DURATION) {
+    const auto storage = std::make_unique<WorkoutDataStorage>();
+
+    const auto duration = storage->getWorkoutDuration();
+    ASSERT_EQ(duration, 0);
 }
 

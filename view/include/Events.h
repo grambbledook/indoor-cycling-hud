@@ -14,9 +14,14 @@ inline QEvent::Type getDeviceSelectedType() {
     return DeviceSelectedType;
 }
 
-inline QEvent::Type getMeasurementReceivedType() {
-    static const auto MeasurementReceivedType = static_cast<QEvent::Type>(QEvent::registerEventType());
-    return MeasurementReceivedType;
+inline QEvent::Type getWorkoutDataType() {
+    static const auto WorkoutDataType = static_cast<QEvent::Type>(QEvent::registerEventType());
+    return WorkoutDataType;
+}
+
+inline QEvent::Type getWorkoutSummaryType() {
+    static const auto WorkoutSummaryType = static_cast<QEvent::Type>(QEvent::registerEventType());
+    return WorkoutSummaryType;
 }
 
 class DeviceDiscoveredEvent final : public QEvent {
@@ -43,14 +48,26 @@ private:
      DeviceSelected event;
 };
 
-class MeasurementReceivedEvent final : public QEvent {
+class WorkoutDataEvent final : public QEvent {
 public:
-    explicit MeasurementReceivedEvent(WorkoutData data)
-        : QEvent(getMeasurementReceivedType()), data(data) {
+    explicit WorkoutDataEvent(WorkoutData data)
+        : QEvent(getWorkoutDataType()), data(data) {
     }
 
     [[nodiscard]] WorkoutData getData() const { return data; }
 
 private:
     WorkoutData data;
+};
+
+class WorkoutSummaryEvent final : public QEvent {
+public:
+    explicit WorkoutSummaryEvent(WorkoutSummary data)
+        : QEvent(getWorkoutSummaryType()), data(data) {
+    }
+
+    [[nodiscard]] WorkoutSummary getData() const { return data; }
+
+private:
+    WorkoutSummary data;
 };

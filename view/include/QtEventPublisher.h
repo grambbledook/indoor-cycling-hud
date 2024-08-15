@@ -6,6 +6,7 @@
 #include "Events.h"
 #include "SensorsWindow.h"
 #include "TrainerWindow.h"
+#include "WorkoutSummaryWindow.h"
 #include "WorkoutWindow.h"
 
 class QtEventPublisher final {
@@ -13,8 +14,10 @@ public:
     explicit QtEventPublisher(
         const std::shared_ptr<TrainerWindow> &trainerWindow,
         const std::shared_ptr<SensorsWindow> &sensorsWindow,
-        const std::shared_ptr<WorkoutWindow> &workoutWindow
-    ): trainerWindow(trainerWindow), sensorsWindow(sensorsWindow), workoutWindow(workoutWindow) {
+        const std::shared_ptr<WorkoutWindow> &workoutWindow,
+        const std::shared_ptr<WorkoutSummaryWindow> &workoutSummaryWindow
+    ): trainerWindow(trainerWindow), sensorsWindow(sensorsWindow),
+       workoutWindow(workoutWindow), workoutSummaryWindow(workoutSummaryWindow) {
     }
 
     void setDeviceDialog(const std::shared_ptr<DeviceDialog> &deviceDialog) {
@@ -38,12 +41,17 @@ public:
         QCoreApplication::postEvent(sensorsWindow.get(), secondEvent);
     }
 
-    void measurementReceived(const WorkoutData &data) const {
-        const auto firstEvent = new MeasurementReceivedEvent(data);
+    void workoutData(const WorkoutData &data) const {
+        const auto firstEvent = new WorkoutDataEvent(data);
         QCoreApplication::postEvent(sensorsWindow.get(), firstEvent);
 
-        const auto secondEvent = new MeasurementReceivedEvent(data);
+        const auto secondEvent = new WorkoutDataEvent(data);
         QCoreApplication::postEvent(workoutWindow.get(), secondEvent);
+    }
+
+    void workoutSummary(const WorkoutSummary &data) const {
+        const auto event = new WorkoutSummaryEvent(data);
+        QCoreApplication::postEvent(workoutSummaryWindow.get(), event);
     }
 
 private:
@@ -52,4 +60,5 @@ private:
     std::shared_ptr<TrainerWindow> trainerWindow;
     std::shared_ptr<SensorsWindow> sensorsWindow;
     std::shared_ptr<WorkoutWindow> workoutWindow;
+    std::shared_ptr<WorkoutSummaryWindow> workoutSummaryWindow;
 };

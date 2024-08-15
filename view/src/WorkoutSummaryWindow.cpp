@@ -7,19 +7,22 @@
 #include <Labels.h>
 
 #include <QGridLayout>
-#include <QListWidget>
+#include <QTableWidget>
+#include <QHeaderView>
 
 #include "Events.h"
 
 WorkoutSummaryWindow::WorkoutSummaryWindow(const std::shared_ptr<ControllerHandler> &handler,
                                            QWidget *parent): AppWindow(
     handler, parent) {
-    const auto listWidget = new QListWidget(this);
-    listWidget->addItem("Heart rate: ...");
-    listWidget->addItem("Speed: ...");
-    listWidget->addItem("Cadence: ...");
-    listWidget->addItem("Power: ...");
-    listWidget->addItem("Duration: ...");
+    eventHandlers.insert({
+        getWorkoutSummaryType(), [this](QEvent *event) {
+            const auto data = dynamic_cast<WorkoutSummaryEvent *>(event);
+            workoutSummaryReceived(data->getData());
+        }
+    });
+
+    summaryPanel = new WorkoutSummaryPanel(this);
 
     const auto startLabel = new ButtonLabel(Constants::Buttons::START, true, this);
     connect(startLabel, &ButtonLabel::clicked, this, &WorkoutSummaryWindow::back);
@@ -28,7 +31,7 @@ WorkoutSummaryWindow::WorkoutSummaryWindow(const std::shared_ptr<ControllerHandl
     connect(exitLabel, &ButtonLabel::clicked, this, &WorkoutSummaryWindow::next);
 
     auto *layout = new QGridLayout(this);
-    layout->addWidget(listWidget, 0, 0, 1, 2, Qt::AlignCenter);
+    layout->addWidget(summaryPanel, 0, 0, 1, 2, Qt::AlignCenter);
     layout->addWidget(startLabel, 1, 0, Qt::AlignRight);
     layout->addWidget(exitLabel, 1, 1, Qt::AlignRight);
     layout->setColumnStretch(1, 1);
@@ -38,6 +41,10 @@ WorkoutSummaryWindow::WorkoutSummaryWindow(const std::shared_ptr<ControllerHandl
     centralWidget->setLayout(layout);
 
     setCentralWidget(centralWidget);
+}
+
+void WorkoutSummaryWindow::workoutSummaryReceived(const WorkoutSummary &data) const {
+    summaryPanel->handleWorkoutSummaryEvent(data);
 }
 
 void WorkoutSummaryWindow::next() {

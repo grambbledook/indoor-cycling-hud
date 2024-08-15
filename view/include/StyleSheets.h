@@ -3,45 +3,51 @@
 
 namespace StyleSheets {
     inline std::string SCALE_MEDIUM = R"MEDIUM(
-                                    QListWidget {
-                                        font-weight: bold;
-                                        font-size: 20px;
-                                        text-align: center;
-                                    }
-                                    TextLabel {
-                                        font: bold center "Hurmit Nerd Font Mono";
-                                        font-size: 10px;
-                                        text-align: center;
-                                    }
-                                    TextLabel#small {
-                                        font-size: 16px;
-                                    }
-                                    TextLabel#medium {
-                                        font-size: 24px;
-                                    }
-                                    TextLabel#large {
-                                        font-size: 30px;
-                                    }
-                                    ButtonLabel:hover {
-                                        color: red;
-                                        text-decoration: underline;
-                                    }
-                                    ButtonLabel {
-                                        font-size: 16px;
-                                        font-weight: bold;
-                                    }
-                                    ButtonLabel#with_borders {
-                                        padding: 3px 15px 1px 14px;
-                                        border-radius: 7px;
-                                    }
-                                    QFrame#frame_with_borders {
-                                        padding: 2px 1px -10px 1px;
-                                        border-radius: 10px;
-                                    }
-                                    ClickableLabel {
-                                        padding: 7px 17px 7px 17px;
-                                        border-radius: 10px;
-                                    })MEDIUM";
+        QListWidget {
+            font-weight: bold;
+            font-size: 20px;
+            text-align: center;
+        }
+        TextLabel {
+            font: bold center "Hurmit Nerd Font Mono";
+            font-size: 10px;
+            text-align: center;
+        }
+        TextLabel#small {
+            font-size: 16px;
+        }
+        TextLabel#medium {
+            font-size: 24px;
+        }
+        TextLabel#large {
+            font-size: 30px;
+        }
+        ButtonLabel:hover {
+            color: red;
+            text-decoration: underline;
+        }
+        ButtonLabel {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        ButtonLabel#with_borders {
+            padding: 3px 15px 1px 14px;
+            border-radius: 7px;
+        }
+        QFrame#frame_with_borders {
+            padding: 2px 1px -10px 1px;
+            border-radius: 10px;
+        }
+        ClickableLabel {
+            padding: 7px 17px 7px 17px;
+            border-radius: 10px;
+        }
+        QTableWidget {
+            font-weight: bold;
+            font-size: 16px;
+            text-align: center;
+        }
+)MEDIUM";
 
     inline std::string THEME_DARK = R"DARK(
         QWidget#panel {
@@ -50,9 +56,6 @@ namespace StyleSheets {
         QListWidget {
             background-color: rgba(0, 0, 0, 0.8);
             color: white;
-            font-weight: bold;
-            font-size: 16px;
-            text-align: center;
         }
         QFrame#frame_with_borders {
             border: 1px solid white;
@@ -72,6 +75,10 @@ namespace StyleSheets {
         ClickableLabel {
             border: 1px solid white;
         }
+        QTableWidget {
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+        }
     )DARK";
 
     inline std::string THEME_BRIGHT = R"BRIGHT(
@@ -81,9 +88,6 @@ namespace StyleSheets {
         QListWidget {
             background-color: rgba(255, 255, 255, 0.8);
             color: black;
-            font-weight: bold;
-            font-size: 20px;
-            text-align: center;
         }
         QFrame#frame_with_borders {
             border: 1px solid black;
@@ -102,6 +106,10 @@ namespace StyleSheets {
         }
         ClickableLabel {
             border: 1px solid black;
+        }
+        QTableWidget {
+            background-color: rgba(255, 255, 255, 0.8);
+            color: black;
         }
     )BRIGHT";
 }

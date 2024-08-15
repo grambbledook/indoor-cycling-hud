@@ -32,10 +32,16 @@ namespace Constants {
     }
 
     namespace Labels {
-        const std::string HEART_RATE = "Heart Rate";
         const std::string CADENCE = "Cadence";
+        const std::string DURATION = "Duration";
+        const std::string HEART_RATE = "Heart Rate";
         const std::string INSTANT_POWER = "Instant Power";
+        const std::string POWER = "Power";
         const std::string SPEED = "Speed";
+
+        const std::string MAX = "Max";
+        const std::string MIN = "Min";
+        const std::string AVG = "Avg";
     }
 
     namespace Classes {

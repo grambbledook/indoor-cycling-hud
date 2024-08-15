@@ -1,7 +1,4 @@
 #include <QApplication>
-#include <QLineEdit>
-#include <QVBoxLayout>
-#include <QtPlugin>
 #include <vector>
 
 #include "ScannerService.h"
@@ -54,7 +51,7 @@ int main(int argc, char **argv) {
         workoutSummaryWindow, model, appState, history);
 
     auto qtAdapter = std::make_shared<QtEventPublisher>(
-        trainerWindow, sensorsWindow, workoutWindow
+        trainerWindow, sensorsWindow, workoutWindow, workoutSummaryWindow
     );
 
     model->notifications.deviceDiscovered.subscribe(
@@ -62,7 +59,9 @@ int main(int argc, char **argv) {
     model->notifications.deviceSelected.subscribe(
         std::bind(&QtEventPublisher::deviceSelected, qtAdapter, std::placeholders::_1));
     model->notifications.measurements.subscribe(
-        std::bind(&QtEventPublisher::measurementReceived, qtAdapter, std::placeholders::_1));
+        std::bind(&QtEventPublisher::workoutData, qtAdapter, std::placeholders::_1));
+    model->notifications.summary.subscribe(
+        std::bind(&QtEventPublisher::workoutSummary, qtAdapter, std::placeholders::_1));
 
     auto scanner1 = Scanner(BLE::Services::SUPPORTED_SERVICES_MAP);
     auto scanner = std::make_shared<ScannerService>(model, scanner1);

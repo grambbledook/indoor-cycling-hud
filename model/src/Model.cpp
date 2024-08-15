@@ -95,6 +95,17 @@ void Model::startWorkout() {
 
 void Model::stopWorkout() {
     spdlog::info("Model::stopWorkout");
+    auto duration = storage->getWorkoutDuration();
+    auto hrm = storage->getHeartRate();
+    auto cadence = storage->getCadence();
+    auto speed = storage->getSpeed();
+    auto power = storage->getPower();
+
+    const auto summary = WorkoutSummary{
+        duration, hrm, cadence, speed, power
+    };
+
+    notifications.summary.publish(summary);
 }
 
 void Model::recordHeartData(const MeasurementEvent<HrmMeasurement> &event) {
@@ -103,7 +114,6 @@ void Model::recordHeartData(const MeasurementEvent<HrmMeasurement> &event) {
     }
 
     hrmState.recordMetric(event.measurement.hrm);
-    hrmState.aggregateMetric(event.measurement.hrm);
     storage->aggregateHeartRate(event.measurement.hrm);
     publishUpdate();
 }
@@ -130,9 +140,7 @@ void Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event)
 
     const auto cadence = totalRevolutions * BLE::Math::MS_IN_MIN / timeDelta;
 
-    cadenceState.aggregateMetric(cadence);
     storage->aggregateCadence(cadence);
-
     publishUpdate();
 }
 
@@ -159,11 +167,7 @@ void Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) {
     const auto distanceTraveled = totalRevolutions * BLE::Wheels::DEFAULT_TIRE_CIRCUMFERENCE_MM;
     const auto speedMms = distanceTraveled * BLE::Math::MS_IN_SECOND / timeDelta;
 
-    speedState.aggregateMetric(speedMms);
-    if (storage) {
-        storage->aggregateSpeed(speedMms);
-    }
-
+    storage->aggregateSpeed(speedMms);
     publishUpdate();
 }
 
@@ -173,7 +177,6 @@ void Model::recordPowerData(const MeasurementEvent<PowerMeasurement> &event) {
     }
 
     powerState.recordMetric(event.measurement.power);
-    powerState.aggregateMetric(event.measurement.power);
     storage->aggregatePower(event.measurement.power);
     publishUpdate();
 }
@@ -189,29 +192,14 @@ void Model::recordTrainerData(const MeasurementEvent<SpecificTrainerData> &event
 }
 
 void Model::publishUpdate() {
-    WorkoutData aggregate{};
+    const auto hrm = storage->getHeartRate();
+    const auto cadence = storage->getCadence();
+    const auto speed = storage->getSpeed();
+    const auto power = storage->getPower();
 
-    if (!storage) {
-        aggregate = WorkoutData{
-            Aggregate{hrmState.stats.latest, hrmState.stats.average},
-            Aggregate{cadenceState.stats.latest, cadenceState.stats.average},
-            Aggregate{speedState.stats.latest, speedState.stats.average},
-            Aggregate{powerState.stats.latest, powerState.stats.average},
-        };
-    } else {
-        const auto hrm = storage->getHeartRate();
-        const auto cadence = storage->getCadence();
-        const auto speed = storage->getSpeed();
-        const auto power = storage->getPower();
-
-        aggregate = WorkoutData{
-            hrm, cadence, speed, power
-        };
-    }
+    const auto aggregate = WorkoutData{
+        hrm, cadence, speed, power
+    };
 
     notifications.measurements.publish(aggregate);
-}
-
-long long Model::now() {
-    return duration_cast<std::chrono::milliseconds>(std::chrono::utc_clock::now().time_since_epoch()).count();
 }

@@ -14,8 +14,8 @@
 WorkoutWindow::WorkoutWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent): AppWindow(
     handler, parent) {
     eventHandlers.insert({
-        getMeasurementReceivedType(), [this](QEvent *event) {
-            const auto data = dynamic_cast<MeasurementReceivedEvent *>(event);
+        getWorkoutDataType(), [this](QEvent *event) {
+            const auto data = dynamic_cast<WorkoutDataEvent *>(event);
             measurementsReceived(data->getData());
         }
     });

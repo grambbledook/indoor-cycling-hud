@@ -70,6 +70,23 @@ void WorkoutDataStorage::newWorkout() {
     }
 }
 
+long long WorkoutDataStorage::getWorkoutDuration() const {
+    const auto select = std::make_unique<SQLiteStatement>(connection.get(), select_workout_duration_sql);
+
+    auto rc = sqlite3_step(select->get());
+    if (rc == SQLITE_ROW) {
+        const auto start = sqlite3_column_int64(select->get(), 0);
+        const auto end = sqlite3_column_int64(select->get(), 1);
+        return end - start;
+    }
+    if (rc != SQLITE_DONE) {
+        spdlog::error("SQLite error: {}", sqlite3_errmsg(connection->get()));
+        throw std::runtime_error("Failed to execute select statement");
+    }
+
+    return -1L;
+}
+
 void WorkoutDataStorage::insert(long value, const std::string &type) {
     const auto select = std::make_unique<SQLiteStatement>(connection.get(), select_latest_sql);
     auto rc = sqlite3_bind_text(select->get(), 1, type.c_str(), -1, SQLITE_TRANSIENT);
@@ -78,7 +95,11 @@ void WorkoutDataStorage::insert(long value, const std::string &type) {
     }
 
     rc = sqlite3_step(select->get());
-    auto latest = 0L; long count = 0L; auto avg = 0L; auto max = 0L; auto min = 0xFFFFFFL;
+    auto latest = 0L;
+    long count = 0L;
+    auto avg = 0L;
+    auto max = 0L;
+    auto min = 0xFFFFFFL;
 
     if (rc == SQLITE_ROW) {
         latest = sqlite3_column_int(select->get(), 0);

@@ -11,13 +11,13 @@ public:
     Channel<DeviceDiscovered> deviceDiscovered;
     Channel<DeviceSelected> deviceSelected;
     Channel<WorkoutData> measurements;
+    Channel<WorkoutSummary> summary;
 };
 
 template<typename A>
 struct State {
     std::shared_ptr<Device> device;
     std::vector<A> data;
-    Statistics stats;
 
     std::pair<std::vector<A>, bool> getLastN(int n) {
         if (n > data.size()) {
@@ -40,10 +40,6 @@ struct State {
         }
         data.erase(data.end() - 1);
     };
-
-    void aggregateMetric(const int value) {
-        stats.aggregate(value);
-    }
 };
 
 
@@ -51,7 +47,6 @@ class Model {
 public:
     Model(): storage(std::make_unique<WorkoutDataStorage>()) {
     };
-
 
     void addDevice(const std::shared_ptr<Device> &device);
 
@@ -90,8 +85,6 @@ public:
 private:
     void publishUpdate();
 
-    static long long now();
-
 public:
     Notifications notifications;
 
@@ -103,25 +96,21 @@ private:
 
     State<int> hrmState = {
         __nullptr,
-        std::vector<int>{},
-        {0, 0, 0, 0, 0}
+        std::vector<int>{}
     };
 
     State<std::pair<int, int> > cadenceState = {
         __nullptr,
-        std::vector<std::pair<int, int> >{},
-        {0, 0, 0, 0, 0}
+        std::vector<std::pair<int, int> >{}
     };
 
     State<std::pair<int, int> > speedState = {
         __nullptr,
-        std::vector<std::pair<int, int> >{},
-        {0, 0, 0, 0, 0}
+        std::vector<std::pair<int, int> >{}
     };
 
     State<int> powerState = {
         __nullptr,
-        std::vector<int>{},
-        {0, 0, 0, 0, 0}
+        std::vector<int>{}
     };
 };
