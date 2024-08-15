@@ -13,7 +13,7 @@ constexpr auto create_tables_sql = R"CREATE(
         ts TIMESTAMP PRIMARY KEY,
         value INTEGER,
         count INTEGER,
-        avg INTEGERR,
+        avg REAL,
         max INTEGER,
         min INTEGER,
         type VARCHAR(3)

@@ -97,14 +97,14 @@ void WorkoutDataStorage::insert(long value, const std::string &type) {
     rc = sqlite3_step(select->get());
     auto latest = 0L;
     long count = 0L;
-    auto avg = 0L;
+    auto avg = 0.0;
     auto max = 0L;
     auto min = 0xFFFFFFL;
 
     if (rc == SQLITE_ROW) {
         latest = sqlite3_column_int(select->get(), 0);
         count = sqlite3_column_int(select->get(), 1);
-        avg = sqlite3_column_int(select->get(), 2);
+        avg = sqlite3_column_double(select->get(), 2);
         max = sqlite3_column_int(select->get(), 3);
         min = sqlite3_column_int(select->get(), 4);
     }
@@ -126,8 +126,8 @@ void WorkoutDataStorage::insert(long value, const std::string &type) {
         throw std::runtime_error("Failed to bind count");
     }
 
-    long total = count * avg + value;
-    rc = sqlite3_bind_int64(statement->get(), 4, total / (count + 1));
+    const auto total = avg * count + value;
+    rc = sqlite3_bind_double(statement->get(), 4, total / (count + 1));
     if (rc != SQLITE_OK) {
         throw std::runtime_error("Failed to bind average");
     }
@@ -164,14 +164,14 @@ Aggregate WorkoutDataStorage::select(const std::string &type) {
         aggregate = Aggregate();
     } else if (rc == SQLITE_ROW) {
         const auto latest = sqlite3_column_int(statement->get(), 0);
-        const auto average = sqlite3_column_int(statement->get(), 1);
+        const auto average = sqlite3_column_double(statement->get(), 1);
         const auto windowAvg = sqlite3_column_int(statement->get(), 2);
         const auto max = sqlite3_column_int(statement->get(), 3);
         const auto min = sqlite3_column_int(statement->get(), 4);
 
         aggregate = Aggregate{
             latest,
-            average,
+            static_cast<int>(std::lround(average)),
             windowAvg,
             max, min
 

@@ -105,6 +105,22 @@ TEST(WorkoutDataStorageTest, ShouldReturnEmptyAggregatedDataOnMissingData_POWER)
     ASSERT_EQ(min, 0);
 }
 
+TEST(WorkoutDataStorageTest, ShouldAggregateDataAfterEachRequest) {
+    const auto storage = std::make_unique<WorkoutDataStorage>();
+
+    storage->aggregateHeartRate(1);
+    auto result = storage->getHeartRate();
+    ASSERT_EQ(result.avg, 1);
+
+    storage->aggregateHeartRate(2);
+    result = storage->getHeartRate();
+    ASSERT_EQ(result.avg, 2);
+
+    storage->aggregateHeartRate(2);
+    result = storage->getHeartRate();
+    ASSERT_EQ(result.avg, 2);
+}
+
 TEST(WorkoutDataStorageTest, ShouldReadAggregatedData_DURATION) {
     const auto storage = std::make_unique<WorkoutDataStorage>();
 
