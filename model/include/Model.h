@@ -11,7 +11,7 @@ public:
     Channel<DeviceDiscovered> deviceDiscovered;
     Channel<DeviceSelected> deviceSelected;
     Channel<WorkoutData> measurements;
-    Channel<WorkoutSummary> summary;
+    Channel<WorkoutEvent> summary;
 };
 
 template<typename A>

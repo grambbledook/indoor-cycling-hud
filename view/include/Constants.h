@@ -42,6 +42,12 @@ namespace Constants {
         const std::string MAX = "Max";
         const std::string MIN = "Min";
         const std::string AVG = "Avg";
+
+
+    }
+
+    namespace Values {
+        const std::string EMPTY_DATA = "-";
     }
 
     namespace Classes {

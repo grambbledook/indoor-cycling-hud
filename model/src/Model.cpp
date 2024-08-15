@@ -91,18 +91,25 @@ void Model::setBikeTrainer(const std::shared_ptr<Device> &device) {
 void Model::startWorkout() {
     spdlog::info("Model::startWorkout");
     storage->newWorkout();
+
+    constexpr auto event = WorkoutEvent{
+        true, 0, Aggregate{}, Aggregate{}, Aggregate{}, Aggregate{}
+    };
+
+    notifications.summary.publish(event);
 }
 
 void Model::stopWorkout() {
     spdlog::info("Model::stopWorkout");
+
     auto duration = storage->getWorkoutDuration();
     auto hrm = storage->getHeartRate();
     auto cadence = storage->getCadence();
     auto speed = storage->getSpeed();
     auto power = storage->getPower();
 
-    const auto summary = WorkoutSummary{
-        duration, hrm, cadence, speed, power
+    const auto summary = WorkoutEvent{
+        true, duration, hrm, cadence, speed, power
     };
 
     notifications.summary.publish(summary);

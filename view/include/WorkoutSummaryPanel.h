@@ -16,7 +16,7 @@ class WorkoutSummaryPanel final : public QMainWindow {
 public:
     explicit WorkoutSummaryPanel(QWidget *parent = nullptr);
 
-    void handleWorkoutSummaryEvent(const WorkoutSummary &data);
+    void handleWorkoutEvent(const WorkoutEvent &data);
 
 private:
     QTableWidgetItem *duration;

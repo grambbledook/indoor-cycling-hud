@@ -43,8 +43,8 @@ WorkoutSummaryWindow::WorkoutSummaryWindow(const std::shared_ptr<ControllerHandl
     setCentralWidget(centralWidget);
 }
 
-void WorkoutSummaryWindow::workoutSummaryReceived(const WorkoutSummary &data) const {
-    summaryPanel->handleWorkoutSummaryEvent(data);
+void WorkoutSummaryWindow::workoutSummaryReceived(const WorkoutEvent &data) const {
+    summaryPanel->handleWorkoutEvent(data);
 }
 
 void WorkoutSummaryWindow::next() {

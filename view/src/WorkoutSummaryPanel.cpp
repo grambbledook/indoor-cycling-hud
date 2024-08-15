@@ -9,6 +9,8 @@
 #include <QTableWidget>
 #include <QHeaderView>
 
+#include "DataFields.h"
+
 
 WorkoutSummaryPanel::WorkoutSummaryPanel(QWidget *parent): QMainWindow(
     parent) {
@@ -21,7 +23,8 @@ WorkoutSummaryPanel::WorkoutSummaryPanel(QWidget *parent): QMainWindow(
     durationItem->setFlags(durationItem->flags() & ~Qt::ItemIsEditable);
     tableWidget->setItem(DURATION_ROW, 0, durationItem);
 
-    duration = new QTableWidgetItem("--");
+
+    duration = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
     duration->setFlags(duration->flags() & ~Qt::ItemIsEditable);
     tableWidget->setItem(DURATION_ROW, 1, duration);
     tableWidget->setSpan(DURATION_ROW, 1, 1, 3); // Span across 3 columns
@@ -42,15 +45,15 @@ WorkoutSummaryPanel::WorkoutSummaryPanel(QWidget *parent): QMainWindow(
     heartRateItem->setFlags(heartRateItem->flags() & ~Qt::ItemIsEditable);
     tableWidget->setItem(HEAR_RATE_ROW, 0, heartRateItem);
 
-    maxHrm = new QTableWidgetItem("--");
+    maxHrm = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
     maxHrm->setFlags(maxHrm->flags() & ~Qt::ItemIsEditable);
     tableWidget->setItem(HEAR_RATE_ROW, 1, maxHrm);
 
-    minHrm = new QTableWidgetItem("--");
+    minHrm = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
     minHrm->setFlags(minHrm->flags() & ~Qt::ItemIsEditable);
     tableWidget->setItem(HEAR_RATE_ROW, 2, minHrm);
 
-    avgHrm = new QTableWidgetItem("--");
+    avgHrm = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
     avgHrm->setFlags(avgHrm->flags() & ~Qt::ItemIsEditable);
     tableWidget->setItem(HEAR_RATE_ROW, 3, avgHrm);
 
@@ -58,15 +61,15 @@ WorkoutSummaryPanel::WorkoutSummaryPanel(QWidget *parent): QMainWindow(
     speedItem->setFlags(speedItem->flags() & ~Qt::ItemIsEditable);
     tableWidget->setItem(SPEED_ROW, 0, speedItem);
 
-    maxSpeed = new QTableWidgetItem("--");
+    maxSpeed = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
     maxSpeed->setFlags(maxSpeed->flags() & ~Qt::ItemIsEditable);
     tableWidget->setItem(SPEED_ROW, 1, maxSpeed);
 
-    minSpeed = new QTableWidgetItem("--");
+    minSpeed = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
     minSpeed->setFlags(minSpeed->flags() & ~Qt::ItemIsEditable);
     tableWidget->setItem(SPEED_ROW, 2, minSpeed);
 
-    avgSpeed = new QTableWidgetItem("--");
+    avgSpeed = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
     avgSpeed->setFlags(avgSpeed->flags() & ~Qt::ItemIsEditable);
     tableWidget->setItem(SPEED_ROW, 3, avgSpeed);
 
@@ -74,15 +77,15 @@ WorkoutSummaryPanel::WorkoutSummaryPanel(QWidget *parent): QMainWindow(
     cadenceItem->setFlags(cadenceItem->flags() & ~Qt::ItemIsEditable);
     tableWidget->setItem(CADENCE_ROW, 0, cadenceItem);
 
-    maxCadence = new QTableWidgetItem("--");
+    maxCadence = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
     maxCadence->setFlags(maxCadence->flags() & ~Qt::ItemIsEditable);
     tableWidget->setItem(CADENCE_ROW, 1, maxCadence);
 
-    minCadence = new QTableWidgetItem("--");
+    minCadence = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
     minCadence->setFlags(minCadence->flags() & ~Qt::ItemIsEditable);
     tableWidget->setItem(CADENCE_ROW, 2, minCadence);
 
-    avgCadence = new QTableWidgetItem("--");
+    avgCadence = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
     avgCadence->setFlags(avgCadence->flags() & ~Qt::ItemIsEditable);
     tableWidget->setItem(CADENCE_ROW, 3, avgCadence);
 
@@ -90,15 +93,15 @@ WorkoutSummaryPanel::WorkoutSummaryPanel(QWidget *parent): QMainWindow(
     powerItem->setFlags(powerItem->flags() & ~Qt::ItemIsEditable);
     tableWidget->setItem(POWER_ROW, 0, powerItem);
 
-    maxPower = new QTableWidgetItem("--");
+    maxPower = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
     maxPower->setFlags(maxPower->flags() & ~Qt::ItemIsEditable);
     tableWidget->setItem(POWER_ROW, 1, maxPower);
 
-    minPower = new QTableWidgetItem("--");
+    minPower = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
     minPower->setFlags(minPower->flags() & ~Qt::ItemIsEditable);
     tableWidget->setItem(POWER_ROW, 2, minPower);
 
-    avgPower = new QTableWidgetItem("--");
+    avgPower = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
     avgPower->setFlags(avgPower->flags() & ~Qt::ItemIsEditable);
     tableWidget->setItem(POWER_ROW, 3, avgPower);
 
@@ -114,24 +117,24 @@ WorkoutSummaryPanel::WorkoutSummaryPanel(QWidget *parent): QMainWindow(
     adjustSize();
 }
 
-void WorkoutSummaryPanel::handleWorkoutSummaryEvent(const WorkoutSummary &data) {
+void WorkoutSummaryPanel::handleWorkoutEvent(const WorkoutEvent &data) {
     spdlog::info("WorkoutSummaryPanel::workoutSummaryReceived");
 
-    duration->setText(QString::number(data.duration));
+    duration->setText(QString::fromStdString(Data::DURATION.value(data)));
 
-    maxHrm->setText(QString::number(data.hrm.max));
-    minHrm->setText(QString::number(data.hrm.min));
-    avgHrm->setText(QString::number(data.hrm.avg));
+    maxHrm->setText(data.isFinished ? QString::number(data.hrm.max) : Constants::Values::EMPTY_DATA.data());
+    minHrm->setText(data.isFinished ? QString::number(data.hrm.min) : Constants::Values::EMPTY_DATA.data());
+    avgHrm->setText(data.isFinished ? QString::number(data.hrm.avg) : Constants::Values::EMPTY_DATA.data());
 
-    maxCadence->setText(QString::number(data.cadence.max));
-    minCadence->setText(QString::number(data.cadence.min));
-    avgCadence->setText(QString::number(data.cadence.avg));
+    maxCadence->setText(data.isFinished ? QString::number(data.cadence.max) : Constants::Values::EMPTY_DATA.data());
+    minCadence->setText(data.isFinished ? QString::number(data.cadence.min) : Constants::Values::EMPTY_DATA.data());
+    avgCadence->setText(data.isFinished ? QString::number(data.cadence.avg) : Constants::Values::EMPTY_DATA.data());
 
-    maxSpeed->setText(QString::number(data.speed.max));
-    minSpeed->setText(QString::number(data.speed.min));
-    avgSpeed->setText(QString::number(data.speed.avg));
+    maxSpeed->setText(data.isFinished ? QString::number(data.speed.max) : Constants::Values::EMPTY_DATA.data());
+    minSpeed->setText(data.isFinished ? QString::number(data.speed.min) : Constants::Values::EMPTY_DATA.data());
+    avgSpeed->setText(data.isFinished ? QString::number(data.speed.avg) : Constants::Values::EMPTY_DATA.data());
 
-    maxPower->setText(QString::number(data.power.max));
-    minPower->setText(QString::number(data.power.min));
-    avgPower->setText(QString::number(data.power.avg));
+    maxPower->setText(data.isFinished ? QString::number(data.power.max) : Constants::Values::EMPTY_DATA.data());
+    minPower->setText(data.isFinished ? QString::number(data.power.min) : Constants::Values::EMPTY_DATA.data());
+    avgPower->setText(data.isFinished ? QString::number(data.power.avg) : Constants::Values::EMPTY_DATA.data());
 }

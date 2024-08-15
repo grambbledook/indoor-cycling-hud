@@ -32,7 +32,9 @@ struct WorkoutData {
     Aggregate power;
 };
 
-struct WorkoutSummary {
+struct WorkoutEvent {
+    bool isFinished;
+
     long long duration;
     Aggregate hrm;
     Aggregate cadence;

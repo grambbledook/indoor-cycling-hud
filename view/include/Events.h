@@ -62,12 +62,12 @@ private:
 
 class WorkoutSummaryEvent final : public QEvent {
 public:
-    explicit WorkoutSummaryEvent(WorkoutSummary data)
+    explicit WorkoutSummaryEvent(WorkoutEvent data)
         : QEvent(getWorkoutSummaryType()), data(data) {
     }
 
-    [[nodiscard]] WorkoutSummary getData() const { return data; }
+    [[nodiscard]] WorkoutEvent getData() const { return data; }
 
 private:
-    WorkoutSummary data;
+    WorkoutEvent data;
 };

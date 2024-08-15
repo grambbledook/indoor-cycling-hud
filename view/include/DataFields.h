@@ -70,4 +70,29 @@ namespace Data {
         }
         return -1;
     }
+
+    struct SummaryData {
+        const std::string text;
+        const std::function<std::string(WorkoutEvent)> value;
+    };
+
+    const auto DURATION = SummaryData{
+        "Duration",
+        [](const WorkoutEvent &data) {
+            const long long ms = data.duration % 1000;
+            const long long total_seconds = data.duration / 1000;
+            const long long seconds = total_seconds % 60;
+            const long long total_minutes = total_seconds / 60;
+            const long long minutes = total_minutes % 60;
+            const long long hours = total_minutes / 60;
+
+            std::ostringstream oss;
+            oss << std::setfill('0') << std::setw(2) << hours << ":"
+                    << std::setfill('0') << std::setw(2) << minutes << ":"
+                    << std::setfill('0') << std::setw(2) << seconds << "."
+                    << std::setfill('0') << std::setw(3) << ms;
+
+            return oss.str();
+        }
+    };
 }

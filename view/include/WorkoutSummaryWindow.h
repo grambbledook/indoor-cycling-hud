@@ -9,7 +9,7 @@ class WorkoutSummaryWindow final : public AppWindow {
 public:
     explicit WorkoutSummaryWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent = nullptr);
 
-    void workoutSummaryReceived(const WorkoutSummary &data) const;
+    void workoutSummaryReceived(const WorkoutEvent &data) const;
 
     void next() override;
 

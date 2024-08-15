@@ -26,7 +26,7 @@ public:
     }
 
     void deviceDiscovered(const DeviceDiscovered &data) const {
-        auto event = new DeviceDiscoveredEvent(data);
+        const auto event = new DeviceDiscoveredEvent(data);
         QCoreApplication::postEvent(deviceDialog.get(), event);
     }
 
@@ -49,7 +49,7 @@ public:
         QCoreApplication::postEvent(workoutWindow.get(), secondEvent);
     }
 
-    void workoutSummary(const WorkoutSummary &data) const {
+    void workoutSummary(const WorkoutEvent &data) const {
         const auto event = new WorkoutSummaryEvent(data);
         QCoreApplication::postEvent(workoutSummaryWindow.get(), event);
     }
