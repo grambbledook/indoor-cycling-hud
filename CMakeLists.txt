@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(HelloWorld LANGUAGES CXX)
+project(HUD LANGUAGES CXX)
 add_subdirectory(bluetooth)
 add_subdirectory(model)
 
@@ -55,16 +55,16 @@ file(GLOB_RECURSE SOURCES
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
         $<$<CONFIG:RELWITHDEBINFO>:QT_MESSAGELOGCONTEXT>)
 
-add_executable(HelloWorld ${SOURCES}
+add_executable(HUD ${SOURCES}
         view/include/Hud.h)
 
-target_include_directories(HelloWorld PRIVATE ${INCLUDE_DIR})
-target_include_directories(HelloWorld PRIVATE ${SOURCE_DIR})
-target_include_directories(HelloWorld PRIVATE ${ASSETS_DIR})
+target_include_directories(HUD PRIVATE ${INCLUDE_DIR})
+target_include_directories(HUD PRIVATE ${SOURCE_DIR})
+target_include_directories(HUD PRIVATE ${ASSETS_DIR})
 target_include_directories(Bluetooth PUBLIC ${BLE_DIR})
 target_include_directories(Model PUBLIC ${MODEL_DIR})
 target_include_directories(Model PUBLIC ${MODEL_DIR})
 
 #--------------------Link Libraries--------------------------
-target_link_libraries(HelloWorld PRIVATE Qt6::Widgets Qt6::Core Qt6::Concurrent Bluetooth Model)
-target_link_libraries(HelloWorld PRIVATE spdlog::spdlog)
+target_link_libraries(HUD PRIVATE Qt6::Widgets Qt6::Core Qt6::Concurrent Bluetooth Model)
+target_link_libraries(HUD PRIVATE spdlog::spdlog)
