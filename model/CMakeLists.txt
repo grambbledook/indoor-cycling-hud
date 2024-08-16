@@ -4,7 +4,7 @@ include(FetchContent)
 
 add_subdirectory(tests)
 
-SET(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo" CACHE STRING "" FORCE)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Zi /Od")
 set(CMAKE_EXE_LINKER_FLAGS "/DEBUG")
@@ -13,9 +13,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 #--------------------Setup paths-----------------------------
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 list(APPEND CMAKE_PREFIX_PATH $ENV{CMAKE_MODULES_HOME})
-
-message(CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}")
-
 
 #--------------------Include Project Files-------------------
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)

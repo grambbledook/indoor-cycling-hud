@@ -3,14 +3,6 @@ project(HUD LANGUAGES CXX)
 add_subdirectory(bluetooth)
 add_subdirectory(model)
 
-message(PROJECT="BAZA")
-message(CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}")
-message(CMAKE_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
-message(CMAKE_CURRENT_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
-message(PROJECT_BINARY_DIR="${PROJECT_BINARY_DIR}")
-
-# control where the static and shared libraries are built so that on windows
-# we don't need to tinker with the path to run the executable
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
@@ -25,8 +17,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 list(APPEND CMAKE_PREFIX_PATH $ENV{QT_HOME} $ENV{CMAKE_MODULES_HOME})
-
-message(CMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}")
 
 find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
@@ -55,9 +45,10 @@ file(GLOB_RECURSE SOURCES
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
         $<$<CONFIG:RELWITHDEBINFO>:QT_MESSAGELOGCONTEXT>)
 
+file(COPY ${ASSETS_DIR} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+
 add_executable(HUD ${SOURCES}
         view/include/Hud.h)
-
 target_include_directories(HUD PRIVATE ${INCLUDE_DIR})
 target_include_directories(HUD PRIVATE ${SOURCE_DIR})
 target_include_directories(HUD PRIVATE ${ASSETS_DIR})
