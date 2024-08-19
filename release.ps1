@@ -6,6 +6,5 @@ if ($args -contains "-r" -or $args -contains "r" -or $args -contains "--release"
 }
 
 # Configure and build the project
-cmake --preset=default
-cmake -DCMAKE_BUILD_TYPE="$BuildType" -S . -B build
+cmake --preset=default -DCONFIG="$BuildType"
 cmake --build build --config "$BuildType"
