@@ -1,7 +1,16 @@
 {
   "dependencies": [
     "gtest",
+    "spdlog",
     "sqlite3",
-    "spdlog"
+    {
+      "name": "qtbase",
+      "default-features": false,
+      "features": [
+        "gui",
+        "widgets",
+        "concurrent"
+      ]
+    }
   ]
 }

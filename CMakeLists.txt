@@ -31,6 +31,13 @@ set(INCLUDE_DIR view/include)
 set(SOURCE_DIR view/src)
 set(BLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bluetooth/include)
 set(MODEL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/model/include)
+set(EXECUTABLE_DIR ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+
+if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    set(QT_PLATFORMS_HOME_DIR "${CMAKE_CURRENT_BINARY_DIR}/vcpkg_installed/x64-windows/debug/Qt6/plugins/platforms")
+else()
+    set(QT_PLATFORMS_HOME_DIR "${CMAKE_CURRENT_BINARY_DIR}/vcpkg_installed/x64-windows/Qt6/plugins/platforms")
+endif()
 
 include_directories(${ASSETS_DIR})
 include_directories(${INCLUDE_DIR})
@@ -42,12 +49,13 @@ file(GLOB_RECURSE SOURCES
 )
 
 #--------------------Set QT Executable-------------------------
+qt_standard_project_setup()
+
+
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
         $<$<CONFIG:RELWITHDEBINFO>:QT_MESSAGELOGCONTEXT>)
 
-file(COPY ${ASSETS_DIR} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
-
-add_executable(HUD ${SOURCES}
+qt_add_executable(HUD ${SOURCES}
         view/include/Hud.h)
 target_include_directories(HUD PRIVATE ${INCLUDE_DIR})
 target_include_directories(HUD PRIVATE ${SOURCE_DIR})
@@ -59,3 +67,14 @@ target_include_directories(Model PUBLIC ${MODEL_DIR})
 #--------------------Link Libraries--------------------------
 target_link_libraries(HUD PRIVATE Qt6::Widgets Qt6::Core Qt6::Concurrent Bluetooth Model)
 target_link_libraries(HUD PRIVATE spdlog::spdlog)
+
+#--------------------Copy Assets-----------------------------
+file(COPY ${ASSETS_DIR} DESTINATION ${EXECUTABLE_DIR})
+
+
+#--------------------Copy QT Platform DLLs----------------------------
+file(GLOB QT_PLATFORM_FILES
+        ${QT_PLATFORMS_HOME_DIR}/qwindows*.dll
+        ${QT_PLATFORMS_HOME_DIR}qwindows*.pdb
+)
+file(COPY "${QT_PLATFORM_FILES}" DESTINATION "${EXECUTABLE_DIR}/platforms/")
