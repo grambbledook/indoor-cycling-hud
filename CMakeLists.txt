@@ -74,7 +74,8 @@ target_include_directories(Model PUBLIC ${MODEL_DIR})
 target_include_directories(Model PUBLIC ${MODEL_DIR})
 
 #--------------------Link Libraries--------------------------
-target_link_libraries(HUD PRIVATE Qt6::Widgets Qt6::Core Qt6::Concurrent Bluetooth Model)
+target_link_libraries(HUD PRIVATE Qt6::Widgets Qt6::Core Qt6::Concurrent)
+target_link_libraries(HUD PRIVATE Bluetooth Model)
 target_link_libraries(HUD PRIVATE spdlog::spdlog)
 
 #--------------------Copy Assets-----------------------------

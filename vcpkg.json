@@ -7,9 +7,10 @@
       "name": "qtbase",
       "default-features": false,
       "features": [
+        "concurrent",
         "gui",
-        "widgets",
-        "concurrent"
+        "png",
+        "widgets"
       ]
     }
   ]
