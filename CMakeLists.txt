@@ -24,6 +24,8 @@ find_package(Qt6 REQUIRED COMPONENTS Concurrent)
 
 #--------------------Include spdlog-----------------------
 find_package(spdlog CONFIG REQUIRED)
+#--------------------Include libpng-----------------------
+find_package(libpng CONFIG REQUIRED)
 
 #--------------------Include Project Files-------------------
 set(ASSETS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/assets)
@@ -74,7 +76,9 @@ target_include_directories(Model PUBLIC ${MODEL_DIR})
 target_include_directories(Model PUBLIC ${MODEL_DIR})
 
 #--------------------Link Libraries--------------------------
-target_link_libraries(HUD PRIVATE Qt6::Widgets Qt6::Core Qt6::Concurrent Bluetooth Model)
+target_link_libraries(HUD PRIVATE Qt6::Widgets Qt6::Core Qt6::Concurrent)
+target_link_libraries(HUD PRIVATE libpng16)
+target_link_libraries(HUD PRIVATE Bluetooth Model)
 target_link_libraries(HUD PRIVATE spdlog::spdlog)
 
 #--------------------Copy Assets-----------------------------

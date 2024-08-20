@@ -3,6 +3,7 @@
     "gtest",
     "spdlog",
     "sqlite3",
+    "libpng",
     {
       "name": "qtbase",
       "default-features": false,

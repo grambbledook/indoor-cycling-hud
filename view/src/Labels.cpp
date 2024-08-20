@@ -1,6 +1,10 @@
 #include "Labels.h"
 
 #include <memory>
+#include <qcoreapplication.h>
+#include <qfile.h>
+#include <QDir>
+#include <spdlog/spdlog.h>
 
 #include "Constants.h"
 #include "StyleSheets.h"
@@ -31,9 +35,18 @@ void ClickableLabel::mousePressEvent(QMouseEvent *event) {
 }
 
 std::shared_ptr<QPixmap> ClickableLabel::pixmap(const std::string &path) {
-    const auto pixmap = std::make_unique<QPixmap>(QString::fromStdString(path));
-    auto image = pixmap->toImage();
+    const auto exeDir = QCoreApplication::applicationDirPath();
+    const auto absolutePath = QDir(exeDir).absoluteFilePath(QString::fromStdString(path));
 
+    spdlog::info("Loading image from path: {}", absolutePath.toStdString());
+    const auto pixmap = std::make_unique<QPixmap>(absolutePath);
+    if (!pixmap->isNull()) {
+        spdlog::info("  Image of size {}x{} loaded successfully.", pixmap->width(), pixmap->height());
+    } else {
+        spdlog::error("  Failed to load image.");
+    }
+
+    auto image = pixmap->toImage();
     for (auto x = 0; x < image.width(); x++) {
         for (auto y = 0; y < image.height(); y++) {
             auto color = QColor::fromRgba(image.pixel(x, y));
@@ -49,7 +62,6 @@ std::shared_ptr<QPixmap> ClickableLabel::pixmap(const std::string &path) {
     }
     return std::make_shared<QPixmap>(QPixmap::fromImage(image));
 }
-
 
 TextLabel::TextLabel(std::string text, const LabelSize &size, QWidget *parent) : QLabel(parent), text(std::move(text)) {
     setText(QString::fromStdString(this->text));
