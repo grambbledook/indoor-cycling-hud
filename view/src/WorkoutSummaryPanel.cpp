@@ -6,108 +6,101 @@
 #include <spdlog/spdlog.h>
 
 #include <QGridLayout>
-#include <QTableWidget>
-#include <QHeaderView>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QSpacerItem>
 
 #include "DataFields.h"
 
+WorkoutSummaryPanel::WorkoutSummaryPanel(QWidget *parent): QMainWindow(parent) {
+    // Duration Group
+    auto *durationLayout = new QHBoxLayout();
+    durationField = new TextLabel(Constants::Labels::DURATION, LabelSize::SMALL, this);
+    durationValue = new ValueLabel(Constants::Values::EMPTY_DATA, LabelSize::SMALL, this);
 
-WorkoutSummaryPanel::WorkoutSummaryPanel(QWidget *parent): QMainWindow(
-    parent) {
-    const auto tableWidget = new QTableWidget(7, 4, this); // 5 rows, 4 columns
+    durationLayout->addWidget(durationField, 0, Qt::AlignLeft);
+    durationLayout->addItem(new QSpacerItem(20, 0));
+    durationLayout->addWidget(durationValue, 2, Qt::AlignRight);
 
-    tableWidget->verticalHeader()->setVisible(false);
-    tableWidget->horizontalHeader()->setVisible(false);
+    // HRM Group
+    auto *hrmLayout = new QGridLayout();
+    maxHrmField = new TextLabel(Constants::Labels::MAX_HEART_RATE, LabelSize::SMALL, this);
+    maxHrmValue = new ValueLabel(Constants::Values::EMPTY_DATA, LabelSize::SMALL, this);
+    minHrmField = new TextLabel(Constants::Labels::MIN_HEART_RATE, LabelSize::SMALL, this);
+    minHrmValue = new ValueLabel(Constants::Values::EMPTY_DATA, LabelSize::SMALL, this);
+    avgHrmField = new TextLabel(Constants::Labels::AVG_HEART_RATE, LabelSize::SMALL, this);
+    avgHrmValue = new ValueLabel(Constants::Values::EMPTY_DATA, LabelSize::SMALL, this);
 
-    auto durationItem = new QTableWidgetItem(Constants::Labels::DURATION.data());
-    durationItem->setFlags(durationItem->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(DURATION_ROW, 0, durationItem);
+    hrmLayout->addWidget(maxHrmField, 0, 0, Qt::AlignLeft);
+    hrmLayout->addWidget(maxHrmValue, 0, 1, Qt::AlignRight);
+    hrmLayout->addWidget(minHrmField, 1, 0, Qt::AlignLeft);
+    hrmLayout->addWidget(minHrmValue, 1, 1, Qt::AlignRight);
+    hrmLayout->addWidget(avgHrmField, 2, 0, Qt::AlignLeft);
+    hrmLayout->addWidget(avgHrmValue, 2, 1, Qt::AlignRight);
 
+    // Cadence Group
+    auto *cadenceLayout = new QGridLayout();
+    maxCadenceField = new TextLabel(Constants::Labels::MAX_CADENCE, LabelSize::SMALL, this);
+    maxCadenceValue = new ValueLabel(Constants::Values::EMPTY_DATA, LabelSize::SMALL, this);
+    minCadenceField = new TextLabel(Constants::Labels::MIN_CADENCE, LabelSize::SMALL, this);
+    minCadenceValue = new ValueLabel(Constants::Values::EMPTY_DATA, LabelSize::SMALL, this);
+    avgCadenceField = new TextLabel(Constants::Labels::AVG_CADENCE, LabelSize::SMALL, this);
+    avgCadenceValue = new ValueLabel(Constants::Values::EMPTY_DATA, LabelSize::SMALL, this);
 
-    duration = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
-    duration->setFlags(duration->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(DURATION_ROW, 1, duration);
-    tableWidget->setSpan(DURATION_ROW, 1, 1, 3); // Span across 3 columns
+    cadenceLayout->addWidget(maxCadenceField, 0, 0, Qt::AlignLeft);
+    cadenceLayout->addWidget(maxCadenceValue, 0, 1, Qt::AlignRight);
+    cadenceLayout->addWidget(minCadenceField, 1, 0, Qt::AlignLeft);
+    cadenceLayout->addWidget(minCadenceValue, 1, 1, Qt::AlignRight);
+    cadenceLayout->addWidget(avgCadenceField, 2, 0, Qt::AlignLeft);
+    cadenceLayout->addWidget(avgCadenceValue, 2, 1, Qt::AlignRight);
 
-    auto maxColumnItem = new QTableWidgetItem(Constants::Labels::MAX.data());
-    maxColumnItem->setFlags(maxColumnItem->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(HEADER_ROW, 1, maxColumnItem);
+    // Speed Group
+    auto *speedLayout = new QGridLayout();
+    maxSpeedField = new TextLabel(Constants::Labels::MAX_SPEED, LabelSize::SMALL, this);
+    maxSpeedValue = new ValueLabel(Constants::Values::EMPTY_DATA, LabelSize::SMALL, this);
+    minSpeedField = new TextLabel(Constants::Labels::MIN_SPEED, LabelSize::SMALL, this);
+    minSpeedValue = new ValueLabel(Constants::Values::EMPTY_DATA, LabelSize::SMALL, this);
+    avgSpeedField = new TextLabel(Constants::Labels::AVG_SPEED, LabelSize::SMALL, this);
+    avgSpeedValue = new ValueLabel(Constants::Values::EMPTY_DATA, LabelSize::SMALL, this);
 
-    auto minColumnItem = new QTableWidgetItem(Constants::Labels::MIN.data());
-    minColumnItem->setFlags(minColumnItem->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(HEADER_ROW, 2, minColumnItem);
+    speedLayout->addWidget(maxSpeedField, 0, 0, Qt::AlignLeft);
+    speedLayout->addWidget(maxSpeedValue, 0, 1, Qt::AlignRight);
+    speedLayout->addWidget(minSpeedField, 1, 0, Qt::AlignLeft);
+    speedLayout->addWidget(minSpeedValue, 1, 1, Qt::AlignRight);
+    speedLayout->addWidget(avgSpeedField, 2, 0, Qt::AlignLeft);
+    speedLayout->addWidget(avgSpeedValue, 2, 1, Qt::AlignRight);
 
-    auto avgColumnItem = new QTableWidgetItem(Constants::Labels::AVG.data());
-    avgColumnItem->setFlags(avgColumnItem->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(HEADER_ROW, 3, avgColumnItem);
+    // Power Group
+    auto *powerLayout = new QGridLayout();
+    maxPowerField = new TextLabel(Constants::Labels::MAX_POWER, LabelSize::SMALL, this);
+    maxPowerValue = new ValueLabel(Constants::Values::EMPTY_DATA, LabelSize::SMALL, this);
+    minPowerField = new TextLabel(Constants::Labels::MIN_POWER, LabelSize::SMALL, this);
+    minPowerValue = new ValueLabel(Constants::Values::EMPTY_DATA, LabelSize::SMALL, this);
+    avgPowerField = new TextLabel(Constants::Labels::AVG_POWER, LabelSize::SMALL, this);
+    avgPowerValue = new ValueLabel(Constants::Values::EMPTY_DATA, LabelSize::SMALL, this);
 
-    auto heartRateItem = new QTableWidgetItem(Constants::Labels::HEART_RATE.data());
-    heartRateItem->setFlags(heartRateItem->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(HEAR_RATE_ROW, 0, heartRateItem);
+    powerLayout->addWidget(maxPowerField, 0, 0, Qt::AlignLeft);
+    powerLayout->addWidget(maxPowerValue, 0, 1, Qt::AlignRight);
+    powerLayout->addWidget(minPowerField, 1, 0, Qt::AlignLeft);
+    powerLayout->addWidget(minPowerValue, 1, 1, Qt::AlignRight);
+    powerLayout->addWidget(avgPowerField, 2, 0, Qt::AlignLeft);
+    powerLayout->addWidget(avgPowerValue, 2, 1, Qt::AlignRight);
 
-    maxHrm = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
-    maxHrm->setFlags(maxHrm->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(HEAR_RATE_ROW, 1, maxHrm);
+    // Main Layout
+    auto *layout = new QVBoxLayout();
+    layout->addLayout(durationLayout);
+    layout->addItem(new QSpacerItem(0, 20));
 
-    minHrm = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
-    minHrm->setFlags(minHrm->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(HEAR_RATE_ROW, 2, minHrm);
+    layout->addLayout(hrmLayout);
+    layout->addItem(new QSpacerItem(0, 20));
 
-    avgHrm = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
-    avgHrm->setFlags(avgHrm->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(HEAR_RATE_ROW, 3, avgHrm);
+    layout->addLayout(cadenceLayout);
+    layout->addItem(new QSpacerItem(0, 20));
 
-    auto speedItem = new QTableWidgetItem(Constants::Labels::SPEED.data());
-    speedItem->setFlags(speedItem->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(SPEED_ROW, 0, speedItem);
+    layout->addLayout(speedLayout);
+    layout->addItem(new QSpacerItem(0, 20));
 
-    maxSpeed = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
-    maxSpeed->setFlags(maxSpeed->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(SPEED_ROW, 1, maxSpeed);
-
-    minSpeed = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
-    minSpeed->setFlags(minSpeed->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(SPEED_ROW, 2, minSpeed);
-
-    avgSpeed = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
-    avgSpeed->setFlags(avgSpeed->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(SPEED_ROW, 3, avgSpeed);
-
-    auto cadenceItem = new QTableWidgetItem(Constants::Labels::CADENCE.data());
-    cadenceItem->setFlags(cadenceItem->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(CADENCE_ROW, 0, cadenceItem);
-
-    maxCadence = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
-    maxCadence->setFlags(maxCadence->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(CADENCE_ROW, 1, maxCadence);
-
-    minCadence = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
-    minCadence->setFlags(minCadence->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(CADENCE_ROW, 2, minCadence);
-
-    avgCadence = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
-    avgCadence->setFlags(avgCadence->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(CADENCE_ROW, 3, avgCadence);
-
-    auto powerItem = new QTableWidgetItem(Constants::Labels::POWER.data());
-    powerItem->setFlags(powerItem->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(POWER_ROW, 0, powerItem);
-
-    maxPower = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
-    maxPower->setFlags(maxPower->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(POWER_ROW, 1, maxPower);
-
-    minPower = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
-    minPower->setFlags(minPower->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(POWER_ROW, 2, minPower);
-
-    avgPower = new QTableWidgetItem(Constants::Values::EMPTY_DATA.data());
-    avgPower->setFlags(avgPower->flags() & ~Qt::ItemIsEditable);
-    tableWidget->setItem(POWER_ROW, 3, avgPower);
-
-    auto *layout = new QGridLayout(this);
-    layout->addWidget(tableWidget, 0, 0, 1, 2, Qt::AlignCenter);
-    layout->setColumnStretch(1, 1);
+    layout->addLayout(powerLayout);
 
     const auto centralWidget = new QWidget(this);
     centralWidget->setObjectName(Constants::Classes::PANEL);
@@ -120,21 +113,21 @@ WorkoutSummaryPanel::WorkoutSummaryPanel(QWidget *parent): QMainWindow(
 void WorkoutSummaryPanel::handleWorkoutEvent(const WorkoutEvent &data) {
     spdlog::info("WorkoutSummaryPanel::workoutSummaryReceived");
 
-    duration->setText(QString::fromStdString(Data::DURATION.value(data)));
+    durationValue->setText(QString::fromStdString(Data::DURATION.value(data)));
 
-    maxHrm->setText(data.isFinished ? QString::number(data.hrm.max) : Constants::Values::EMPTY_DATA.data());
-    minHrm->setText(data.isFinished ? QString::number(data.hrm.min) : Constants::Values::EMPTY_DATA.data());
-    avgHrm->setText(data.isFinished ? QString::number(data.hrm.avg) : Constants::Values::EMPTY_DATA.data());
+    maxHrmValue->setText(data.isFinished ? QString::number(data.hrm.max) : Constants::Values::EMPTY_DATA.data());
+    minHrmValue->setText(data.isFinished ? QString::number(data.hrm.min) : Constants::Values::EMPTY_DATA.data());
+    avgHrmValue->setText(data.isFinished ? QString::number(data.hrm.avg) : Constants::Values::EMPTY_DATA.data());
 
-    maxCadence->setText(data.isFinished ? QString::number(data.cadence.max) : Constants::Values::EMPTY_DATA.data());
-    minCadence->setText(data.isFinished ? QString::number(data.cadence.min) : Constants::Values::EMPTY_DATA.data());
-    avgCadence->setText(data.isFinished ? QString::number(data.cadence.avg) : Constants::Values::EMPTY_DATA.data());
+    maxCadenceValue->setText(data.isFinished ? QString::number(data.cadence.max) : Constants::Values::EMPTY_DATA.data());
+    minCadenceValue->setText(data.isFinished ? QString::number(data.cadence.min) : Constants::Values::EMPTY_DATA.data());
+    avgCadenceValue->setText(data.isFinished ? QString::number(data.cadence.avg) : Constants::Values::EMPTY_DATA.data());
 
-    maxSpeed->setText(data.isFinished ? QString::number(data.speed.max) : Constants::Values::EMPTY_DATA.data());
-    minSpeed->setText(data.isFinished ? QString::number(data.speed.min) : Constants::Values::EMPTY_DATA.data());
-    avgSpeed->setText(data.isFinished ? QString::number(data.speed.avg) : Constants::Values::EMPTY_DATA.data());
+    maxSpeedValue->setText(data.isFinished ? QString::number(data.speed.max) : Constants::Values::EMPTY_DATA.data());
+    minSpeedValue->setText(data.isFinished ? QString::number(data.speed.min) : Constants::Values::EMPTY_DATA.data());
+    avgSpeedValue->setText(data.isFinished ? QString::number(data.speed.avg) : Constants::Values::EMPTY_DATA.data());
 
-    maxPower->setText(data.isFinished ? QString::number(data.power.max) : Constants::Values::EMPTY_DATA.data());
-    minPower->setText(data.isFinished ? QString::number(data.power.min) : Constants::Values::EMPTY_DATA.data());
-    avgPower->setText(data.isFinished ? QString::number(data.power.avg) : Constants::Values::EMPTY_DATA.data());
+    maxPowerValue->setText(data.isFinished ? QString::number(data.power.max) : Constants::Values::EMPTY_DATA.data());
+    minPowerValue->setText(data.isFinished ? QString::number(data.power.min) : Constants::Values::EMPTY_DATA.data());
+    avgPowerValue->setText(data.isFinished ? QString::number(data.power.avg) : Constants::Values::EMPTY_DATA.data());
 }

@@ -43,7 +43,21 @@ namespace Constants {
         const std::string MIN = "Min";
         const std::string AVG = "Avg";
 
+        const std::string MAX_HEART_RATE = "Max Heart Rate";
+        const std::string MIN_HEART_RATE = "Min Heart Rate";
+        const std::string AVG_HEART_RATE = "Avg Heart Rate";
 
+        const std::string MAX_SPEED = "Max Speed";
+        const std::string MIN_SPEED = "Min Speed";
+        const std::string AVG_SPEED = "Avg Speed";
+
+        const std::string MAX_CADENCE = "Max Cadence";
+        const std::string MIN_CADENCE = "Min Cadence";
+        const std::string AVG_CADENCE = "Avg Cadence";
+
+        const std::string MAX_POWER = "Max Power";
+        const std::string MIN_POWER = "Min Power";
+        const std::string AVG_POWER = "Avg Power";
     }
 
     namespace Values {

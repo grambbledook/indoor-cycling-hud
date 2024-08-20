@@ -32,11 +32,13 @@ set(SOURCE_DIR view/src)
 set(BLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bluetooth/include)
 set(MODEL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/model/include)
 
-if (${CONFIG} STREQUAL "Release") # If CONFIG is set
+if (NOT CONFIG)
+    set(RELEASE_TYPE "Debug")
+elseif (CONFIG STREQUAL "Release")
     set(RELEASE_TYPE ${CONFIG})
 else()
     set(RELEASE_TYPE "Debug")
-endif ()
+endif()
 
 set(EXECUTABLE_DIR "${CMAKE_CURRENT_BINARY_DIR}/${RELEASE_TYPE}")
 

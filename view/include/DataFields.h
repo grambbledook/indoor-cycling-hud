@@ -29,7 +29,7 @@ namespace Data {
     };
 
     const auto AVG_HEART_RATE = DataField{
-        "avg. Heart rate",
+        "Avg Heart rate",
         [](const WorkoutData &data) { return std::to_string(data.hrm.avg); }
     };
 
@@ -39,7 +39,7 @@ namespace Data {
     };
 
     const auto AVG_CADENCE = DataField{
-        "avg. Cadence",
+        "Avg Cadence",
         [](const WorkoutData &data) { return std::to_string(data.cadence.avg); }
     };
 
@@ -49,7 +49,7 @@ namespace Data {
     };
 
     const auto AVG_SPEED = DataField{
-        "avg. Speed",
+        "Avg Speed",
         [](const WorkoutData &data) { return std::format("{:.1f}", data.speed.val * 0.0036); }
     };
 
@@ -58,8 +58,18 @@ namespace Data {
         [](const WorkoutData &data) { return std::to_string(data.power.val); }
     };
 
+    const auto AVG_POWER = DataField{
+        "Avg Power",
+        [](const WorkoutData &data) { return std::to_string(data.power.avg); }
+    };
+
+    const auto AVG_3S_POWER = DataField{
+        "3s Avg Power",
+        [](const WorkoutData &data) { return std::to_string(data.power.windowedAvg); }
+    };
+
     const std::vector DATA_FIELDS = {
-        HEART_RATE, AVG_HEART_RATE, CADENCE, AVG_CADENCE, SPEED, AVG_SPEED, POWER
+        HEART_RATE, AVG_HEART_RATE, CADENCE, AVG_CADENCE, SPEED, AVG_SPEED, POWER, AVG_POWER, AVG_3S_POWER
     };
 
     inline int index(const DataField &field) {
