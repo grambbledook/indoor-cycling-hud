@@ -2,16 +2,6 @@
   "dependencies": [
     "gtest",
     "spdlog",
-    "sqlite3",
-    "libpng",
-    {
-      "name": "qtbase",
-      "default-features": false,
-      "features": [
-        "gui",
-        "widgets",
-        "concurrent"
-      ]
-    }
+    "sqlite3"
   ]
 }

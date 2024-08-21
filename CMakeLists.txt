@@ -16,7 +16,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 #--------------------Include QT------------------------------
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
-list(APPEND CMAKE_PREFIX_PATH $ENV{CMAKE_MODULES_HOME})
+#list(APPEND CMAKE_PREFIX_PATH $ENV{CMAKE_MODULES_HOME})
+list(APPEND CMAKE_PREFIX_PATH $ENV{QT_HOME} $ENV{CMAKE_MODULES_HOME})
 
 find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
@@ -25,7 +26,7 @@ find_package(Qt6 REQUIRED COMPONENTS Concurrent)
 #--------------------Include spdlog-----------------------
 find_package(spdlog CONFIG REQUIRED)
 #--------------------Include libpng-----------------------
-find_package(libpng CONFIG REQUIRED)
+#find_package(PNG REQUIRED)
 
 #--------------------Include Project Files-------------------
 set(ASSETS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/assets)
@@ -76,8 +77,9 @@ target_include_directories(Model PUBLIC ${MODEL_DIR})
 target_include_directories(Model PUBLIC ${MODEL_DIR})
 
 #--------------------Link Libraries--------------------------
+#target_link_libraries(HUD PRIVATE PNG::PNG)
+#target_link_libraries(HUD PRIVATE libpng::libpng)
 target_link_libraries(HUD PRIVATE Qt6::Widgets Qt6::Core Qt6::Concurrent)
-target_link_libraries(HUD PRIVATE libpng16)
 target_link_libraries(HUD PRIVATE Bluetooth Model)
 target_link_libraries(HUD PRIVATE spdlog::spdlog)
 
