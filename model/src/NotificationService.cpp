@@ -16,7 +16,7 @@ template<DerivedFromMeasurement T>
 void INotificationService<T>::setDevice(std::shared_ptr<Device> device) {
     spdlog::info("INotificationService::set_device");
 
-    const auto client = this->registry->connect(*device);
+    const auto client = this->registry->connect(*device, TODO);
 
     this->processFeatureAndSetDevices(*client, device);
 
@@ -33,7 +33,7 @@ template<DerivedFromMeasurement T>
 void INotificationService<T>::unsetDevice(std::shared_ptr<Device> device) {
     spdlog::info("INotificationService::unset_device");
 
-    const auto client = this->registry->connect(*device);
+    const auto client = this->registry->connect(*device, TODO);
 
     spdlog::info("  INotificationService::unset_device: Unsubscribing from {} service", service.type);
     const auto result = client->unsubscribe(service.characteristic_uuid);

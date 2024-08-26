@@ -19,7 +19,7 @@ using namespace Windows::Storage::Streams;
 BleClient::BleClient(Device device) : device(std::move(device)) {
 }
 
-void BleClient::connect() {
+void BleClient::connect(const std::function<void()> &callback) {
     try {
         const auto deviceAddress = WinrtUtils::addressToUint64T(device.address);
 
@@ -34,6 +34,18 @@ void BleClient::connect() {
 
         connection = std::make_shared<BluetoothLEDevice>(std::move(connectionResult));
         spdlog::info("  Device connected successfully.");
+
+        connection->ConnectionStatusChanged(
+            [this, callback](BluetoothLEDevice const &sender, IInspectable const &args) {
+                if (sender.ConnectionStatus() != BluetoothConnectionStatus::Disconnected) {
+                    return;
+                }
+
+                spdlog::info("@@@@@  Connection status changed: {}", static_cast<int>(sender.ConnectionStatus()));
+                callback();
+                spdlog::info("@@@@@  Connection status: {}", static_cast<int>(this->connection->ConnectionStatus()));
+            }
+        );
 
         fetchCharacteristics();
         spdlog::info("  Connection status: {}", static_cast<int>(connection->ConnectionStatus()));

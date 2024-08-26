@@ -51,7 +51,7 @@ void WorkoutDataStorage::newWorkout() {
     const auto temp_dir = std::filesystem::temp_directory_path() / "hud";
     create_directory(temp_dir);
 
-    const auto workout_dir = temp_dir / std::to_string(++id);
+    const auto workout_dir = temp_dir / std::to_string(id++);
     create_directory(workout_dir);
 
     db_file = workout_dir / "workout.db";

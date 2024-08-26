@@ -14,6 +14,6 @@ public:
     DeviceRegistry();
     ~DeviceRegistry();
 
-    std::shared_ptr<BleClient> connect(const Device& device);
+    std::shared_ptr<BleClient> connect(const Device &device, const std::function<void()> &callback);
     void stop();
 };

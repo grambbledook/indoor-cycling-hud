@@ -18,7 +18,7 @@ class BleClient {
 public:
     explicit BleClient(Device device);
 
-    void connect();
+    void connect(const std::function<void()> &callback);
 
     bool subscribe(const UUID &characteristicUuid,
                    const std::function<void(std::shared_ptr<Device>, std::vector<uint8_t>)> &receiver) const;
