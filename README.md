@@ -48,7 +48,7 @@ This is a hobby project and my first GUI app. It is not guaranteed to be accurat
 
 ### Supported Platforms
 
-[x] Windows \
+[x] Windows 10/11 \
 [ ] Linux \
 [ ] MacOS
 
