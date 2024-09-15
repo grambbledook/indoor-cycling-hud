@@ -84,11 +84,15 @@ int main(int argc, char **argv) {
     const auto shutdownController = std::make_shared<ShutdownController>(
         hrm, csc, pwr, fec, scanner, registry, appState);
 
+    const auto wheelSizeSelectionController = std::make_shared<WheelSizeSelectionController>(model);
+
+    const auto speedUnitController = std::make_shared<SpeedUnitController>(model);
+
     const auto viewNavigator = std::make_unique<ViewNavigator>(
         controllerHandler,
         deviceDialogController, connectToDeviceController, trainerWindowController, sensorWindowController,
         selectWorkoutWindowController, workoutWindowController, workoutSummaryWindowController, switchThemeController,
-        shutdownController
+        shutdownController, wheelSizeSelectionController, speedUnitController
     );
     const auto tray = std::make_shared<SystemTray>(controllerHandler);
     tray->switchTheme();

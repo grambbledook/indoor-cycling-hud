@@ -8,35 +8,6 @@
 #include "BleDeviceServices.h"
 #include "StyleSheets.h"
 
-template<>
-struct fmt::formatter<ApplicationState> {
-    constexpr auto parse(format_parse_context &ctx) {
-        return ctx.begin();
-    }
-
-    template<typename FormatContext>
-    auto format(const ApplicationState &state, FormatContext &ctx) {
-        std::string stateStr;
-        switch (state) {
-            case ApplicationState::STARTING:
-                stateStr = "STARTING";
-                break;
-            case ApplicationState::WAITING_FOR_TRAINER:
-                stateStr = "WAITING_FOR_TRAINER";
-                break;
-            case ApplicationState::WAITING_FOR_SENSORS:
-                stateStr = "WAITING_FOR_SENSORS";
-                break;
-            case ApplicationState::IN_WORKOUT:
-                stateStr = "IN_WORKOUT";
-                break;
-            case ApplicationState::EXITING:
-                stateStr = "EXITING";
-                break;
-        }
-        return fmt::format_to(ctx.out(), "{}", stateStr);
-    }
-};
 
 template<typename T, typename T0>
 void ViewController<T, T0>::renderView() {
@@ -59,7 +30,7 @@ void ViewController<T, T0>::renderView() {
     this->history->push(view);
 }
 
-void TrainerWindowController::handleRequest() {
+void TrainerWindowController::handleRequest(void*) {
     if (state->state != ApplicationState::STARTING and state->state != ApplicationState::WAITING_FOR_SENSORS) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -70,7 +41,7 @@ void TrainerWindowController::handleRequest() {
     state->state = ApplicationState::WAITING_FOR_TRAINER;
 }
 
-void SensorsWindowController::handleRequest() {
+void SensorsWindowController::handleRequest(void*) {
     if (state->state != ApplicationState::WAITING_FOR_TRAINER) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -87,7 +58,7 @@ void SensorsWindowController::handleRequest() {
     state->state = ApplicationState::WAITING_FOR_SENSORS;
 }
 
-void SelectWorkoutWindowController::handleRequest() {
+void SelectWorkoutWindowController::handleRequest(void*) {
     if (state->state != ApplicationState::WAITING_FOR_SENSORS and state->state != ApplicationState::WORKOUT_SUMMARY) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -98,7 +69,7 @@ void SelectWorkoutWindowController::handleRequest() {
     state->state = ApplicationState::WAITING_FOR_WORKOUT;
 }
 
-void WorkoutWindowController::handleRequest() {
+void WorkoutWindowController::handleRequest(void*) {
     if (state->state != ApplicationState::WAITING_FOR_WORKOUT) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -109,7 +80,7 @@ void WorkoutWindowController::handleRequest() {
     state->state = ApplicationState::IN_WORKOUT;
 }
 
-void WorkoutSummaryWindowController::handleRequest() {
+void WorkoutSummaryWindowController::handleRequest(void*) {
     if (state->state != ApplicationState::IN_WORKOUT) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -120,7 +91,7 @@ void WorkoutSummaryWindowController::handleRequest() {
     state->state = ApplicationState::WORKOUT_SUMMARY;
 }
 
-void ShowDeviceDialogController::handleRequest() {
+void ShowDeviceDialogController::handleRequest(void*) {
     if (state->state != ApplicationState::WAITING_FOR_SENSORS and state->state !=
         ApplicationState::WAITING_FOR_TRAINER) {
         spdlog::info("  Wrong state: {}", state->state);
@@ -143,7 +114,7 @@ void ShowDeviceDialogController::handleRequest() {
     }
 }
 
-void ConnectToDeviceController::handleRequest() {
+void ConnectToDeviceController::handleRequest(void*) {
     if (state->state == ApplicationState::EXITING) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -195,7 +166,7 @@ void ConnectToDeviceController::handleRequest() {
     auto future = QtConcurrent::run(setupConnection);
 }
 
-void SwitchThemeController::handleRequest() {
+void SwitchThemeController::handleRequest(void*) {
     state->darkThemeEnabled = !state->darkThemeEnabled;
 
     const auto theme = state->darkThemeEnabled ? StyleSheets::THEME_DARK : StyleSheets::THEME_BRIGHT;
@@ -222,9 +193,19 @@ void SwitchThemeController::handleRequest() {
     workoutSummaryWindow->update();
 }
 
-void ShutdownController::handleRequest() {
+void ShutdownController::handleRequest(void*) {
     state->state = ApplicationState::EXITING;
 
     registry->stop();
     QApplication::quit();
+}
+
+void WheelSizeSelectionController::handleRequest(WheelSize size) {
+    model->setWheelSize(size);
+    spdlog::info("Wheel size set to: {}", size);
+}
+
+void SpeedUnitController::handleRequest(SpeedUnit size) {
+    model->setSpeedUnit(size);
+    spdlog::info("Speed unit set to: {}", size);
 }

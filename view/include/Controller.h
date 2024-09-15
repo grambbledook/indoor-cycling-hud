@@ -18,35 +18,40 @@
 #include "WorkoutSummaryWindow.h"
 #include "WorkoutWindow.h"
 
-
-template<typename T, typename = std::enable_if_t<std::is_base_of_v<QWidget, T> > >
+template<typename V>
 class Controller {
 public:
     virtual ~Controller() = default;
 
-    explicit Controller(
+    virtual void handleRequest(V v) = 0;
+};
+
+template<typename T, typename = std::enable_if_t<std::is_base_of_v<QWidget, T> > >
+class WidgetController : public Controller<void *> {
+public:
+    ~WidgetController() override = default;
+
+    explicit WidgetController(
         const std::shared_ptr<AppState> &state,
         const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history)
         : history(history), state(state) {
     }
 
-    virtual void handleRequest() = 0;
+    void handleRequest(void * = nullptr) override = 0;
 
 protected:
     std::shared_ptr<AppState> state;
     std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > history;
 };
 
-
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<QWidget, T> > >
-class ViewController : public Controller<T> {
+class ViewController : public WidgetController<T> {
 public:
     explicit ViewController(
         const std::shared_ptr<T> &view,
         const std::shared_ptr<AppState> &state,
-        const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history
-    )
-        : Controller<T>(state, history), view(view) {
+        const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history)
+        : WidgetController<T>(state, history), view(view) {
     }
 
     void renderView();
@@ -60,12 +65,11 @@ public:
     explicit TrainerWindowController(
         const std::shared_ptr<TrainerWindow> &view,
         const std::shared_ptr<AppState> &state,
-        const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history
-    )
+        const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history)
         : ViewController(view, state, history) {
     }
 
-    void handleRequest() override;
+    void handleRequest(void * = nullptr) override;
 };
 
 class SensorsWindowController final : public ViewController<SensorsWindow> {
@@ -73,12 +77,11 @@ public:
     explicit SensorsWindowController(
         const std::shared_ptr<SensorsWindow> &view,
         const std::shared_ptr<AppState> &state,
-        const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history
-    )
+        const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history)
         : ViewController(view, state, history) {
     }
 
-    void handleRequest() override;
+    void handleRequest(void * = nullptr) override;
 };
 
 class SelectWorkoutWindowController final : public ViewController<SelectWorkoutWindow> {
@@ -91,7 +94,7 @@ public:
         : ViewController(view, state, history) {
     }
 
-    void handleRequest() override;
+    void handleRequest(void * = nullptr) override;
 };
 
 class WorkoutWindowController final : public ViewController<WorkoutWindow> {
@@ -105,7 +108,7 @@ public:
         : ViewController(view, state, history), model(model) {
     }
 
-    void handleRequest() override;
+    void handleRequest(void * = nullptr) override;
 
 private:
     std::shared_ptr<Model> model;
@@ -122,13 +125,13 @@ public:
         : ViewController(view, state, history), model(model) {
     }
 
-    void handleRequest() override;
+    void handleRequest(void * = nullptr) override;
 
 private:
     std::shared_ptr<Model> model;
 };
 
-class ShowDeviceDialogController final : public Controller<DeviceDialog> {
+class ShowDeviceDialogController final : public WidgetController<DeviceDialog> {
 public:
     explicit ShowDeviceDialogController(
         const std::shared_ptr<QtEventPublisher> &qtAdapter,
@@ -139,11 +142,11 @@ public:
         const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history,
         const std::shared_ptr<Model> &model
     )
-        : Controller(state, history), createDialog(createDialog), model(model), scannerService(scannerService),
+        : WidgetController(state, history), createDialog(createDialog), model(model), scannerService(scannerService),
           qtAdapter(qtAdapter) {
     }
 
-    void handleRequest() override;
+    void handleRequest(void * = nullptr) override;
 
 private:
     std::shared_ptr<Model> model;
@@ -152,7 +155,7 @@ private:
     std::shared_ptr<QtEventPublisher> qtAdapter;
 };
 
-class ConnectToDeviceController final : public Controller<DeviceDialog> {
+class ConnectToDeviceController final : public WidgetController<DeviceDialog> {
 public:
     explicit ConnectToDeviceController(
         const std::shared_ptr<HrmNotificationService> &hrmNotificationService,
@@ -164,13 +167,13 @@ public:
         const std::shared_ptr<AppState> &state,
         const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history
     )
-        : Controller(state, history), hrmNotificationService(hrmNotificationService),
+        : WidgetController(state, history), hrmNotificationService(hrmNotificationService),
           cscNotificationService(cscNotificationService),
           powerNotificationService(powerNotificationService),
           fecService(fecService), scannerService(scannerService) {
     }
 
-    void handleRequest() override;
+    void handleRequest(void * = nullptr) override;
 
 private:
     std::shared_ptr<HrmNotificationService> hrmNotificationService;
@@ -180,7 +183,7 @@ private:
     std::shared_ptr<ScannerService> scannerService;
 };
 
-class SwitchThemeController final : public Controller<QWidget> {
+class SwitchThemeController final : public WidgetController<QWidget> {
 public:
     explicit SwitchThemeController(
         QApplication *app,
@@ -192,12 +195,12 @@ public:
         const std::shared_ptr<AppState> &state,
         const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history
     )
-        : Controller(state, history), app(app), trainerWindow(trainerWindow), sensorsWindow(sensorsWindow),
+        : WidgetController(state, history), app(app), trainerWindow(trainerWindow), sensorsWindow(sensorsWindow),
           selectWorkoutWindow(selectWorkoutWindow), workoutWindow(workoutWindow),
           workoutSummaryWindow(workoutSummaryWindow) {
     }
 
-    void handleRequest() override;
+    void handleRequest(void * = nullptr) override;
 
 private:
     QApplication *app;
@@ -208,7 +211,7 @@ private:
     std::shared_ptr<WorkoutSummaryWindow> workoutSummaryWindow;
 };
 
-class ShutdownController final : public Controller<DeviceDialog> {
+class ShutdownController final : public Controller<void *> {
 public:
     explicit ShutdownController(
         const std::shared_ptr<HrmNotificationService> &hrmNotificationService,
@@ -219,12 +222,12 @@ public:
         const std::shared_ptr<DeviceRegistry> &registry,
         const std::shared_ptr<AppState> &state
     )
-        : Controller(state, history), hrmNotificationService(hrmNotificationService),
+        : hrmNotificationService(hrmNotificationService),
           cscNotificationService(cscNotificationService), powerNotificationService(powerNotificationService),
-          fecService(fecService), scannerService(scannerService), registry(registry) {
+          fecService(fecService), scannerService(scannerService), state(state), registry(registry) {
     }
 
-    void handleRequest() override;
+    void handleRequest(void * = nullptr) override;
 
 private:
     std::shared_ptr<HrmNotificationService> hrmNotificationService;
@@ -232,5 +235,30 @@ private:
     std::shared_ptr<PowerNotificationService> powerNotificationService;
     std::shared_ptr<FecService> fecService;
     std::shared_ptr<ScannerService> scannerService;
+    std::shared_ptr<AppState> state;
     std::shared_ptr<DeviceRegistry> registry;
+};
+
+class WheelSizeSelectionController final : public Controller<WheelSize> {
+public:
+    explicit WheelSizeSelectionController(const std::shared_ptr<Model> &model)
+        : model(model) {
+    }
+
+    void handleRequest(WheelSize size) override;
+
+private:
+    std::shared_ptr<Model> model;
+};
+
+class SpeedUnitController final : public Controller<SpeedUnit> {
+public:
+    explicit SpeedUnitController(const std::shared_ptr<Model> &model)
+        : model(model) {
+    }
+
+    void handleRequest(SpeedUnit size) override;
+
+private:
+    std::shared_ptr<Model> model;
 };

@@ -25,7 +25,7 @@ SystemTray::SystemTray(
 
     for (int i = static_cast<int>(WheelSize::ROAD_700x18C); i <= static_cast<int>(WheelSize::ROAD_650x38A); ++i) {
         auto size = static_cast<WheelSize>(i);
-        const auto action = new QAction(getWheelSizeString(size), this);
+        const auto action = new QAction(toWheelSizeString(size), this);
         action->setCheckable(true);
         if (size == WheelSize::ROAD_700x35C) {
             action->setChecked(true);
@@ -68,10 +68,10 @@ void SystemTray::quit() const {
     handler->next(Constants::Commands::QUIT);
 }
 
-void SystemTray::setWheelSize(WheelSize size) const {
-    handler->next(Constants::Commands::SET_WHEEL_SIZE);
+void SystemTray::setWheelSize(const WheelSize size) const {
+    handler->next(Constants::Commands::SET_WHEEL_SIZE, size);
 }
 
-void SystemTray::setSpeedUnit(SpeedUnit unit) const {
-    handler->next(Constants::Commands::SET_WHEEL_SIZE);
+void SystemTray::setSpeedUnit(const SpeedUnit unit) const {
+    handler->next(Constants::Commands::SET_SPEED_UNIT, unit);
 }

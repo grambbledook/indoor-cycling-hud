@@ -1,8 +1,9 @@
-#pragma once// Add the Unit enum to `Units.h`
+#pragma once
 #include <string>
 #include <utility>
 
 #include "Formula.h"
+#include <fmt/core.h>
 
 enum class SpeedUnit {
     KMH,
@@ -31,4 +32,16 @@ inline double getSpeedConversionFactor(const SpeedUnit unit) {
         default:
             std::unreachable();
     }
-}
+};
+
+template<>
+struct fmt::formatter<SpeedUnit> {
+    constexpr auto parse(format_parse_context &ctx) {
+        return ctx.begin();
+    };
+
+    template<typename FormatContext>
+    auto format(const SpeedUnit &speed_unit, FormatContext &ctx) {
+        return fmt::format_to(ctx.out(), "{}", speedUnitToString(speed_unit));
+    };
+};

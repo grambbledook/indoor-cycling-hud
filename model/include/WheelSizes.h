@@ -1,6 +1,6 @@
 #pragma once
 #include <utility>
-
+#include <fmt/core.h>
 enum class WheelSize {
     ROAD_700x18C,
     ROAD_700x19C,
@@ -71,7 +71,7 @@ inline int getWheelCircumferenceInMM(const WheelSize size) {
     }
 }
 
-inline const char *getWheelSizeString(const WheelSize size) {
+inline const char *toWheelSizeString(const WheelSize size) {
     switch (size) {
         case WheelSize::ROAD_700x18C:
             return "700 x 18C (18-622)";
@@ -116,4 +116,16 @@ inline const char *getWheelSizeString(const WheelSize size) {
         default:
             std::unreachable();
     }
-}
+};
+
+template<>
+struct fmt::formatter<WheelSize> {
+    constexpr auto parse(format_parse_context &ctx) {
+        return ctx.begin();
+    }
+
+    template<typename FormatContext>
+    auto format(const WheelSize &wheel_size, FormatContext &ctx) {
+        return fmt::format_to(ctx.out(), "{}", toWheelSizeString(wheel_size));
+    }
+};
