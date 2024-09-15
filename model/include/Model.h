@@ -4,6 +4,8 @@
 #include "Channel.h"
 #include "ModelEvents.h"
 #include "BleDeviceEvents.h"
+#include "Units.h"
+#include "WheelSizes.h"
 #include "WorkoutDataStorage.h"
 
 class Notifications {
@@ -45,8 +47,10 @@ struct State {
 
 class Model {
 public:
-    Model(): storage(std::make_unique<WorkoutDataStorage>()) {
-    };
+    Model(): speedUnit(SpeedUnit::KMH),
+             wheelSize(WheelSize::ROAD_700x35C),
+             storage(std::make_unique<WorkoutDataStorage>()) {
+    }
 
     void addDevice(const std::shared_ptr<Device> &device);
 
@@ -63,6 +67,10 @@ public:
     void setPowerMeter(const std::shared_ptr<Device> &device);
 
     void setBikeTrainer(const std::shared_ptr<Device> &device);
+
+    void setSpeedUnit(SpeedUnit unit);
+
+    void setWheelSize(WheelSize size);
 
     void startWorkout();
 
@@ -90,8 +98,10 @@ public:
 
 private:
     std::unordered_map<std::string, std::shared_ptr<Device> > devices;
-    std::mutex mutex;
+    std::recursive_mutex mutex;
 
+    SpeedUnit speedUnit;
+    WheelSize wheelSize;
     std::unique_ptr<WorkoutDataStorage> storage;
 
     State<int> hrmState = {

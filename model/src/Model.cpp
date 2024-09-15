@@ -24,6 +24,8 @@ void Model::addDevice(const std::shared_ptr<Device> &device) {
 }
 
 std::vector<std::shared_ptr<Device> > Model::getDevices(const GattService *service) {
+    std::lock_guard guard(mutex);
+
     if (service == nullptr) {
         return devices
                | std::views::transform([](const auto &pair) { return pair.second; })
@@ -37,6 +39,8 @@ std::vector<std::shared_ptr<Device> > Model::getDevices(const GattService *servi
 }
 
 void Model::setDevice(const std::shared_ptr<Device> &device) {
+    std::lock_guard guard(mutex);
+
     if (device->services.contains(BLE::Services::HRM)) {
         setHeartRateMonitor(device);
     }
@@ -53,6 +57,7 @@ void Model::setDevice(const std::shared_ptr<Device> &device) {
 }
 
 void Model::setHeartRateMonitor(const std::shared_ptr<Device> &device) {
+    std::lock_guard guard(mutex);
     if (hrmState.device and hrmState.device->deviceId() == device->deviceId()) {
         return;
     }
@@ -61,6 +66,7 @@ void Model::setHeartRateMonitor(const std::shared_ptr<Device> &device) {
 }
 
 void Model::setCadenceSensor(const std::shared_ptr<Device> &device) {
+    std::lock_guard guard(mutex);
     if (cadenceState.device and cadenceState.device->deviceId() == device->deviceId()) {
         return;
     }
@@ -69,6 +75,7 @@ void Model::setCadenceSensor(const std::shared_ptr<Device> &device) {
 }
 
 void Model::setSpeedSensor(const std::shared_ptr<Device> &device) {
+    std::lock_guard guard(mutex);
     if (speedState.device and speedState.device->deviceId() == device->deviceId()) {
         return;
     }
@@ -77,6 +84,7 @@ void Model::setSpeedSensor(const std::shared_ptr<Device> &device) {
 }
 
 void Model::setPowerMeter(const std::shared_ptr<Device> &device) {
+    std::lock_guard guard(mutex);
     if (powerState.device and powerState.device->deviceId() == device->deviceId()) {
         return;
     }
@@ -85,11 +93,22 @@ void Model::setPowerMeter(const std::shared_ptr<Device> &device) {
 }
 
 void Model::setBikeTrainer(const std::shared_ptr<Device> &device) {
-    spdlog::info("Model::setBikeTrainer: {}", device->deviceId());
+    std::lock_guard guard(mutex);
+    spdlog::info("Dummy: Model::setBikeTrainer: {}", device->deviceId());
+}
+
+void Model::setSpeedUnit(const SpeedUnit unit) {
+    std::lock_guard guard(mutex);
+    this->speedUnit = unit;
+}
+
+void Model::setWheelSize(const WheelSize size) {
+    std::lock_guard guard(mutex);
+    this->wheelSize = size;
 }
 
 void Model::startWorkout() {
-    spdlog::info("Model::startWorkout");
+    spdlog::info("Starting new workout  ");
     storage->newWorkout();
 
     constexpr auto event = WorkoutEvent{
@@ -97,35 +116,45 @@ void Model::startWorkout() {
     };
 
     notifications.summary.publish(event);
+    spdlog::info("  Workput started");
 }
 
 void Model::stopWorkout() {
-    spdlog::info("Model::stopWorkout");
+    std::lock_guard guard(mutex);
+    spdlog::info("Stopping workout");
 
-    auto duration = storage->getWorkoutDuration();
-    auto hrm = storage->getHeartRate();
-    auto cadence = storage->getCadence();
+    const auto duration = storage->getWorkoutDuration();
+    const auto hrm = storage->getHeartRate();
+    const auto cadence = storage->getCadence();
+    const auto power = storage->getPower();
+
     auto speed = storage->getSpeed();
-    auto power = storage->getPower();
+    speed.val *= getSpeedConversionFactor(speedUnit);
+    speed.avg *= getSpeedConversionFactor(speedUnit);
+    speed.windowedAvg *= getSpeedConversionFactor(speedUnit);
+    speed.min *= getSpeedConversionFactor(speedUnit);
+    speed.max *= getSpeedConversionFactor(speedUnit);
 
     const auto summary = WorkoutEvent{
         true, duration, hrm, cadence, speed, power
     };
 
     notifications.summary.publish(summary);
+    spdlog::info("  Workout stopped");
 }
 
 void Model::recordHeartData(const MeasurementEvent<HrmMeasurement> &event) {
+    std::lock_guard guard(mutex);
     if (*hrmState.device != *event.device) {
         return;
     }
 
-    hrmState.recordMetric(event.measurement.hrm);
     storage->aggregateHeartRate(event.measurement.hrm);
     publishUpdate();
 }
 
 void Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event) {
+    std::lock_guard guard(mutex);
     if (*cadenceState.device != *event.device) {
         return;
     }
@@ -144,6 +173,8 @@ void Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event)
 
     const auto totalRevolutions = ccr - prevCcr;
     const auto timeDelta = lcet - prevLcet + lcetResetCorrection;
+    // for lwet unit is 1 / 1024 seconds
+    const auto timeDeltaMS = timeDelta * BLE::Math::MS_IN_SECOND / BLE::Math::BLE_MS_IN_SECOND;
 
     const auto cadence = totalRevolutions * BLE::Math::MS_IN_MIN / timeDelta;
 
@@ -152,6 +183,7 @@ void Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event)
 }
 
 void Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) {
+    std::lock_guard guard(mutex);
     if (*speedState.device != *event.device) {
         return;
     }
@@ -170,39 +202,52 @@ void Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) {
 
     const auto totalRevolutions = cwr - prevCwr;
     const auto timeDelta = lwet - prevLwet + lwetResetCorrection;
+    // for lwet unit is 1 / 1024 seconds
+    const auto timeDeltaMS = timeDelta * BLE::Math::MS_IN_SECOND / BLE::Math::BLE_MS_IN_SECOND;
 
-    const auto distanceTraveled = totalRevolutions * BLE::Wheels::DEFAULT_TIRE_CIRCUMFERENCE_MM;
-    const auto speedMms = distanceTraveled * BLE::Math::MS_IN_SECOND / timeDelta;
+    const auto distanceTraveled = totalRevolutions * getWheelCircumferenceInMM(wheelSize);
+    const auto speedMms = distanceTraveled * BLE::Math::INT_MATH_COEFFICIENT / timeDeltaMS;
 
     storage->aggregateSpeed(speedMms);
     publishUpdate();
 }
 
 void Model::recordPowerData(const MeasurementEvent<PowerMeasurement> &event) {
+    std::lock_guard guard(mutex);
     if (*powerState.device != *event.device) {
         return;
     }
 
-    powerState.recordMetric(event.measurement.power);
     storage->aggregatePower(event.measurement.power);
     publishUpdate();
 }
 
 void Model::recordTrainerData(const MeasurementEvent<GeneralData> &event) {
+    std::lock_guard guard(mutex);
 }
 
 void Model::recordTrainerData(const MeasurementEvent<GeneralSettings> &event) {
+    std::lock_guard guard(mutex);
 }
 
 void Model::recordTrainerData(const MeasurementEvent<SpecificTrainerData> &event) {
+    std::lock_guard guard(mutex);
     publishUpdate();
 }
 
 void Model::publishUpdate() {
+    std::lock_guard guard(mutex);
+
     const auto hrm = storage->getHeartRate();
     const auto cadence = storage->getCadence();
-    const auto speed = storage->getSpeed();
     const auto power = storage->getPower();
+
+    auto speed = storage->getSpeed();
+    speed.val *= getSpeedConversionFactor(speedUnit);
+    speed.avg *= getSpeedConversionFactor(speedUnit);
+    speed.windowedAvg *= getSpeedConversionFactor(speedUnit);
+    speed.min *= getSpeedConversionFactor(speedUnit);
+    speed.max *= getSpeedConversionFactor(speedUnit);
 
     const auto aggregate = WorkoutData{
         hrm, cadence, speed, power

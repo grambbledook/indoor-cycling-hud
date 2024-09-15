@@ -72,8 +72,8 @@ void SelectDevicePanel::measurementsReceived(const WorkoutData &measurements_upd
     }
 
     if (service.service == SPEED.service) {
-        const auto speed = measurements_update.speed.val;
-        metricLabel->setText(QString::number(speed));
+        const auto speed = measurements_update.speed.val * 0.01;
+        metricLabel->setText(QString::number(speed, 'f', 1));
     }
 
     if (service.service == POWER.service) {

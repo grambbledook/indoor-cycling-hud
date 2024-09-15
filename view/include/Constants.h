@@ -84,6 +84,8 @@ namespace Constants {
     namespace Commands {
         const auto CONNECT = "CONNECT";
         const auto SWITCH_THEME = "SWITCH_THEME";
+        const auto SET_WHEEL_SIZE = "SET_WHEEL_SIZE";
+        const auto SET_SPEED_UNIT = "SET_SPEED_UNIT";
         const auto QUIT = "QUIT";
     }
 }

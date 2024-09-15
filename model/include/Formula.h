@@ -2,9 +2,10 @@
 
 namespace BLE {
     namespace Math {
-        constexpr auto INT_MATH_COEFFICIENT = 10;
+        constexpr auto INT_MATH_COEFFICIENT = 100;
         constexpr auto MM_IN_KM = 1000 * 1000;
-        constexpr auto MS_IN_SECOND = 1024;
+        constexpr auto MS_IN_SECOND = 1000;
+        constexpr auto BLE_MS_IN_SECOND = 1024;
         constexpr auto MS_IN_MIN = 60 * 1024;
         constexpr auto MS_IN_HOUR = 60 * 60 * 1024;
     }

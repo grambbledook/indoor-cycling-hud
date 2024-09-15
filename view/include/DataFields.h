@@ -45,12 +45,12 @@ namespace Data {
 
     const auto SPEED = DataField{
         "Speed KMH",
-        [](const WorkoutData &data) { return std::format("{:.1f}", data.speed.val * 0.0036); }
+        [](const WorkoutData &data) { return std::format("{:.1f}", data.speed.val * .01); }
     };
 
     const auto AVG_SPEED = DataField{
         "Avg Speed",
-        [](const WorkoutData &data) { return std::format("{:.1f}", data.speed.val * 0.0036); }
+        [](const WorkoutData &data) { return std::format("{:.1f}", data.speed.avg * .01); }
     };
 
     const auto POWER = DataField{
