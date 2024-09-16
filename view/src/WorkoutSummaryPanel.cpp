@@ -22,6 +22,14 @@ WorkoutSummaryPanel::WorkoutSummaryPanel(QWidget *parent): QMainWindow(parent) {
     durationLayout->addItem(new QSpacerItem(20, 0));
     durationLayout->addWidget(durationValue, 2, Qt::AlignRight);
 
+    auto *distanceLayout = new QHBoxLayout();
+    distanceField = new TextLabel(Constants::Labels::DISTANCE, LabelSize::SMALL, this);
+    distanceValue = new ValueLabel(Constants::Values::EMPTY_DATA, LabelSize::SMALL, this);
+
+    distanceLayout->addWidget(distanceField, 0, Qt::AlignLeft);
+    distanceLayout->addItem(new QSpacerItem(20, 0));
+    distanceLayout->addWidget(distanceValue, 2, Qt::AlignRight);
+
     // HRM Group
     auto *hrmLayout = new QGridLayout();
     maxHrmField = new TextLabel(Constants::Labels::MAX_HEART_RATE, LabelSize::SMALL, this);
@@ -89,6 +97,7 @@ WorkoutSummaryPanel::WorkoutSummaryPanel(QWidget *parent): QMainWindow(parent) {
     // Main Layout
     auto *layout = new QVBoxLayout();
     layout->addLayout(durationLayout);
+    layout->addLayout(distanceLayout);
     layout->addItem(new QSpacerItem(0, 20));
 
     layout->addLayout(hrmLayout);
@@ -114,6 +123,7 @@ void WorkoutSummaryPanel::handleWorkoutEvent(const WorkoutEvent &data) {
     spdlog::info("WorkoutSummaryPanel::workoutSummaryReceived");
 
     durationValue->setText(QString::fromStdString(Data::DURATION.value(data)));
+    distanceValue->setText(QString::fromStdString(Data::DISTANCE.value(data)));
 
     maxHrmValue->setText(data.isFinished ? QString::number(data.hrm.max) : Constants::Values::EMPTY_DATA.data());
     minHrmValue->setText(data.isFinished ? QString::number(data.hrm.min) : Constants::Values::EMPTY_DATA.data());

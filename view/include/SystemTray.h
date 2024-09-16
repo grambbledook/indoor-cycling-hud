@@ -23,7 +23,7 @@ public slots:
 
     void setWheelSize(WheelSize size) const;
 
-    void setSpeedUnit(SpeedUnit size) const;
+    void setSpeedUnit(DistanceUnit size) const;
 
 private:
     std::shared_ptr<TrainerWindow> trainerWindow;

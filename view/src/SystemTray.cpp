@@ -39,11 +39,11 @@ SystemTray::SystemTray(
     const auto speed_unit_group = new QActionGroup(this);
     speed_unit_group->setExclusive(true);
 
-    for (int i = static_cast<int>(SpeedUnit::KMH); i <= static_cast<int>(SpeedUnit::MPH); ++i) {
-        auto unit = static_cast<SpeedUnit>(i);
-        const auto action = new QAction(speedUnitToString(unit), this);
+    for (int i = static_cast<int>(DistanceUnit::METERS); i <= static_cast<int>(DistanceUnit::MILES); ++i) {
+        auto unit = static_cast<DistanceUnit>(i);
+        const auto action = new QAction(distanceUnitToString(unit), this);
         action->setCheckable(true);
-        if (unit == SpeedUnit::KMH) {
+        if (unit == DistanceUnit::METERS) {
             action->setChecked(true);
         }
         speed_unit_group->addAction(action);
@@ -72,6 +72,6 @@ void SystemTray::setWheelSize(const WheelSize size) const {
     handler->next(Constants::Commands::SET_WHEEL_SIZE, size);
 }
 
-void SystemTray::setSpeedUnit(const SpeedUnit unit) const {
+void SystemTray::setSpeedUnit(const DistanceUnit unit) const {
     handler->next(Constants::Commands::SET_SPEED_UNIT, unit);
 }

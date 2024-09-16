@@ -41,6 +41,9 @@ private:
     TextLabel *durationField;
     ValueLabel *durationValue;
 
+    TextLabel *distanceField;
+    ValueLabel *distanceValue;
+
     TextLabel *maxHrmField;
     ValueLabel *maxHrmValue;
     TextLabel *minHrmField;

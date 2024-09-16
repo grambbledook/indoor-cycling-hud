@@ -97,9 +97,9 @@ void Model::setBikeTrainer(const std::shared_ptr<Device> &device) {
     spdlog::info("Dummy: Model::setBikeTrainer: {}", device->deviceId());
 }
 
-void Model::setSpeedUnit(const SpeedUnit unit) {
+void Model::setSpeedUnit(const DistanceUnit unit) {
     std::lock_guard guard(mutex);
-    this->speedUnit = unit;
+    this->distanceUnit = unit;
 }
 
 void Model::setWheelSize(const WheelSize size) {
@@ -111,8 +111,8 @@ void Model::startWorkout() {
     spdlog::info("Starting new workout  ");
     storage->newWorkout();
 
-    constexpr auto event = WorkoutEvent{
-        true, 0, Aggregate{}, Aggregate{}, Aggregate{}, Aggregate{}
+    auto event = WorkoutEvent{
+        true, 0, 0, distanceUnit, Aggregate{}, Aggregate{}, Aggregate{}, Aggregate{}
     };
 
     notifications.summary.publish(event);
@@ -129,14 +129,15 @@ void Model::stopWorkout() {
     const auto power = storage->getPower();
 
     auto speed = storage->getSpeed();
-    speed.val *= getSpeedConversionFactor(speedUnit);
-    speed.avg *= getSpeedConversionFactor(speedUnit);
-    speed.windowedAvg *= getSpeedConversionFactor(speedUnit);
-    speed.min *= getSpeedConversionFactor(speedUnit);
-    speed.max *= getSpeedConversionFactor(speedUnit);
+    speed.val *= getSpeedConversionFactor(distanceUnit);
+    speed.avg *= getSpeedConversionFactor(distanceUnit);
+    speed.windowedAvg *= getSpeedConversionFactor(distanceUnit);
+    speed.min *= getSpeedConversionFactor(distanceUnit);
+    speed.max *= getSpeedConversionFactor(distanceUnit);
 
+    const auto distance = static_cast<long>(duration * speed.avg * getDistanceConversionFactor(distanceUnit));
     const auto summary = WorkoutEvent{
-        true, duration, hrm, cadence, speed, power
+        true, duration, distance, distanceUnit, hrm, cadence, speed, power
     };
 
     notifications.summary.publish(summary);
@@ -176,7 +177,7 @@ void Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event)
     // for lwet unit is 1 / 1024 seconds
     const auto timeDeltaMS = timeDelta * BLE::Math::MS_IN_SECOND / BLE::Math::BLE_MS_IN_SECOND;
 
-    const auto cadence = totalRevolutions * BLE::Math::MS_IN_MIN / timeDelta;
+    const auto cadence = totalRevolutions * BLE::Math::MS_IN_MIN / timeDeltaMS;
 
     storage->aggregateCadence(cadence);
     publishUpdate();
@@ -238,19 +239,21 @@ void Model::recordTrainerData(const MeasurementEvent<SpecificTrainerData> &event
 void Model::publishUpdate() {
     std::lock_guard guard(mutex);
 
+    const auto duration = storage->getWorkoutDuration();
     const auto hrm = storage->getHeartRate();
     const auto cadence = storage->getCadence();
     const auto power = storage->getPower();
 
     auto speed = storage->getSpeed();
-    speed.val *= getSpeedConversionFactor(speedUnit);
-    speed.avg *= getSpeedConversionFactor(speedUnit);
-    speed.windowedAvg *= getSpeedConversionFactor(speedUnit);
-    speed.min *= getSpeedConversionFactor(speedUnit);
-    speed.max *= getSpeedConversionFactor(speedUnit);
+    speed.val *= getSpeedConversionFactor(distanceUnit);
+    speed.avg *= getSpeedConversionFactor(distanceUnit);
+    speed.windowedAvg *= getSpeedConversionFactor(distanceUnit);
+    speed.min *= getSpeedConversionFactor(distanceUnit);
+    speed.max *= getSpeedConversionFactor(distanceUnit);
 
+    const auto distance = static_cast<long>(duration * speed.avg * getDistanceConversionFactor(distanceUnit));
     const auto aggregate = WorkoutData{
-        hrm, cadence, speed, power
+        duration, distance, distanceUnit, hrm, cadence, speed, power
     };
 
     notifications.measurements.publish(aggregate);

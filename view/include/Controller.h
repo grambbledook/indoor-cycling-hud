@@ -251,13 +251,13 @@ private:
     std::shared_ptr<Model> model;
 };
 
-class SpeedUnitController final : public Controller<SpeedUnit> {
+class SpeedUnitController final : public Controller<DistanceUnit> {
 public:
     explicit SpeedUnitController(const std::shared_ptr<Model> &model)
         : model(model) {
     }
 
-    void handleRequest(SpeedUnit size) override;
+    void handleRequest(DistanceUnit size) override;
 
 private:
     std::shared_ptr<Model> model;

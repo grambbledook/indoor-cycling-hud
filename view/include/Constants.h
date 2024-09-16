@@ -34,6 +34,7 @@ namespace Constants {
     namespace Labels {
         const std::string CADENCE = "Cadence";
         const std::string DURATION = "Duration";
+        const std::string DISTANCE = "Distance";
         const std::string HEART_RATE = "Heart Rate";
         const std::string INSTANT_POWER = "Instant Power";
         const std::string POWER = "Power";

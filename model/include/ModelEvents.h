@@ -5,6 +5,7 @@
 
 #include "Data.h"
 #include "Service.h"
+#include "Units.h"
 
 struct DeviceDiscovered {
     std::shared_ptr<Device> device;
@@ -26,6 +27,10 @@ struct Aggregate {
 };
 
 struct WorkoutData {
+    long long duration;
+    long distance;
+    DistanceUnit distanceUnit;
+
     Aggregate hrm;
     Aggregate cadence;
     Aggregate speed;
@@ -35,7 +40,10 @@ struct WorkoutData {
 struct WorkoutEvent {
     bool isFinished;
 
-    long long duration;
+    long long durationMs;
+    long distance;
+    DistanceUnit distanceUnit;
+
     Aggregate hrm;
     Aggregate cadence;
     Aggregate speed;

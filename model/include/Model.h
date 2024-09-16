@@ -47,7 +47,7 @@ struct State {
 
 class Model {
 public:
-    Model(): speedUnit(SpeedUnit::KMH),
+    Model(): distanceUnit(DistanceUnit::METERS),
              wheelSize(WheelSize::ROAD_700x35C),
              storage(std::make_unique<WorkoutDataStorage>()) {
     }
@@ -68,7 +68,7 @@ public:
 
     void setBikeTrainer(const std::shared_ptr<Device> &device);
 
-    void setSpeedUnit(SpeedUnit unit);
+    void setSpeedUnit(DistanceUnit unit);
 
     void setWheelSize(WheelSize size);
 
@@ -100,7 +100,7 @@ private:
     std::unordered_map<std::string, std::shared_ptr<Device> > devices;
     std::recursive_mutex mutex;
 
-    SpeedUnit speedUnit;
+    DistanceUnit distanceUnit;
     WheelSize wheelSize;
     std::unique_ptr<WorkoutDataStorage> storage;
 

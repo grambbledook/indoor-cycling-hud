@@ -73,7 +73,7 @@ void WorkoutDataStorage::newWorkout() {
 long long WorkoutDataStorage::getWorkoutDuration() const {
     const auto select = std::make_unique<SQLiteStatement>(connection.get(), select_workout_duration_sql);
 
-    auto rc = sqlite3_step(select->get());
+    const auto rc = sqlite3_step(select->get());
     if (rc == SQLITE_ROW) {
         const auto start = sqlite3_column_int64(select->get(), 0);
         const auto end = sqlite3_column_int64(select->get(), 1);
@@ -84,7 +84,7 @@ long long WorkoutDataStorage::getWorkoutDuration() const {
         throw std::runtime_error("Failed to execute select statement");
     }
 
-    return -1L;
+    return 0L;
 }
 
 void WorkoutDataStorage::insert(long value, const std::string &type) {

@@ -74,7 +74,7 @@ void ViewNavigator::nextScreen(const std::string &command, const std::vector<std
     if (command == Constants::Commands::SET_SPEED_UNIT) {
         assert(!args.empty());
 
-        const auto speedUnit = std::any_cast<SpeedUnit>(args[0]);
+        const auto speedUnit = std::any_cast<DistanceUnit>(args[0]);
         speedUnitController->handleRequest(speedUnit);
     }
 }

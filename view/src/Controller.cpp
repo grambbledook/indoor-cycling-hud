@@ -205,7 +205,7 @@ void WheelSizeSelectionController::handleRequest(WheelSize size) {
     spdlog::info("Wheel size set to: {}", size);
 }
 
-void SpeedUnitController::handleRequest(SpeedUnit size) {
+void SpeedUnitController::handleRequest(DistanceUnit size) {
     model->setSpeedUnit(size);
     spdlog::info("Speed unit set to: {}", size);
 }
