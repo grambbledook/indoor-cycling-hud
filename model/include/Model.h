@@ -109,14 +109,14 @@ private:
         std::vector<int>{}
     };
 
-    State<std::pair<int, int> > cadenceState = {
+    State<std::pair<uint32_t, uint32_t> > cadenceState = {
         __nullptr,
-        std::vector<std::pair<int, int> >{}
+        std::vector<std::pair<uint32_t, uint32_t> >{}
     };
 
-    State<std::pair<int, int> > speedState = {
+    State<std::pair<uint32_t, uint32_t> > speedState = {
         __nullptr,
-        std::vector<std::pair<int, int> >{}
+        std::vector<std::pair<uint32_t, uint32_t> >{}
     };
 
     State<int> powerState = {

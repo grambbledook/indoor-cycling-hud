@@ -2,7 +2,6 @@
 #include <string>
 #include <utility>
 
-#include "Formula.h"
 #include <fmt/core.h>
 
 enum class DistanceUnit {
@@ -49,9 +48,9 @@ inline double getDistanceConversionFactor(const DistanceUnit unit) {
     switch (unit) {
 
         case DistanceUnit::METERS:
-            return 1e-6;
+            return 1e-7;
         case DistanceUnit::MILES:
-            return 1.0 / 1609340.0;
+            return 1.0 / 16093400.0;
         default:
             std::unreachable();
     }

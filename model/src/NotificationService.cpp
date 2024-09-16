@@ -110,7 +110,8 @@ void CyclingCadenceAndSpeedNotificationService::processMeasurement(const std::sh
     if (flag & 0b10) {
         const auto ccr = static_cast<uint16_t>(data[0 + offset]) |
                          static_cast<uint16_t>(data[1 + offset]) << 8;
-        const auto lcet = static_cast<uint16_t>(data[2 + offset]) << 8;
+        const auto lcet = static_cast<uint16_t>(data[2 + offset]) |
+            static_cast<uint16_t>(data[3 + offset]) << 8;
 
         const CadenceMeasurement cadence(ccr, lcet);
         model->recordCadenceData(MeasurementEvent(device, cadence));

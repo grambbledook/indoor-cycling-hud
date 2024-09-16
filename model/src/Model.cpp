@@ -6,6 +6,8 @@
 #include "Formula.h"
 #include "Model.h"
 
+#include "Formula.h"
+
 void Model::addDevice(const std::shared_ptr<Device> &device) {
     std::lock_guard guard(mutex);
 
@@ -170,14 +172,8 @@ void Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event)
         return;
     }
 
-    const auto lcetResetCorrection = lcet > prevLcet ? 0 : 0x10000;
-
-    const auto totalRevolutions = ccr - prevCcr;
-    const auto timeDelta = lcet - prevLcet + lcetResetCorrection;
-    // for lwet unit is 1 / 1024 seconds
-    const auto timeDeltaMS = timeDelta * BLE::Math::MS_IN_SECOND / BLE::Math::BLE_MS_IN_SECOND;
-
-    const auto cadence = totalRevolutions * BLE::Math::MS_IN_MIN / timeDeltaMS;
+    const auto cadence = BLE::Math::computeCadence(lcet, prevLcet, ccr, prevCcr);
+    spdlog::trace("lcet: {}, prevLcet: {}, ccr: {}, prevCcr: {}, cadence: {}", lcet, prevLcet, ccr, prevCcr, cadence);
 
     storage->aggregateCadence(cadence);
     publishUpdate();
@@ -199,17 +195,12 @@ void Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) {
         return;
     }
 
-    const auto lwetResetCorrection = lwet > prevLwet ? 0 : 0x10000;
-
-    const auto totalRevolutions = cwr - prevCwr;
-    const auto timeDelta = lwet - prevLwet + lwetResetCorrection;
-    // for lwet unit is 1 / 1024 seconds
-    const auto timeDeltaMS = timeDelta * BLE::Math::MS_IN_SECOND / BLE::Math::BLE_MS_IN_SECOND;
-
-    const auto distanceTraveled = totalRevolutions * getWheelCircumferenceInMM(wheelSize);
-    const auto speedMms = distanceTraveled * BLE::Math::INT_MATH_COEFFICIENT / timeDeltaMS;
-
-    storage->aggregateSpeed(speedMms);
+    const auto speed = BLE::Math::computeSpeed(
+        lwet, prevLwet, cwr, prevCwr,
+        getWheelCircumferenceInMM(wheelSize)
+    );
+    spdlog::trace("lwet: {}, prevLwet: {}, cwr: {}, prevCwr: {}, speed: {}", lwet, prevLwet, cwr, prevCwr, speed);
+    storage->aggregateSpeed(speed);
     publishUpdate();
 }
 
@@ -251,7 +242,7 @@ void Model::publishUpdate() {
     speed.min *= getSpeedConversionFactor(distanceUnit);
     speed.max *= getSpeedConversionFactor(distanceUnit);
 
-    const auto distance = static_cast<long>(duration * speed.avg * getDistanceConversionFactor(distanceUnit));
+    const auto distance = BLE::Math::computeDistance(speed.avg, duration, distanceUnit);
     const auto aggregate = WorkoutData{
         duration, distance, distanceUnit, hrm, cadence, speed, power
     };
