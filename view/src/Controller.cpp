@@ -30,7 +30,7 @@ void ViewController<T, T0>::renderView() {
     this->history->push(view);
 }
 
-void TrainerWindowController::handleRequest(void*) {
+void TrainerWindowController::handleRequest(void *) {
     if (state->state != ApplicationState::STARTING and state->state != ApplicationState::WAITING_FOR_SENSORS) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -41,7 +41,7 @@ void TrainerWindowController::handleRequest(void*) {
     state->state = ApplicationState::WAITING_FOR_TRAINER;
 }
 
-void SensorsWindowController::handleRequest(void*) {
+void SensorsWindowController::handleRequest(void *) {
     if (state->state != ApplicationState::WAITING_FOR_TRAINER) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -58,7 +58,7 @@ void SensorsWindowController::handleRequest(void*) {
     state->state = ApplicationState::WAITING_FOR_SENSORS;
 }
 
-void SelectWorkoutWindowController::handleRequest(void*) {
+void SelectWorkoutWindowController::handleRequest(void *) {
     if (state->state != ApplicationState::WAITING_FOR_SENSORS and state->state != ApplicationState::WORKOUT_SUMMARY) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -69,7 +69,7 @@ void SelectWorkoutWindowController::handleRequest(void*) {
     state->state = ApplicationState::WAITING_FOR_WORKOUT;
 }
 
-void WorkoutWindowController::handleRequest(void*) {
+void WorkoutWindowController::handleRequest(void *) {
     if (state->state != ApplicationState::WAITING_FOR_WORKOUT) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -81,7 +81,7 @@ void WorkoutWindowController::handleRequest(void*) {
     state->state = ApplicationState::IN_WORKOUT;
 }
 
-void WorkoutSummaryWindowController::handleRequest(void*) {
+void WorkoutSummaryWindowController::handleRequest(void *) {
     if (state->state != ApplicationState::IN_WORKOUT) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -93,7 +93,7 @@ void WorkoutSummaryWindowController::handleRequest(void*) {
     state->state = ApplicationState::WORKOUT_SUMMARY;
 }
 
-void ShowDeviceDialogController::handleRequest(void*) {
+void ShowDeviceDialogController::handleRequest(void *) {
     if (state->state != ApplicationState::WAITING_FOR_SENSORS and state->state !=
         ApplicationState::WAITING_FOR_TRAINER) {
         spdlog::info("  Wrong state: {}", state->state);
@@ -116,7 +116,7 @@ void ShowDeviceDialogController::handleRequest(void*) {
     }
 }
 
-void ConnectToDeviceController::handleRequest(void*) {
+void ConnectToDeviceController::handleRequest(void *) {
     if (state->state == ApplicationState::EXITING) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -168,7 +168,34 @@ void ConnectToDeviceController::handleRequest(void*) {
     auto future = QtConcurrent::run(setupConnection);
 }
 
-void SwitchThemeController::handleRequest(void*) {
+void TrayConnectToDeviceController::handleRequest(const std::shared_ptr<Device> &device) {
+    if (state->state == ApplicationState::EXITING) {
+        spdlog::info("  Wrong state: {}", state->state);
+        return;
+    }
+
+    auto setupConnection = [this, device]() {
+        if (device->services.contains(BLE::Services::HRM)) {
+            hrmNotificationService->setDevice(device);
+        }
+
+        if (device->services.contains(BLE::Services::CSC)) {
+            cscNotificationService->setDevice(device);
+        }
+
+        if (device->services.contains(BLE::Services::PWR)) {
+            powerNotificationService->setDevice(device);
+        }
+
+        if (device->services.contains(BLE::Services::FEC_BIKE_TRAINER)) {
+            fecService->setDevice(device);
+        }
+    };
+
+    auto future = QtConcurrent::run(setupConnection);
+}
+
+void SwitchThemeController::handleRequest(void *) {
     state->darkThemeEnabled = !state->darkThemeEnabled;
 
     const auto theme = state->darkThemeEnabled ? StyleSheets::THEME_DARK : StyleSheets::THEME_BRIGHT;
@@ -195,7 +222,7 @@ void SwitchThemeController::handleRequest(void*) {
     workoutSummaryWindow->update();
 }
 
-void ShutdownController::handleRequest(void*) {
+void ShutdownController::handleRequest(void *) {
     state->state = ApplicationState::EXITING;
 
     registry->stop();

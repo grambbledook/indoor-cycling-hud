@@ -48,7 +48,7 @@ struct State {
 
 struct MeasurementsBuffer {
     struct Record {
-        unsigned int value;
+        unsigned long value;
         system_clock::time_point timestamp;
     };
 

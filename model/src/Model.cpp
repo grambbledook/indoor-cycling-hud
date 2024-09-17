@@ -250,15 +250,15 @@ void Model::publishWorkoutEvent(const WorkoutState status, Channel<WorkoutEvent>
     const auto power = storage->getPower();
 
     auto speed = storage->getSpeed();
-    spdlog::info("Speed: {}, avg Speed: {}, duration: {}", speed.val, speed.avg, duration);
+    spdlog::trace("Speed: {}, avg Speed: {}, duration: {}", speed.val, speed.avg, duration);
     speed.val *= getSpeedConversionFactor(distanceUnit);
     speed.avg *= getSpeedConversionFactor(distanceUnit);
     speed.windowedAvg *= getSpeedConversionFactor(distanceUnit);
     speed.min *= getSpeedConversionFactor(distanceUnit);
     speed.max *= getSpeedConversionFactor(distanceUnit);
 
-    const auto distance = static_cast<unsigned long>(duration * speed.avg * getDistanceConversionFactor(distanceUnit));
-    spdlog::info("   Speed: {}, avg Speed: {}, distance: {}", speed.val, speed.avg, distance);
+    const auto distance = BLE::Math::computeDistance(speed.val, duration);
+    spdlog::trace("   Speed: {}, avg Speed: {}, distance: {}", speed.val, speed.avg, distance);
     const auto summary = WorkoutEvent{
         status, duration, distance, distanceUnit, hrm, cadence, speed, power
     };

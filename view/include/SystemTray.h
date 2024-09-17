@@ -25,6 +25,11 @@ public slots:
 
     void setSpeedUnit(DistanceUnit size) const;
 
+    void addDevice(const std::shared_ptr<Device> &device);
+    void handleSetDevice(const std::shared_ptr<Device> &device) const;
+
+    bool event(QEvent *event);
+
 private:
     std::shared_ptr<TrainerWindow> trainerWindow;
     std::shared_ptr<SensorsWindow> sensorsWindow;
@@ -32,4 +37,7 @@ private:
 
     bool darkThemeEvanled = false;
     std::shared_ptr<ControllerHandler> handler;
+
+    QMenu *device_menu;
+    QActionGroup *device_group;
 };

@@ -88,5 +88,6 @@ namespace Constants {
         const auto SET_WHEEL_SIZE = "SET_WHEEL_SIZE";
         const auto SET_SPEED_UNIT = "SET_SPEED_UNIT";
         const auto QUIT = "QUIT";
+        const auto CONNECT_TO_DEVICE = "CONNECT_TO_DEVICE";
     }
 }

@@ -5,6 +5,7 @@
 #include "DeviceDialog.h"
 #include "Events.h"
 #include "SensorsWindow.h"
+#include "SystemTray.h"
 #include "TrainerWindow.h"
 #include "WorkoutSummaryWindow.h"
 #include "WorkoutWindow.h"
@@ -15,9 +16,10 @@ public:
         const std::shared_ptr<TrainerWindow> &trainerWindow,
         const std::shared_ptr<SensorsWindow> &sensorsWindow,
         const std::shared_ptr<WorkoutWindow> &workoutWindow,
-        const std::shared_ptr<WorkoutSummaryWindow> &workoutSummaryWindow
+        const std::shared_ptr<WorkoutSummaryWindow> &workoutSummaryWindow,
+        const std::shared_ptr<SystemTray> &tray
     ): trainerWindow(trainerWindow), sensorsWindow(sensorsWindow),
-       workoutWindow(workoutWindow), workoutSummaryWindow(workoutSummaryWindow) {
+       workoutWindow(workoutWindow), workoutSummaryWindow(workoutSummaryWindow), tray(tray) {
     }
 
     void setDeviceDialog(const std::shared_ptr<DeviceDialog> &deviceDialog) {
@@ -26,8 +28,11 @@ public:
     }
 
     void deviceDiscovered(const DeviceDiscovered &data) const {
-        const auto event = new DeviceDiscoveredEvent(data);
-        QCoreApplication::postEvent(deviceDialog.get(), event);
+        const auto first = new DeviceDiscoveredEvent(data);
+        QCoreApplication::postEvent(deviceDialog.get(), first);
+
+        const auto second = new DeviceDiscoveredEvent(data);
+        QCoreApplication::postEvent(tray.get(), second);
     }
 
     void deviceSelected(const DeviceSelected &data) const {
@@ -61,4 +66,5 @@ private:
     std::shared_ptr<SensorsWindow> sensorsWindow;
     std::shared_ptr<WorkoutWindow> workoutWindow;
     std::shared_ptr<WorkoutSummaryWindow> workoutSummaryWindow;
+    std::shared_ptr<SystemTray> tray;
 };

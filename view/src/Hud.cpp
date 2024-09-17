@@ -52,8 +52,10 @@ int main(int argc, char **argv) {
     auto workoutSummaryWindowController = std::make_shared<WorkoutSummaryWindowController>(
         workoutSummaryWindow, model, pacer, appState, history);
 
+    const auto tray = std::make_shared<SystemTray>(controllerHandler);
+
     auto qtAdapter = std::make_shared<QtEventPublisher>(
-        trainerWindow, sensorsWindow, workoutWindow, workoutSummaryWindow
+        trainerWindow, sensorsWindow, workoutWindow, workoutSummaryWindow, tray
     );
 
     model->notifications.deviceDiscovered.subscribe(
@@ -90,13 +92,16 @@ int main(int argc, char **argv) {
 
     const auto speedUnitController = std::make_shared<SpeedUnitController>(model);
 
+    auto trayConnectToDeviceController = std::make_shared<TrayConnectToDeviceController>(
+        hrm, csc, pwr, fec, appState);
+
     const auto viewNavigator = std::make_unique<ViewNavigator>(
         controllerHandler,
         deviceDialogController, connectToDeviceController, trainerWindowController, sensorWindowController,
         selectWorkoutWindowController, workoutWindowController, workoutSummaryWindowController, switchThemeController,
-        shutdownController, wheelSizeSelectionController, speedUnitController
+        shutdownController, wheelSizeSelectionController, speedUnitController, trayConnectToDeviceController
     );
-    const auto tray = std::make_shared<SystemTray>(controllerHandler);
+
     tray->switchTheme();
     tray->show();
 

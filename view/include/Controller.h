@@ -267,3 +267,29 @@ public:
 private:
     std::shared_ptr<Model> model;
 };
+
+
+class TrayConnectToDeviceController final : public Controller<const std::shared_ptr<Device> &> {
+public:
+    explicit TrayConnectToDeviceController(
+        const std::shared_ptr<HrmNotificationService> &hrmNotificationService,
+        const std::shared_ptr<CyclingCadenceAndSpeedNotificationService> &cscNotificationService,
+        const std::shared_ptr<PowerNotificationService> &powerNotificationService,
+        const std::shared_ptr<FecService> &fecService,
+        const std::shared_ptr<AppState> &state
+    )
+        : hrmNotificationService(hrmNotificationService),
+          cscNotificationService(cscNotificationService),
+          powerNotificationService(powerNotificationService),
+          fecService(fecService), state(state) {
+    }
+
+    void handleRequest(const std::shared_ptr<Device> &device) override;
+
+private:
+    std::shared_ptr<HrmNotificationService> hrmNotificationService;
+    std::shared_ptr<CyclingCadenceAndSpeedNotificationService> cscNotificationService;
+    std::shared_ptr<PowerNotificationService> powerNotificationService;
+    std::shared_ptr<FecService> fecService;
+    std::shared_ptr<AppState> state;
+};

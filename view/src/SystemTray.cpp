@@ -51,8 +51,12 @@ SystemTray::SystemTray(
         connect(action, &QAction::triggered, this, [this, unit]() { this->setSpeedUnit(unit); });
     }
 
+    device_menu = new QMenu("Devices", nullptr);
+    device_group = new QActionGroup(this);
+
     const auto tray_icon_menu = new QMenu();
     tray_icon_menu->addAction(switch_theme);
+    tray_icon_menu->addMenu(device_menu);
     tray_icon_menu->addMenu(wheel_size_menu);
     tray_icon_menu->addMenu(speed_unit_menu);
     tray_icon_menu->addAction(quit_action);
@@ -74,4 +78,38 @@ void SystemTray::setWheelSize(const WheelSize size) const {
 
 void SystemTray::setSpeedUnit(const DistanceUnit unit) const {
     handler->next(Constants::Commands::SET_SPEED_UNIT, unit);
+}
+
+void SystemTray::addDevice(const std::shared_ptr<Device> &device) {
+    for (const auto action: device_group->actions()) {
+        if (action->data().value<std::shared_ptr<Device> >()->deviceId() == device->deviceId()) {
+            return;
+        }
+    }
+
+    const auto action = new QAction(QString::fromStdString(device->name.value), this);
+    action->setData(QVariant::fromValue(device));
+    device_group->addAction(action);
+    device_menu->addAction(action);
+
+    connect(action, &QAction::triggered, this, [this, device] { this->handleSetDevice(device); });
+}
+
+void SystemTray::handleSetDevice(const std::shared_ptr<Device> &device) const {
+    handler->next(Constants::Commands::CONNECT_TO_DEVICE, device);
+}
+
+bool SystemTray::event(QEvent *event) {
+    if (event->type() > QEvent::MaxUser or event->type() < QEvent::User) {
+        return QSystemTrayIcon::event(event);
+    }
+
+    const auto deviceEvent = dynamic_cast<DeviceDiscoveredEvent *>(event);
+    if (not deviceEvent) {
+        return QSystemTrayIcon::event(event);
+    }
+
+    const std::shared_ptr<Device> device = deviceEvent->getEvent().device;
+    addDevice(device);
+    return true;
 }

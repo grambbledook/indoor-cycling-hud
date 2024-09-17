@@ -14,15 +14,16 @@ ViewNavigator::ViewNavigator(
     const std::shared_ptr<SwitchThemeController> &switchThemeController,
     const std::shared_ptr<ShutdownController> &shutdownController,
     const std::shared_ptr<WheelSizeSelectionController> &wheelSizeSelectionController,
-    const std::shared_ptr<SpeedUnitController> &speedUnitController
+    const std::shared_ptr<SpeedUnitController> &speedUnitController,
+    const std::shared_ptr<TrayConnectToDeviceController> &trayConnectToDeviceController
 ): connectToDeviceController(connectToDeviceController), controllerHandler(controllerHandler),
    deviceDialogController(deviceDialogController), trainerWindowController(trainerWindowController),
    sensorsWindowController(sensorsWindowController), shutdownController(shutdownController),
    switchThemeController(switchThemeController), workoutWindowController(workoutWindowController),
    workoutSummaryWindowController(workoutSummaryWindowController),
    selectWorkoutWindowController(selectWorkoutWindowController),
-   wheelSizeSelectionController(wheelSizeSelectionController), speedUnitController(speedUnitController) {
-
+   wheelSizeSelectionController(wheelSizeSelectionController), speedUnitController(speedUnitController),
+   trayConnectToDeviceController(trayConnectToDeviceController) {
     controllerHandler->subscribe([this](const std::string &screen, const std::vector<std::any> &args) {
         this->nextScreen(screen, args);
     });
@@ -76,5 +77,12 @@ void ViewNavigator::nextScreen(const std::string &command, const std::vector<std
 
         const auto speedUnit = std::any_cast<DistanceUnit>(args[0]);
         speedUnitController->handleRequest(speedUnit);
+    }
+
+    if (command == Constants::Commands::CONNECT_TO_DEVICE) {
+        assert(!args.empty());
+
+        const auto speedUnit = std::any_cast<const std::shared_ptr<Device> &>(args[0]);
+        trayConnectToDeviceController->handleRequest(speedUnit);
     }
 }

@@ -51,7 +51,7 @@ namespace BLE {
         }
 
         // Returns total distance in meters or in (miles * 1000)
-        inline long computeDistance(const long speed, const long long duration) {
+        inline unsigned long computeDistance(const long speed, const long long duration) {
             return speed * duration * DISTANCE_CONVERSION_FACTOR;
         }
     }

@@ -21,7 +21,8 @@ public:
         const std::shared_ptr<SwitchThemeController> &switchThemeController,
         const std::shared_ptr<ShutdownController> &shutdownController,
         const std::shared_ptr<WheelSizeSelectionController> &wheelSizeSelectionController,
-        const std::shared_ptr<SpeedUnitController> &speedUnitController
+        const std::shared_ptr<SpeedUnitController> &speedUnitController,
+        const std::shared_ptr<TrayConnectToDeviceController> &trayConnectToDeviceController
     );
 
 public slots:
@@ -40,4 +41,5 @@ private:
     std::shared_ptr<ShutdownController> shutdownController;
     std::shared_ptr<WheelSizeSelectionController> wheelSizeSelectionController;
     std::shared_ptr<SpeedUnitController> speedUnitController;
+    std::shared_ptr<TrayConnectToDeviceController> trayConnectToDeviceController;
 };
