@@ -1,10 +1,11 @@
 ### Core Features Missing
- - Handle device disconnection
+ - Handle device disconnection automatically
  - Externalise app configuration
  - Store latest device configuration on exit
- - Reconnect to the last connected devices
+ - Reconnect to the last connected devices on startup
 
 ### Great to have features
+ - Wide tables for data
  - Support for ERG mode
  - Support for Structured workouts
  - Support for Linux and MacOS
