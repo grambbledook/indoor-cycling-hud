@@ -10,13 +10,14 @@
 
 constexpr auto create_tables_sql = R"CREATE(
     CREATE TABLE measurements (
-        ts TIMESTAMP PRIMARY KEY,
+        ts TIMESTAMP,
         value INTEGER,
         count INTEGER,
         avg REAL,
         max INTEGER,
         min INTEGER,
-        type VARCHAR(3)
+        type VARCHAR(3),
+        PRIMARY KEY (ts, type)
     );
 
     CREATE INDEX idx_ts_type ON measurements(ts, type) WHERE type IS NOT NULL;

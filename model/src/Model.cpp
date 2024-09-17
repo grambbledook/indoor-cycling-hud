@@ -152,7 +152,11 @@ void Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event)
     auto [events, dataPresent] = cadenceState.getLastN(2);
     auto [prevCcr, prevLcet, ccr, lcet] = std::tuple_cat(events[0], events[1]);
 
-    if (lcet == prevLcet and dataPresent) {
+    if (!dataPresent) {
+        return;
+    }
+
+    if (lcet == prevLcet) {
         cadenceState.unrecordMetric();
         return;
     }
@@ -173,6 +177,10 @@ void Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) {
 
     auto [events, dataPresent] = speedState.getLastN(2);
     auto [prevCwr, prevLwet, cwr, lwet] = std::tuple_cat(events[0], events[1]);
+
+    if (!dataPresent) {
+        return;
+    }
 
     if (lwet == prevLwet and dataPresent) {
         speedState.unrecordMetric();
