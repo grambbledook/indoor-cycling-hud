@@ -15,7 +15,7 @@ WorkoutDataStorage::WorkoutDataStorage() {
 WorkoutDataStorage::~WorkoutDataStorage() {
 }
 
-void WorkoutDataStorage::aggregateHeartRate(const long val) {
+void WorkoutDataStorage::aggregateHeartRate(const unsigned long val) {
     insert(val, "hrm");
 }
 
@@ -23,7 +23,7 @@ Aggregate WorkoutDataStorage::getHeartRate() {
     return select("hrm");
 }
 
-void WorkoutDataStorage::aggregateCadence(const long val) {
+void WorkoutDataStorage::aggregateCadence(const unsigned long val) {
     insert(val, "cad");
 }
 
@@ -31,7 +31,7 @@ Aggregate WorkoutDataStorage::getCadence() {
     return select("cad");
 }
 
-void WorkoutDataStorage::aggregateSpeed(const long val) {
+void WorkoutDataStorage::aggregateSpeed(const unsigned long val) {
     insert(val, "spd");
 }
 
@@ -39,7 +39,7 @@ Aggregate WorkoutDataStorage::getSpeed() {
     return select("spd");
 }
 
-void WorkoutDataStorage::aggregatePower(const long val) {
+void WorkoutDataStorage::aggregatePower(const unsigned long val) {
     insert(val, "pwr");
 }
 
@@ -70,8 +70,25 @@ void WorkoutDataStorage::newWorkout() {
     }
 }
 
-long long WorkoutDataStorage::getWorkoutDuration() const {
-    const auto select = std::make_unique<SQLiteStatement>(connection.get(), select_workout_duration_sql);
+void WorkoutDataStorage::startWorkout() {
+    insert(0, "start");
+}
+
+void WorkoutDataStorage::endWorkout() {
+    insert(0, "end");
+}
+
+
+long long WorkoutDataStorage::getTotalWorkoutDuration() const {
+    return getWorkoutDuration(select_workout_duration_sql);
+}
+
+long long WorkoutDataStorage::getCurrentWorkoutDuration() const {
+    return getWorkoutDuration(select_current_workout_duration_sql);
+}
+
+long long WorkoutDataStorage::getWorkoutDuration(const std::string &query) const {
+    const auto select = std::make_unique<SQLiteStatement>(connection.get(), query);
 
     const auto rc = sqlite3_step(select->get());
     if (rc == SQLITE_ROW) {
@@ -87,7 +104,7 @@ long long WorkoutDataStorage::getWorkoutDuration() const {
     return 0L;
 }
 
-void WorkoutDataStorage::insert(long value, const std::string &type) {
+void WorkoutDataStorage::insert(const unsigned long value, const std::string &type) {
     const auto select = std::make_unique<SQLiteStatement>(connection.get(), select_latest_sql);
     auto rc = sqlite3_bind_text(select->get(), 1, type.c_str(), -1, SQLITE_TRANSIENT);
     if (rc != SQLITE_OK) {
@@ -95,11 +112,11 @@ void WorkoutDataStorage::insert(long value, const std::string &type) {
     }
 
     rc = sqlite3_step(select->get());
-    auto latest = 0L;
-    long count = 0L;
+    auto latest = 0UL;
+    long count = 0UL;
     auto avg = 0.0;
-    auto max = 0L;
-    auto min = 0xFFFFFFL;
+    auto max = 0UL;
+    auto min = 0xFFFFFFUL;
 
     if (rc == SQLITE_ROW) {
         latest = sqlite3_column_int(select->get(), 0);
@@ -163,17 +180,18 @@ Aggregate WorkoutDataStorage::select(const std::string &type) {
     if (rc == SQLITE_DONE) {
         aggregate = Aggregate();
     } else if (rc == SQLITE_ROW) {
-        const auto latest = sqlite3_column_int(statement->get(), 0);
+        const auto latest = sqlite3_column_int64(statement->get(), 0);
         const auto average = sqlite3_column_double(statement->get(), 1);
         const auto windowAvg = sqlite3_column_int(statement->get(), 2);
         const auto max = sqlite3_column_int(statement->get(), 3);
         const auto min = sqlite3_column_int(statement->get(), 4);
 
         aggregate = Aggregate{
-            latest,
-            static_cast<int>(std::lround(average)),
-            windowAvg,
-            max, min
+            static_cast<unsigned long>(latest),
+            static_cast<unsigned long>(std::lround(average)),
+            static_cast<unsigned long>(windowAvg),
+            static_cast<unsigned long>(max),
+            static_cast<unsigned long>(min)
 
         };
     }

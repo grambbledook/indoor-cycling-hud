@@ -20,8 +20,8 @@ SensorsWindow::SensorsWindow(const std::shared_ptr<ControllerHandler> &handler, 
     });
 
     eventHandlers.insert({
-        getWorkoutDataType(), [this](QEvent *event) {
-            const auto data = dynamic_cast<WorkoutDataEvent *>(event);
+        getWorkoutEventType(), [this](QEvent *event) {
+            const auto data = dynamic_cast<WorkoutEventEvent *>(event);
             measurementsReceived(data->getData());
         }
     });
@@ -95,7 +95,7 @@ void SensorsWindow::deviceSelected(const DeviceSelected &event) const {
     }
 }
 
-void SensorsWindow::measurementsReceived(const WorkoutData &measurements_update) const {
+void SensorsWindow::measurementsReceived(const WorkoutEvent &measurements_update) const {
     heartRateMonitorPanel->measurementsReceived(measurements_update);
     cadencePanel->measurementsReceived(measurements_update);
     speedPanel->measurementsReceived(measurements_update);

@@ -22,7 +22,7 @@ public:
     );
 
     void deviceSelected(const DeviceSelected &event);
-    void measurementsReceived(const WorkoutData &measurements_update);
+    void measurementsReceived(const WorkoutEvent &measurements_update);
 
 public slots:
     void handleDeviceButtonClick() const;

@@ -13,7 +13,7 @@ public slots:
     void next();
     void prev();
 
-    void measurementsReceived(const WorkoutData &data);
+    void measurementsReceived(const WorkoutEvent &data);
 
 private:
     void updateTextLabel();
@@ -25,5 +25,5 @@ private:
     ValueLabel *valueLabel;
 
     Data::DataField dataField;
-    std::shared_ptr<WorkoutData> data;
+    std::shared_ptr<WorkoutEvent> data;
 };

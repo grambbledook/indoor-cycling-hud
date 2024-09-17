@@ -128,7 +128,7 @@ TEST(WorkoutDataStorageTest, ShouldReadAggregatedData_DURATION) {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     storage->aggregateHeartRate(100);
 
-    const auto duration = storage->getWorkoutDuration();
+    const auto duration = storage->getTotalWorkoutDuration();
     ASSERT_GE(duration, 100);
     ASSERT_LE(duration, 1000);
 }
@@ -136,7 +136,7 @@ TEST(WorkoutDataStorageTest, ShouldReadAggregatedData_DURATION) {
 TEST(WorkoutDataStorageTest, ShouldReturnEmptyAggregatedDataOnMissingData_DURATION) {
     const auto storage = std::make_unique<WorkoutDataStorage>();
 
-    const auto duration = storage->getWorkoutDuration();
+    const auto duration = storage->getTotalWorkoutDuration();
     ASSERT_EQ(duration, 0);
 }
 

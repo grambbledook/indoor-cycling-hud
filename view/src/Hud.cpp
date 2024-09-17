@@ -42,13 +42,15 @@ int main(int argc, char **argv) {
     auto selectWorkoutWindowController = std::make_shared<SelectWorkoutWindowController>(
         selectWorkoutWindow, appState, history);
 
+    auto pacer = std::make_shared<WorkoutPacer>(model);
+
     auto workoutWindow = std::make_shared<WorkoutWindow>(controllerHandler);
     auto workoutWindowController = std::make_shared<WorkoutWindowController>(
-        workoutWindow, model, appState, history);
+        workoutWindow, model, pacer, appState, history);
 
     auto workoutSummaryWindow = std::make_shared<WorkoutSummaryWindow>(controllerHandler);
     auto workoutSummaryWindowController = std::make_shared<WorkoutSummaryWindowController>(
-        workoutSummaryWindow, model, appState, history);
+        workoutSummaryWindow, model, pacer, appState, history);
 
     auto qtAdapter = std::make_shared<QtEventPublisher>(
         trainerWindow, sensorsWindow, workoutWindow, workoutSummaryWindow

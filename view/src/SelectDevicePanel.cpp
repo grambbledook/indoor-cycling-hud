@@ -60,7 +60,7 @@ void SelectDevicePanel::deviceSelected(const DeviceSelected &event) {
     setToolTip(name);
 }
 
-void SelectDevicePanel::measurementsReceived(const WorkoutData &measurements_update) {
+void SelectDevicePanel::measurementsReceived(const WorkoutEvent &measurements_update) {
     if (service.service == HEART_RATE.service) {
         const auto heart_rate = measurements_update.hrm.val;
         metricLabel->setText(QString::number(heart_rate));

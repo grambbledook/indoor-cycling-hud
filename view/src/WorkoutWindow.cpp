@@ -14,8 +14,8 @@
 WorkoutWindow::WorkoutWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent): AppWindow(
     handler, parent) {
     eventHandlers.insert({
-        getWorkoutDataType(), [this](QEvent *event) {
-            const auto data = dynamic_cast<WorkoutDataEvent *>(event);
+        getWorkoutEventType(), [this](QEvent *event) {
+            const auto data = dynamic_cast<WorkoutEventEvent *>(event);
             measurementsReceived(data->getData());
         }
     });
@@ -41,7 +41,7 @@ WorkoutWindow::WorkoutWindow(const std::shared_ptr<ControllerHandler> &handler, 
     layout->addWidget(finishLabel, 4, 0, 1, 1, Qt::AlignmentFlag::AlignCenter);
 }
 
-void WorkoutWindow::measurementsReceived(const WorkoutData &data) {
+void WorkoutWindow::measurementsReceived(const WorkoutEvent &data) {
     heartRateMonitorPanel->measurementsReceived(data);
     cadenceSensorPanel->measurementsReceived(data);
     speedSensorPanel->measurementsReceived(data);

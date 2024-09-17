@@ -14,9 +14,9 @@ inline QEvent::Type getDeviceSelectedType() {
     return DeviceSelectedType;
 }
 
-inline QEvent::Type getWorkoutDataType() {
-    static const auto WorkoutDataType = static_cast<QEvent::Type>(QEvent::registerEventType());
-    return WorkoutDataType;
+inline QEvent::Type getWorkoutEventType() {
+    static const auto WorkoutEventType = static_cast<QEvent::Type>(QEvent::registerEventType());
+    return WorkoutEventType;
 }
 
 inline QEvent::Type getWorkoutSummaryType() {
@@ -48,16 +48,16 @@ private:
      DeviceSelected event;
 };
 
-class WorkoutDataEvent final : public QEvent {
+class WorkoutEventEvent final : public QEvent {
 public:
-    explicit WorkoutDataEvent(WorkoutData data)
-        : QEvent(getWorkoutDataType()), data(data) {
+    explicit WorkoutEventEvent(WorkoutEvent data)
+        : QEvent(getWorkoutEventType()), data(data) {
     }
 
-    [[nodiscard]] WorkoutData getData() const { return data; }
+    [[nodiscard]] WorkoutEvent getData() const { return data; }
 
 private:
-    WorkoutData data;
+    WorkoutEvent data;
 };
 
 class WorkoutSummaryEvent final : public QEvent {

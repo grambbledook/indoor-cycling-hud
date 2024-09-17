@@ -6,7 +6,9 @@
 #include "Formula.h"
 #include "Model.h"
 
-#include "Formula.h"
+
+using std::chrono::duration_cast;
+using std::chrono::seconds;
 
 void Model::addDevice(const std::shared_ptr<Device> &device) {
     std::lock_guard guard(mutex);
@@ -110,39 +112,23 @@ void Model::setWheelSize(const WheelSize size) {
 }
 
 void Model::startWorkout() {
+    std::lock_guard guard(mutex);
+
     spdlog::info("Starting new workout  ");
     storage->newWorkout();
+    storage->startWorkout();
 
-    auto event = WorkoutEvent{
-        true, 0, 0, distanceUnit, Aggregate{}, Aggregate{}, Aggregate{}, Aggregate{}
-    };
-
-    notifications.summary.publish(event);
+    publishWorkoutEvent(WorkoutState::STARTED, notifications.summary);
     spdlog::info("  Workput started");
 }
 
 void Model::stopWorkout() {
     std::lock_guard guard(mutex);
+
     spdlog::info("Stopping workout");
+    storage->endWorkout();
 
-    const auto duration = storage->getWorkoutDuration();
-    const auto hrm = storage->getHeartRate();
-    const auto cadence = storage->getCadence();
-    const auto power = storage->getPower();
-
-    auto speed = storage->getSpeed();
-    speed.val *= getSpeedConversionFactor(distanceUnit);
-    speed.avg *= getSpeedConversionFactor(distanceUnit);
-    speed.windowedAvg *= getSpeedConversionFactor(distanceUnit);
-    speed.min *= getSpeedConversionFactor(distanceUnit);
-    speed.max *= getSpeedConversionFactor(distanceUnit);
-
-    const auto distance = static_cast<long>(duration * speed.avg * getDistanceConversionFactor(distanceUnit));
-    const auto summary = WorkoutEvent{
-        true, duration, distance, distanceUnit, hrm, cadence, speed, power
-    };
-
-    notifications.summary.publish(summary);
+    publishWorkoutEvent(WorkoutState::FINISHED, notifications.summary);
     spdlog::info("  Workout stopped");
 }
 
@@ -152,8 +138,7 @@ void Model::recordHeartData(const MeasurementEvent<HrmMeasurement> &event) {
         return;
     }
 
-    storage->aggregateHeartRate(event.measurement.hrm);
-    publishUpdate();
+    buffer.heartRate = {event.measurement.hrm, system_clock::now()};
 }
 
 void Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event) {
@@ -172,11 +157,10 @@ void Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event)
         return;
     }
 
-    const auto cadence = BLE::Math::computeCadence(lcet, prevLcet, ccr, prevCcr);
+    const unsigned int cadence = BLE::Math::computeCadence(lcet, prevLcet, ccr, prevCcr);
     spdlog::trace("lcet: {}, prevLcet: {}, ccr: {}, prevCcr: {}, cadence: {}", lcet, prevLcet, ccr, prevCcr, cadence);
 
-    storage->aggregateCadence(cadence);
-    publishUpdate();
+    buffer.cadence = {cadence, system_clock::now()};
 }
 
 void Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) {
@@ -195,13 +179,12 @@ void Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) {
         return;
     }
 
-    const auto speed = BLE::Math::computeSpeed(
+    const unsigned int speed = BLE::Math::computeSpeed(
         lwet, prevLwet, cwr, prevCwr,
         getWheelCircumferenceInMM(wheelSize)
     );
-    spdlog::trace("lwet: {}, prevLwet: {}, cwr: {}, prevCwr: {}, speed: {}", lwet, prevLwet, cwr, prevCwr, speed);
-    storage->aggregateSpeed(speed);
-    publishUpdate();
+
+    buffer.speed = {speed, system_clock::now()};
 }
 
 void Model::recordPowerData(const MeasurementEvent<PowerMeasurement> &event) {
@@ -210,8 +193,7 @@ void Model::recordPowerData(const MeasurementEvent<PowerMeasurement> &event) {
         return;
     }
 
-    storage->aggregatePower(event.measurement.power);
-    publishUpdate();
+    buffer.power = {event.measurement.power, system_clock::now()};
 }
 
 void Model::recordTrainerData(const MeasurementEvent<GeneralData> &event) {
@@ -224,28 +206,62 @@ void Model::recordTrainerData(const MeasurementEvent<GeneralSettings> &event) {
 
 void Model::recordTrainerData(const MeasurementEvent<SpecificTrainerData> &event) {
     std::lock_guard guard(mutex);
-    publishUpdate();
 }
 
-void Model::publishUpdate() {
+void Model::tick() {
     std::lock_guard guard(mutex);
 
-    const auto duration = storage->getWorkoutDuration();
+    const auto now = system_clock::now();
+
+    constexpr int MAX_RELEVANCE_SECONDS = 1;
+
+    const auto hrm = duration_cast<seconds>(now - buffer.heartRate.timestamp).count() > MAX_RELEVANCE_SECONDS
+                         ? 0
+                         : buffer.heartRate.value;
+
+    storage->aggregateHeartRate(hrm);
+
+    const auto cadence = duration_cast<seconds>(now - buffer.cadence.timestamp).count() > MAX_RELEVANCE_SECONDS
+                             ? 0
+                             : buffer.cadence.value;
+    storage->aggregateCadence(cadence);
+
+    const auto speed = duration_cast<seconds>(now - buffer.speed.timestamp).count() > MAX_RELEVANCE_SECONDS
+                           ? 0
+                           : buffer.speed.value;
+    storage->aggregateSpeed(speed);
+
+    const auto power = duration_cast<seconds>(now - buffer.power.timestamp).count() > MAX_RELEVANCE_SECONDS
+                           ? 0
+                           : buffer.power.value;
+    storage->aggregatePower(power);
+
+    publishWorkoutEvent(WorkoutState::IN_PROGRESS, notifications.measurements);
+}
+
+void Model::publishWorkoutEvent(const WorkoutState status, Channel<WorkoutEvent> &channel) {
+    std::lock_guard guard(mutex);
+
+    const auto duration = status == WorkoutState::IN_PROGRESS
+                              ? storage->getCurrentWorkoutDuration()
+                              : storage->getTotalWorkoutDuration();
     const auto hrm = storage->getHeartRate();
     const auto cadence = storage->getCadence();
     const auto power = storage->getPower();
 
     auto speed = storage->getSpeed();
+    spdlog::info("Speed: {}, avg Speed: {}, duration: {}", speed.val, speed.avg, duration);
     speed.val *= getSpeedConversionFactor(distanceUnit);
     speed.avg *= getSpeedConversionFactor(distanceUnit);
     speed.windowedAvg *= getSpeedConversionFactor(distanceUnit);
     speed.min *= getSpeedConversionFactor(distanceUnit);
     speed.max *= getSpeedConversionFactor(distanceUnit);
 
-    const auto distance = BLE::Math::computeDistance(speed.avg, duration, distanceUnit);
-    const auto aggregate = WorkoutData{
-        duration, distance, distanceUnit, hrm, cadence, speed, power
+    const auto distance = static_cast<unsigned long>(duration * speed.avg * getDistanceConversionFactor(distanceUnit));
+    spdlog::info("   Speed: {}, avg Speed: {}, distance: {}", speed.val, speed.avg, distance);
+    const auto summary = WorkoutEvent{
+        status, duration, distance, distanceUnit, hrm, cadence, speed, power
     };
 
-    notifications.measurements.publish(aggregate);
+    channel.publish(summary);
 }

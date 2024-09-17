@@ -125,31 +125,32 @@ void WorkoutSummaryPanel::handleWorkoutEvent(const WorkoutEvent &data) {
     durationValue->setText(QString::fromStdString(Data::DURATION.value(data)));
     distanceValue->setText(QString::fromStdString(Data::DISTANCE.value(data)));
 
-    maxHrmValue->setText(data.isFinished ? QString::number(data.hrm.max) : Constants::Values::EMPTY_DATA.data());
-    minHrmValue->setText(data.isFinished ? QString::number(data.hrm.min) : Constants::Values::EMPTY_DATA.data());
-    avgHrmValue->setText(data.isFinished ? QString::number(data.hrm.avg) : Constants::Values::EMPTY_DATA.data());
+    auto is_finished = data.state == WorkoutState::FINISHED;
+    maxHrmValue->setText(is_finished ? QString::number(data.hrm.max) : Constants::Values::EMPTY_DATA.data());
+    minHrmValue->setText(is_finished ? QString::number(data.hrm.min) : Constants::Values::EMPTY_DATA.data());
+    avgHrmValue->setText(is_finished ? QString::number(data.hrm.avg) : Constants::Values::EMPTY_DATA.data());
 
-    maxCadenceValue->setText(data.isFinished
+    maxCadenceValue->setText(is_finished
                                  ? QString::number(data.cadence.max)
                                  : Constants::Values::EMPTY_DATA.data());
-    minCadenceValue->setText(data.isFinished
+    minCadenceValue->setText(is_finished
                                  ? QString::number(data.cadence.min)
                                  : Constants::Values::EMPTY_DATA.data());
-    avgCadenceValue->setText(data.isFinished
+    avgCadenceValue->setText(is_finished
                                  ? QString::number(data.cadence.avg)
                                  : Constants::Values::EMPTY_DATA.data());
 
-    maxSpeedValue->setText(data.isFinished
+    maxSpeedValue->setText(is_finished
                                ? QString::number(data.speed.max * 0.01, 'f', 1)
                                : Constants::Values::EMPTY_DATA.data());
-    minSpeedValue->setText(data.isFinished
+    minSpeedValue->setText(is_finished
                                ? QString::number(data.speed.min * 0.01, 'f', 1)
                                : Constants::Values::EMPTY_DATA.data());
-    avgSpeedValue->setText(data.isFinished
+    avgSpeedValue->setText(is_finished
                                ? QString::number(data.speed.avg * 0.01, 'f', 1)
                                : Constants::Values::EMPTY_DATA.data());
 
-    maxPowerValue->setText(data.isFinished ? QString::number(data.power.max) : Constants::Values::EMPTY_DATA.data());
-    minPowerValue->setText(data.isFinished ? QString::number(data.power.min) : Constants::Values::EMPTY_DATA.data());
-    avgPowerValue->setText(data.isFinished ? QString::number(data.power.avg) : Constants::Values::EMPTY_DATA.data());
+    maxPowerValue->setText(is_finished ? QString::number(data.power.max) : Constants::Values::EMPTY_DATA.data());
+    minPowerValue->setText(is_finished ? QString::number(data.power.min) : Constants::Values::EMPTY_DATA.data());
+    avgPowerValue->setText(is_finished ? QString::number(data.power.avg) : Constants::Values::EMPTY_DATA.data());
 }

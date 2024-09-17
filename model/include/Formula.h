@@ -10,6 +10,7 @@ namespace BLE {
         constexpr auto BLE_MS_IN_SECOND = 1024;
         constexpr auto MS_IN_MIN = 60 * 1000;
         constexpr auto MS_IN_HOUR = 60 * 60 * 1000;
+        constexpr auto DISTANCE_CONVERSION_FACTOR = 2.777777777777778e-6;
 
         inline long computeCadence(
             const long lcet, const long prevLcet, const long long ccr, const long long prevCcr
@@ -49,11 +50,9 @@ namespace BLE {
             return speedMms;
         }
 
-        // Returns total distance in meters or in miles times 1000
-        inline long computeDistance(
-            const long speed, const long long duration, DistanceUnit distanceUnit
-        ) {
-            return speed * duration * getDistanceConversionFactor(distanceUnit);
+        // Returns total distance in meters or in (miles * 1000)
+        inline long computeDistance(const long speed, const long long duration) {
+            return speed * duration * DISTANCE_CONVERSION_FACTOR;
         }
     }
 }

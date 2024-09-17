@@ -66,6 +66,13 @@ constexpr auto select_workout_duration_sql = R"QUERY(
         measurements;
 )QUERY";
 
+constexpr auto select_current_workout_duration_sql = R"QUERY(
+    SELECT
+        julianday(min(ts) over ()) * 86400000.0 AS start,
+        julianday('now') * 86400000.0 AS end
+    FROM
+        measurements;
+)QUERY";
 
 
 class WorkoutDataStorage {
@@ -74,28 +81,37 @@ public:
 
     ~WorkoutDataStorage();
 
-    void aggregateHeartRate(const long val);
+    void aggregateHeartRate(const unsigned long val);
 
     Aggregate getHeartRate();
 
-    void aggregateCadence(const long measurement);
+    void aggregateCadence(const unsigned long val);
 
     Aggregate getCadence();
 
-    void aggregateSpeed(const long measurement);
+    void aggregateSpeed(const unsigned long val);
 
     Aggregate getSpeed();
 
-    void aggregatePower(const long measurement);
+    void aggregatePower(const unsigned long val);
 
     Aggregate getPower();
 
     void newWorkout();
 
-    [[nodiscard]] long long getWorkoutDuration() const;
+    void startWorkout();
+
+    void endWorkout();
+
+
+    [[nodiscard]] long long getTotalWorkoutDuration() const;
+
+    [[nodiscard]] long long getCurrentWorkoutDuration() const;
+
+    [[nodiscard]] long long getWorkoutDuration(const std::string &query) const;
 
 private:
-    void insert(long value, const std::string &type);
+    void insert(const unsigned long, const std::string &type);
 
     Aggregate select(const std::string &type);
 

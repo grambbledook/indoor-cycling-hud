@@ -10,6 +10,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
 SET(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo" CACHE STRING "" FORCE)
 set(CMAKE_CXX_FLAGS "/Z7 /Zi /ZI")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
 set(CMAKE_EXE_LINKER_FLAGS "/DEBUG")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -25,6 +26,9 @@ find_package(Qt6 REQUIRED COMPONENTS Concurrent)
 #--------------------Include spdlog-----------------------
 find_package(spdlog CONFIG REQUIRED)
 
+#--------------------Include GTest-----------------------
+find_package(GTest CONFIG REQUIRED)
+
 #--------------------Include Project Files-------------------
 set(ASSETS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/assets)
 set(INCLUDE_DIR view/include)
@@ -36,17 +40,17 @@ if (NOT CONFIG)
     set(RELEASE_TYPE "Debug")
 elseif (CONFIG STREQUAL "Release")
     set(RELEASE_TYPE ${CONFIG})
-else()
+else ()
     set(RELEASE_TYPE "Debug")
-endif()
+endif ()
 
 set(EXECUTABLE_DIR "${CMAKE_CURRENT_BINARY_DIR}/${RELEASE_TYPE}")
 
 if (${RELEASE_TYPE} STREQUAL "Release")
     set(QT_PLATFORMS_HOME_DIR "${CMAKE_CURRENT_BINARY_DIR}/vcpkg_installed/x64-windows/Qt6/plugins/platforms")
-else()
+else ()
     set(QT_PLATFORMS_HOME_DIR "${CMAKE_CURRENT_BINARY_DIR}/vcpkg_installed/x64-windows/debug/Qt6/plugins/platforms")
-endif()
+endif ()
 
 include_directories(${ASSETS_DIR})
 include_directories(${INCLUDE_DIR})
@@ -89,9 +93,23 @@ file(GLOB QT_PLATFORM_FILES
         ${QT_PLATFORMS_HOME_DIR}/qwindows*.pdb
 )
 
-foreach(QT_PLATFORM_FILE ${QT_PLATFORM_FILES})
+foreach (QT_PLATFORM_FILE ${QT_PLATFORM_FILES})
     get_filename_component(FILE_NAME ${QT_PLATFORM_FILE} NAME)
     add_custom_command(TARGET HUD POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
             ${QT_PLATFORM_FILE} "${EXECUTABLE_DIR}/platforms/${FILE_NAME}" VERBATIM)
-endforeach()
+endforeach ()
+
+#--------------------Add GTests-----------------------------
+file(GLOB_RECURSE TEST_SOURCES view/tests/*.cpp)
+
+add_executable(HUDTests ${TEST_SOURCES})
+
+target_include_directories(HUDTests PRIVATE ${INCLUDE_DIR})
+target_include_directories(HUDTests PRIVATE ${SOURCE_DIR})
+target_link_libraries(HUDTests PRIVATE Model)
+target_include_directories(HUDTests PRIVATE ${MODEL_DIR})
+target_link_libraries(HUDTests PRIVATE GTest::gtest GTest::gtest_main)
+
+include(GoogleTest)
+gtest_discover_tests(HUDTests)

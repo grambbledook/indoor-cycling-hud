@@ -61,8 +61,8 @@ void MetricsPanel::prev() {
     updateValueLabel();
 }
 
-void MetricsPanel::measurementsReceived(const WorkoutData &data) {
-    this->data = std::make_shared<WorkoutData>(data);
+void MetricsPanel::measurementsReceived(const WorkoutEvent &data) {
+    this->data = std::make_shared<WorkoutEvent>(data);
     updateValueLabel();
 }
 

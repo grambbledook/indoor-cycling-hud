@@ -7,7 +7,7 @@ class WorkoutWindow final : public AppWindow {
     Q_OBJECT
 
 public:
-    void measurementsReceived(const WorkoutData &data);
+    void measurementsReceived(const WorkoutEvent &data);
 
     explicit WorkoutWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent = nullptr);
 

@@ -76,6 +76,7 @@ void WorkoutWindowController::handleRequest(void*) {
     }
 
     model->startWorkout();
+    pacer->start();
     renderView();
     state->state = ApplicationState::IN_WORKOUT;
 }
@@ -87,6 +88,7 @@ void WorkoutSummaryWindowController::handleRequest(void*) {
     }
 
     model->stopWorkout();
+    pacer->stop();
     renderView();
     state->state = ApplicationState::WORKOUT_SUMMARY;
 }

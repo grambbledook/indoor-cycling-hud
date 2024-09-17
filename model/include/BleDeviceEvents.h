@@ -30,30 +30,30 @@ struct HrmMeasurement final : Measurement {
     explicit HrmMeasurement(const int hrm): Measurement(), hrm(hrm) {
     }
 
-    unsigned int hrm;
+    unsigned long hrm;
 };
 
 struct SpeedMeasurement final : Measurement {
     explicit SpeedMeasurement(const int cwr, const int lwet): Measurement(), cwr(cwr), lwet(lwet) {
     }
 
-    unsigned int cwr;
-    unsigned int lwet;
+    unsigned long cwr;
+    unsigned long lwet;
 };
 
 struct CadenceMeasurement final : Measurement {
     CadenceMeasurement(const int ccr, const int lcet): Measurement(), ccr(ccr), lcet(lcet) {
     }
 
-    unsigned int ccr;
-    unsigned int lcet;
+    unsigned long ccr;
+    unsigned long lcet;
 };
 
 struct PowerMeasurement final : Measurement {
     explicit PowerMeasurement(const int power): Measurement(), power(power) {
     }
 
-    unsigned int power;
+    unsigned long power;
 };
 
 class FecMeasurement : public Measurement {

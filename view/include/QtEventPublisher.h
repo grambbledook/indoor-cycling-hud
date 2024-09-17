@@ -41,11 +41,11 @@ public:
         QCoreApplication::postEvent(sensorsWindow.get(), secondEvent);
     }
 
-    void workoutData(const WorkoutData &data) const {
-        const auto firstEvent = new WorkoutDataEvent(data);
+    void workoutData(const WorkoutEvent &data) const {
+        const auto firstEvent = new WorkoutEventEvent(data);
         QCoreApplication::postEvent(sensorsWindow.get(), firstEvent);
 
-        const auto secondEvent = new WorkoutDataEvent(data);
+        const auto secondEvent = new WorkoutEventEvent(data);
         QCoreApplication::postEvent(workoutWindow.get(), secondEvent);
     }
 

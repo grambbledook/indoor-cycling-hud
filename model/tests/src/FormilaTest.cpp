@@ -74,21 +74,29 @@ TEST(ComputeSpeedTest, ShouldComputeSpeed_LwetOverflow_RealData) {
 TEST(ComputeDistanceTest, ShouldComputeDistance_Kilometers) {
     // 1 hour
     constexpr auto duration = 1000 * 60 * 60;
-    // 100.0 km/h is ~11111.1 mm/s
-    constexpr auto speed = 277778;
+    // 100.0 km/h
+    constexpr auto speed = 10000;
 
-
-    const auto cadence = BLE::Math::computeDistance(speed, duration, DistanceUnit::METERS);
+    const auto cadence = BLE::Math::computeDistance(speed, duration);
     ASSERT_EQ(cadence, 100000);
+}
+
+TEST(ComputeDistanceTest, ShouldComputeDistance_RealData_Kilometers) {
+    // 1 hour
+    constexpr auto duration = 18029;
+    // 30.02 km/h
+    constexpr auto speed = 3002;
+
+    const auto cadence = BLE::Math::computeDistance(speed, duration);
+    ASSERT_EQ(cadence, 150);
 }
 
 TEST(ComputeDistanceTest, ShouldComputeDistance_Miles) {
     // 1 hour
     constexpr auto duration = 1000 * 60 * 60;
-    // 40.0 mph is ~17881ю6 mm/s
-    constexpr auto speed = 178816;
+    // 40.0 mph
+    constexpr auto speed = 4000;
 
-
-    const auto cadence = BLE::Math::computeDistance(speed, duration, DistanceUnit::MILES);
+    const auto cadence = BLE::Math::computeDistance(speed, duration);
     ASSERT_EQ(cadence, 40000);
 }

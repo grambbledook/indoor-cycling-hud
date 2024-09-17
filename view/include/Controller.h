@@ -15,6 +15,7 @@
 #include "SelectWorkoutWindow.h"
 #include "SensorsWindow.h"
 #include "TrainerWindow.h"
+#include "WorkoutPacer.h"
 #include "WorkoutSummaryWindow.h"
 #include "WorkoutWindow.h"
 
@@ -102,16 +103,18 @@ public:
     explicit WorkoutWindowController(
         const std::shared_ptr<WorkoutWindow> &view,
         const std::shared_ptr<Model> &model,
+        const std::shared_ptr<WorkoutPacer> &pacer,
         const std::shared_ptr<AppState> &state,
         const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history
     )
-        : ViewController(view, state, history), model(model) {
+        : ViewController(view, state, history), model(model), pacer(pacer) {
     }
 
     void handleRequest(void * = nullptr) override;
 
 private:
     std::shared_ptr<Model> model;
+    std::shared_ptr<WorkoutPacer> pacer;
 };
 
 class WorkoutSummaryWindowController final : public ViewController<WorkoutSummaryWindow> {
@@ -119,16 +122,18 @@ public:
     explicit WorkoutSummaryWindowController(
         const std::shared_ptr<WorkoutSummaryWindow> &view,
         const std::shared_ptr<Model> &model,
+        const std::shared_ptr<WorkoutPacer> &pacer,
         const std::shared_ptr<AppState> &state,
         const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history
     )
-        : ViewController(view, state, history), model(model) {
+        : ViewController(view, state, history), model(model), pacer(pacer) {
     }
 
     void handleRequest(void * = nullptr) override;
 
 private:
     std::shared_ptr<Model> model;
+    std::shared_ptr<WorkoutPacer> pacer;
 };
 
 class ShowDeviceDialogController final : public WidgetController<DeviceDialog> {

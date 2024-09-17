@@ -8,11 +8,13 @@
 #include "WheelSizes.h"
 #include "WorkoutDataStorage.h"
 
+using std::chrono::system_clock;
+
 class Notifications {
 public:
     Channel<DeviceDiscovered> deviceDiscovered;
     Channel<DeviceSelected> deviceSelected;
-    Channel<WorkoutData> measurements;
+    Channel<WorkoutEvent> measurements;
     Channel<WorkoutEvent> summary;
 };
 
@@ -44,6 +46,17 @@ struct State {
     };
 };
 
+struct MeasurementsBuffer {
+    struct Record {
+        unsigned int value;
+        system_clock::time_point timestamp;
+    };
+
+    Record heartRate;
+    Record cadence;
+    Record speed;
+    Record power;
+};
 
 class Model {
 public:
@@ -90,8 +103,10 @@ public:
 
     void recordTrainerData(const MeasurementEvent<SpecificTrainerData> &event);
 
+    void tick();
+
 private:
-    void publishUpdate();
+    void publishWorkoutEvent(const WorkoutState status, Channel<WorkoutEvent> &channel);
 
 public:
     Notifications notifications;
@@ -103,6 +118,13 @@ private:
     DistanceUnit distanceUnit;
     WheelSize wheelSize;
     std::unique_ptr<WorkoutDataStorage> storage;
+
+    MeasurementsBuffer buffer = {
+        0, system_clock::now(),
+        0, system_clock::now(),
+        0, system_clock::now(),
+        0, system_clock::now(),
+    };
 
     State<int> hrmState = {
         __nullptr,

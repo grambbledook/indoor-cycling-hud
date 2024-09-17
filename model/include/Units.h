@@ -44,18 +44,6 @@ inline double getSpeedConversionFactor(const DistanceUnit unit) {
     }
 };
 
-inline double getDistanceConversionFactor(const DistanceUnit unit) {
-    switch (unit) {
-
-        case DistanceUnit::METERS:
-            return 1e-7;
-        case DistanceUnit::MILES:
-            return 1.0 / 16093400.0;
-        default:
-            std::unreachable();
-    }
-};
-
 template<>
 struct fmt::formatter<DistanceUnit> {
     constexpr auto parse(format_parse_context &ctx) {

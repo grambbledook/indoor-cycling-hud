@@ -19,29 +19,24 @@ struct DeviceSelected {
 };
 
 struct Aggregate {
-    int val;
-    int avg;
-    int windowedAvg;
-    int max;
-    int min;
+    unsigned long val;
+    unsigned long avg;
+    unsigned long windowedAvg;
+    unsigned long max;
+    unsigned long min;
 };
 
-struct WorkoutData {
-    long long duration;
-    long distance;
-    DistanceUnit distanceUnit;
-
-    Aggregate hrm;
-    Aggregate cadence;
-    Aggregate speed;
-    Aggregate power;
+enum class WorkoutState {
+    STARTED,
+    IN_PROGRESS,
+    FINISHED
 };
 
 struct WorkoutEvent {
-    bool isFinished;
+    WorkoutState state;
 
     long long durationMs;
-    long distance;
+    unsigned long distance;
     DistanceUnit distanceUnit;
 
     Aggregate hrm;
