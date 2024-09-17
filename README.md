@@ -4,6 +4,9 @@ A simple GUI app that displays a HUD (Heads-Up Display) on the screen.
 It is intended to be used during indoor cycling on top of other full screen apps or in addition to watching youtube
 videos.
 
+### Releases
+[Released version can be found here](https://github.com/grambbledook/indoor-cycling-hud/releases)
+
 # Disclaimer
 
 This is a hobby project and my first GUI app. It is not guaranteed to be accurate or reliable. Use at your own risk.
@@ -59,6 +62,3 @@ The full project backlog can be found [here](BACKLOG.md)
 
 TBA
 
-### Releases
-
-TBA
