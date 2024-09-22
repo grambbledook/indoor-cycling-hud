@@ -153,11 +153,11 @@ auto Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event)
 
     cadenceState.recordMetric(std::pair{event.measurement.ccr, event.measurement.lcet});
 
-    auto events = cadenceState.getLastN(2);
+    const auto events = cadenceState.getLastN(2);
     if (!events.has_value()) {
         return;
     }
-    const auto data = events->data();
+    const auto& data = events.value();
     auto [prevCcr, prevLcet, ccr, lcet] = std::tuple_cat(data[0], data[1]);
     if (lcet == prevLcet) {
         cadenceState.unrecordMetric();
@@ -178,12 +178,12 @@ auto Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) -> 
 
     speedState.recordMetric(std::pair{event.measurement.cwr, event.measurement.lwet});
 
-    auto events = speedState.getLastN(2);
+    const auto events = speedState.getLastN(2);
     if (!events.has_value()) {
         return;
     }
 
-    const auto data = events->data();
+    const auto& data = events.value();
     auto [prevCwr, prevLwet, cwr, lwet] = std::tuple_cat(data[0], data[1]);
 
     if (lwet == prevLwet) {

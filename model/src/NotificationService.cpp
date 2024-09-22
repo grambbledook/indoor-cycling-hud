@@ -58,11 +58,9 @@ auto HrmNotificationService::processMeasurement(
 ) -> void {
     const auto flag = data[0];
 
-    int hrm;
+    int hrm = static_cast<int>(data[1]);
     if (flag & 0x01) {
-        hrm = static_cast<int>(data[1]) | (static_cast<int>(data[2]) << 8);
-    } else {
-        hrm = static_cast<int>(data[1]);
+        hrm |= static_cast<int>(data[2]) << 8;
     }
 
     const HrmMeasurement measurement(hrm);
@@ -79,13 +77,14 @@ auto CyclingCadenceAndSpeedNotificationService::processFeatureAndSetDevices(
     BleClient &client,
     std::shared_ptr<Device> &device
 ) -> void {
-    auto [data, success] = client.read(UUID("00002a5c-0000-1000-8000-00805f9b34fb"));
+    const auto result = client.read(UUID("00002a5c-0000-1000-8000-00805f9b34fb"));
 
-    if (not success) {
+    if (!result.has_value()) {
         spdlog::error("Failed to read CSC feature.");
         return;
     }
 
+    const auto& data = result.value();
     const auto flag = data[0];
     if (flag & 0b01) {
         model->setSpeedSensor(device);

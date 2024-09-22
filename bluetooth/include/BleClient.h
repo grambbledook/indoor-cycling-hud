@@ -1,6 +1,7 @@
 #pragma once
 
 #include <any>
+#include <expected>
 #include <functional>
 #include <memory>
 #include <vector>
@@ -29,7 +30,7 @@ public:
 
     [[nodiscard]] auto isConnected() const -> bool;
 
-    [[nodiscard]] auto read(const UUID &characteristicUuid) const -> std::pair<std::vector<unsigned char>, bool>;
+    [[nodiscard]] auto read(const UUID &characteristicUuid) const -> std::expected<std::vector<unsigned char>, void *>;
 
 private:
     auto fetchCharacteristics() -> void;

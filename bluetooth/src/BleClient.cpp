@@ -6,6 +6,9 @@
 #include <iostream>
 #include <memory>
 #include "BleClient.h"
+
+#include <expected>
+
 #include "WinRtUtils.h"
 #include "spdlog/spdlog.h"
 
@@ -132,16 +135,16 @@ auto BleClient::isConnected() const -> bool {
     return connection->ConnectionStatus() == BluetoothConnectionStatus::Connected;
 }
 
-auto BleClient::read(const UUID &characteristicUuid) const -> std::pair<std::vector<unsigned char>, bool> {
+auto BleClient::read(const UUID &characteristicUuid) const -> std::expected<std::vector<unsigned char>, void *> {
     spdlog::info("Reading characteristic: {}", characteristicUuid.value);
     if (!isConnected()) {
         spdlog::info("  Not connected to any device.");
-        return {{}, false};
+        return std::unexpected(nullptr);
     }
 
     if (not characteristics.contains(characteristicUuid)) {
         spdlog::info("  Service or characteristic {} not found.", characteristicUuid.value);
-        return {{}, false};
+        return std::unexpected(nullptr);
     }
 
     const auto anyChar = characteristics.at(characteristicUuid);
@@ -149,14 +152,14 @@ auto BleClient::read(const UUID &characteristicUuid) const -> std::pair<std::vec
 
     const auto readResult = characteristic.ReadValueAsync().get();
     if (readResult.Status() != GattCommunicationStatus::Success) {
-        return {{}, false};
+        return std::unexpected(nullptr);
     }
 
     const auto reader = DataReader::FromBuffer(readResult.Value());
     std::vector<uint8_t> data(reader.UnconsumedBufferLength());
     reader.ReadBytes(data);
 
-    return {data, true};
+    return data;
 }
 
 auto BleClient::fetchCharacteristics() -> void {
