@@ -8,5 +8,5 @@ class SelectWorkoutWindow final : public AppWindow {
 public:
     explicit SelectWorkoutWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent = nullptr);
 
-    void next() override;
+    auto next() -> void override;
 };

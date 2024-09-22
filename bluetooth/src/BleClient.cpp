@@ -19,7 +19,7 @@ using namespace Windows::Storage::Streams;
 BleClient::BleClient(Device device) : device(std::move(device)) {
 }
 
-void BleClient::connect() {
+auto BleClient::connect() -> void {
     try {
         const auto deviceAddress = WinrtUtils::addressToUint64T(device.address);
 
@@ -37,7 +37,7 @@ void BleClient::connect() {
 
         fetchCharacteristics();
         spdlog::info("  Connection status: {}", static_cast<int>(connection->ConnectionStatus()));
-    } catch (const winrt::hresult_error &e) {
+    } catch (const hresult_error &e) {
         spdlog::error("  Exception: {}", winrt::to_string(e.message()));
     } catch (const std::exception &e) {
         spdlog::error("  Standard exception: {}", e.what());
@@ -46,8 +46,9 @@ void BleClient::connect() {
     }
 }
 
-bool BleClient::subscribe(const UUID &characteristicUuid,
-                          const std::function<void(std::shared_ptr<Device>, std::vector<uint8_t>)> &receiver) const {
+auto BleClient::subscribe(const UUID &characteristicUuid,
+                          const std::function<void(std::shared_ptr<Device>, std::vector<unsigned char>)> &receiver)
+const -> bool {
     spdlog::info("Subscribing to characteristic: {}", characteristicUuid.value);
     try {
         if (not characteristics.contains(characteristicUuid)) {
@@ -80,24 +81,22 @@ bool BleClient::subscribe(const UUID &characteristicUuid,
         return status == GattCommunicationStatus::Success;
     } catch (const winrt::hresult_error &e) {
         spdlog::error("  Exception: {}", winrt::to_string(e.message()));
-    } catch (const std::exception &e) {
-        spdlog::error("  Standard exception: {}", e.what());
-    } catch (...) {
-        spdlog::error("  Unknown exception occurred.");
     }
     return false;
 }
 
-bool BleClient::unsubscribe(const UUID &characteristicUuid) const {
+auto BleClient::unsubscribe(const UUID &characteristicUuid) const -> bool {
     spdlog::info("Unsubscribing from characteristic: {}", characteristicUuid.value);
+
     try {
-        const auto anyChar = characteristics.at(characteristicUuid);
-        if (not anyChar.has_value()) {
+        const auto uuid = characteristics.at(characteristicUuid);
+
+        if (not uuid.has_value()) {
             spdlog::info("  Service or characteristic {} not found.", characteristicUuid.value);
             return false;
         }
 
-        const auto characteristic = std::any_cast<GattCharacteristic>(anyChar);
+        const auto characteristic = std::any_cast<GattCharacteristic>(uuid);
         const auto status = characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(
             GattClientCharacteristicConfigurationDescriptorValue::None
         ).get();
@@ -111,21 +110,19 @@ bool BleClient::unsubscribe(const UUID &characteristicUuid) const {
         return status == GattCommunicationStatus::Success;
     } catch (const winrt::hresult_error &e) {
         spdlog::error("  Exception: {}", winrt::to_string(e.message()));
-    } catch (const std::exception &e) {
-        spdlog::error("  Standard exception: {}", e.what());
-    } catch (...) {
-        spdlog::error("  Unknown exception occurred.");
     }
+
     return false;
 }
 
-void BleClient::disconnect() const {
-    if (isConnected()) {
-        connection->Close();
+auto BleClient::disconnect() const -> void {
+    if (!isConnected()) {
+        return;
     }
+    connection->Close();
 }
 
-bool BleClient::isConnected() const {
+auto BleClient::isConnected() const -> bool {
     if (!connection) {
         spdlog::info("  Connection is null.");
         return false;
@@ -135,7 +132,7 @@ bool BleClient::isConnected() const {
     return connection->ConnectionStatus() == BluetoothConnectionStatus::Connected;
 }
 
-std::pair<std::vector<uint8_t>, bool> BleClient::read(const UUID &characteristicUuid) const {
+auto BleClient::read(const UUID &characteristicUuid) const -> std::pair<std::vector<unsigned char>, bool> {
     spdlog::info("Reading characteristic: {}", characteristicUuid.value);
     if (!isConnected()) {
         spdlog::info("  Not connected to any device.");
@@ -162,28 +159,25 @@ std::pair<std::vector<uint8_t>, bool> BleClient::read(const UUID &characteristic
     return {data, true};
 }
 
-void BleClient::fetchCharacteristics() {
+auto BleClient::fetchCharacteristics() -> void {
     spdlog::debug("Fetching characteristics...");
     try {
         const auto services = connection->GetGattServicesAsync().get();
 
-        for (const auto &service: services.Services()) {
-            auto serviceUuid = WinrtUtils::uuidFromGuid(service.Uuid());
-            spdlog::debug("  Service UUID: {}", serviceUuid.value);
-            auto characteristics = service.GetCharacteristicsAsync().get();
-            for (const auto &characteristic: characteristics.Characteristics()) {
-                auto charUuid = WinrtUtils::uuidFromGuid(characteristic.Uuid());
-                spdlog::debug("    Characteristic UUID: {}", charUuid.value);
-                this->characteristics[charUuid] = characteristic;
+        for (const auto &gattService: services.Services()) {
+            const auto [serviceId] = WinrtUtils::uuidFromGuid(gattService.Uuid());
+
+            spdlog::debug("  Service UUID: {}", serviceId);
+            auto characteristics = gattService.GetCharacteristicsAsync().get();
+            for (const auto &gattCharacteristic: characteristics.Characteristics()) {
+                const auto characteristic = WinrtUtils::uuidFromGuid(gattCharacteristic.Uuid());
+
+                spdlog::debug("    Characteristic UUID: {}", characteristic.value);
+                this->characteristics[characteristic] = gattCharacteristic;
             }
         }
         spdlog::debug("  Characteristics fetched.");
-    } catch (const winrt::hresult_error &e) {
-        spdlog::error("  Exception: {}", winrt::to_string(e.message()));
-    } catch (const std::exception &e) {
-        spdlog::error("  Standard exception: {}", e.what());
-        throw e;
-    } catch (...) {
-        spdlog::error("  Unknown exception occurred.");
+    } catch (const hresult_error &e) {
+        spdlog::error("  Exception: {}", to_string(e.message()));
     }
 }

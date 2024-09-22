@@ -12,9 +12,11 @@
 
 #include "Events.h"
 
-WorkoutSummaryWindow::WorkoutSummaryWindow(const std::shared_ptr<ControllerHandler> &handler,
-                                           QWidget *parent): AppWindow(
-    handler, parent) {
+WorkoutSummaryWindow::WorkoutSummaryWindow(
+    const std::shared_ptr<ControllerHandler> &handler,
+    QWidget *parent
+): AppWindow(handler, parent) {
+
     eventHandlers.insert({
         getWorkoutSummaryType(), [this](QEvent *event) {
             const auto data = dynamic_cast<WorkoutSummaryEvent *>(event);
@@ -23,7 +25,6 @@ WorkoutSummaryWindow::WorkoutSummaryWindow(const std::shared_ptr<ControllerHandl
     });
 
     summaryPanel = new WorkoutSummaryPanel(this);
-
     const auto startLabel = new ButtonLabel(Constants::Buttons::START, true, this);
     connect(startLabel, &ButtonLabel::clicked, this, &WorkoutSummaryWindow::back);
 
@@ -43,14 +44,14 @@ WorkoutSummaryWindow::WorkoutSummaryWindow(const std::shared_ptr<ControllerHandl
     setCentralWidget(centralWidget);
 }
 
-void WorkoutSummaryWindow::workoutSummaryReceived(const WorkoutEvent &data) const {
+auto WorkoutSummaryWindow::workoutSummaryReceived(const WorkoutEvent &data) const -> void  {
     summaryPanel->handleWorkoutEvent(data);
 }
 
-void WorkoutSummaryWindow::next() {
+auto WorkoutSummaryWindow::next() -> void  {
     controllerHandler->next(Constants::Commands::QUIT);
 }
 
-void WorkoutSummaryWindow::back() {
+auto WorkoutSummaryWindow::back() -> void  {
     controllerHandler->next(Constants::Screens::SELECT_WORKOUT);
 }

@@ -7,20 +7,19 @@ class MetricsPanel final : public QWidget {
     Q_OBJECT
 
 public:
-    explicit MetricsPanel(Data::DataField dataField, QWidget *parent = nullptr);
+    explicit MetricsPanel(const Data::DataField &dataField, QWidget *parent = nullptr);
 
 public slots:
-    void next();
-    void prev();
+    auto next() -> void;
+    auto prev() -> void;
 
-    void measurementsReceived(const WorkoutEvent &data);
-
-private:
-    void updateTextLabel();
-
-    void updateValueLabel();
+    auto measurementsReceived(const WorkoutEvent &data) -> void;
 
 private:
+    auto updateTextLabel() const -> void;
+
+    auto updateValueLabel() const -> void;
+
     TextLabel *label;
     ValueLabel *valueLabel;
 

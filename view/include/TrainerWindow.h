@@ -9,9 +9,9 @@ class TrainerWindow final : public AppWindow {
 public:
     explicit TrainerWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent = nullptr);
 
-    void deviceSelected(const DeviceSelected event) const;
+    auto deviceSelected(const DeviceSelected &event) const -> void;
 
-    void next() override;
+    auto next() -> void override;
 
 private:
     SelectDevicePanel *selectTrainerPanel;

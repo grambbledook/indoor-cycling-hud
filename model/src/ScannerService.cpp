@@ -6,14 +6,14 @@ ScannerService::ScannerService(const std::shared_ptr<Model> &model, Scanner scan
     scanner(std::move(scanner)) {
 }
 
-void ScannerService::startScan(const std::function<void(const std::shared_ptr<Device> &device)> &receiver) {
+auto ScannerService::startScan(const std::function<void(const std::shared_ptr<Device> &device)> &receiver)-> void{
     scanner.startScan(receiver);
 }
 
-void ScannerService::startScan() {
+auto ScannerService::startScan()-> void {
     scanner.startScan(std::bind(&Model::addDevice, model, std::placeholders::_1));
 }
 
-void ScannerService::stopScan() const {
+auto ScannerService::stopScan() const-> void {
     scanner.stopScan();
 }

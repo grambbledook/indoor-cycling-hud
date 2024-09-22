@@ -17,26 +17,26 @@ class WorkoutSummaryPanel final : public QMainWindow {
 public:
     explicit WorkoutSummaryPanel(QWidget *parent = nullptr);
 
-    void handleWorkoutEvent(const WorkoutEvent &data);
+    auto handleWorkoutEvent(const WorkoutEvent &data) const -> void;
 
 private:
-    QTableWidgetItem *duration;
+    QTableWidgetItem *duration{};
 
-    QTableWidgetItem *maxHrm;
-    QTableWidgetItem *minHrm;
-    QTableWidgetItem *avgHrm;
+    QTableWidgetItem *maxHrm{};
+    QTableWidgetItem *minHrm{};
+    QTableWidgetItem *avgHrm{};
 
-    QTableWidgetItem *maxCadence;
-    QTableWidgetItem *minCadence;
-    QTableWidgetItem *avgCadence;
+    QTableWidgetItem *maxCadence{};
+    QTableWidgetItem *minCadence{};
+    QTableWidgetItem *avgCadence{};
 
-    QTableWidgetItem *maxSpeed;
-    QTableWidgetItem *minSpeed;
-    QTableWidgetItem *avgSpeed;
+    QTableWidgetItem *maxSpeed{};
+    QTableWidgetItem *minSpeed{};
+    QTableWidgetItem *avgSpeed{};
 
-    QTableWidgetItem *maxPower;
-    QTableWidgetItem *minPower;
-    QTableWidgetItem *avgPower;
+    QTableWidgetItem *maxPower{};
+    QTableWidgetItem *minPower{};
+    QTableWidgetItem *avgPower{};
 
     TextLabel *durationField;
     ValueLabel *durationValue;

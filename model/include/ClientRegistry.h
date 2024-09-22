@@ -6,14 +6,15 @@
 #include "BleClient.h" // Assuming this is the class similar to the Python BleClient
 
 class DeviceRegistry {
-private:
-    std::unordered_map<std::string, std::shared_ptr<BleClient>> clients;
+    std::unordered_map<std::string, std::shared_ptr<BleClient> > clients;
     std::mutex mutex;
 
 public:
     DeviceRegistry();
+
     ~DeviceRegistry();
 
-    std::shared_ptr<BleClient> connect(const Device& device);
-    void stop();
+    auto connect(const Device &device) -> std::shared_ptr<BleClient>;
+
+    auto stop() -> void;
 };

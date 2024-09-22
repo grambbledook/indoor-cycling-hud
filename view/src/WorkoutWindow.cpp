@@ -11,8 +11,10 @@
 #include "Constants.h"
 #include "Events.h"
 
-WorkoutWindow::WorkoutWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent): AppWindow(
-    handler, parent) {
+WorkoutWindow::WorkoutWindow(
+    const std::shared_ptr<ControllerHandler> &handler,
+    QWidget *parent
+): AppWindow(handler, parent) {
     eventHandlers.insert({
         getWorkoutEventType(), [this](QEvent *event) {
             const auto data = dynamic_cast<WorkoutEventEvent *>(event);
@@ -41,14 +43,13 @@ WorkoutWindow::WorkoutWindow(const std::shared_ptr<ControllerHandler> &handler, 
     layout->addWidget(finishLabel, 4, 0, 1, 1, Qt::AlignmentFlag::AlignCenter);
 }
 
-void WorkoutWindow::measurementsReceived(const WorkoutEvent &data) {
+auto WorkoutWindow::measurementsReceived(const WorkoutEvent &data) const -> void {
     heartRateMonitorPanel->measurementsReceived(data);
     cadenceSensorPanel->measurementsReceived(data);
     speedSensorPanel->measurementsReceived(data);
     powerMeterPanel->measurementsReceived(data);
 }
 
-void WorkoutWindow::next() {
-    spdlog::info("WorkoutWindow::next");
+auto WorkoutWindow::next() -> void {
     controllerHandler->next(Constants::Screens::WORKOUT_SUMMARY);
 }

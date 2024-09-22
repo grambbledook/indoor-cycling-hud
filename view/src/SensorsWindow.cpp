@@ -10,8 +10,10 @@
 #include "Events.h"
 #include "SupportedServices.h"
 
-SensorsWindow::SensorsWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent): AppWindow(
-    handler, parent) {
+SensorsWindow::SensorsWindow(
+    const std::shared_ptr<ControllerHandler> &handler,
+    QWidget *parent
+): AppWindow(handler, parent) {
     eventHandlers.insert({
         getDeviceSelectedType(), [this](QEvent *event) {
             const auto device = dynamic_cast<DeviceSelectedEvent *>(event);
@@ -75,7 +77,7 @@ SensorsWindow::SensorsWindow(const std::shared_ptr<ControllerHandler> &handler, 
     setCentralWidget(centralWidget);
 }
 
-void SensorsWindow::deviceSelected(const DeviceSelected &event) const {
+auto SensorsWindow::deviceSelected(const DeviceSelected &event) const -> void {
     spdlog::info("SensorsWindow::deviceSelected");
 
     if (event.service == Service::HEART_RATE) {
@@ -95,17 +97,17 @@ void SensorsWindow::deviceSelected(const DeviceSelected &event) const {
     }
 }
 
-void SensorsWindow::measurementsReceived(const WorkoutEvent &measurements_update) const {
+auto SensorsWindow::measurementsReceived(const WorkoutEvent &measurements_update) const -> void {
     heartRateMonitorPanel->measurementsReceived(measurements_update);
     cadencePanel->measurementsReceived(measurements_update);
     speedPanel->measurementsReceived(measurements_update);
     powerPanel->measurementsReceived(measurements_update);
 }
 
-void SensorsWindow::back() {
+auto SensorsWindow::back() -> void {
     controllerHandler->next(Constants::Screens::TRAINER);
 }
 
-void SensorsWindow::next() {
+auto SensorsWindow::next() -> void {
     controllerHandler->next(Constants::Screens::SELECT_WORKOUT);
 }

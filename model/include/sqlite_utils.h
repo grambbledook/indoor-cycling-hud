@@ -7,7 +7,7 @@
 
 class SQLiteConnection {
 public:
-    SQLiteConnection(const std::string &db_file) {
+    explicit SQLiteConnection(const std::string &db_file) {
         if (sqlite3_open(db_file.c_str(), &db) != SQLITE_OK) {
             throw std::runtime_error("Failed to open SQLite3 database");
         }
@@ -19,7 +19,7 @@ public:
         }
     }
 
-    sqlite3* get() const {
+    [[nodiscard]] auto get() const -> sqlite3* {
         return db;
     }
 
@@ -29,7 +29,7 @@ private:
 
 class SQLiteStatement {
 public:
-    SQLiteStatement(SQLiteConnection *conn, const std::string &sql) {
+    SQLiteStatement(const SQLiteConnection *conn, const std::string &sql) {
         if (sqlite3_prepare_v2(conn->get(), sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
             throw std::runtime_error("Failed to prepare statement");
         }
@@ -41,7 +41,7 @@ public:
         }
     }
 
-    sqlite3_stmt* get() const {
+    [[nodiscard]] auto get() const -> sqlite3_stmt* {
         return stmt;
     }
 

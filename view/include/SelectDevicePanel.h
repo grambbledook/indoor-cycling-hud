@@ -21,11 +21,11 @@ public:
         QWidget *parent = nullptr
     );
 
-    void deviceSelected(const DeviceSelected &event);
-    void measurementsReceived(const WorkoutEvent &measurements_update);
+    auto deviceSelected(const DeviceSelected &event) -> void;
+    auto measurementsReceived(const WorkoutEvent &measurements_update) const -> void;
 
 public slots:
-    void handleDeviceButtonClick() const;
+    auto handleDeviceButtonClick() const -> void;
 
 private:
     const AppService &service;

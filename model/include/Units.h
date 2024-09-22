@@ -9,7 +9,7 @@ enum class DistanceUnit {
     MILES
 };
 
-inline const char *distanceUnitToString(const DistanceUnit unit) {
+inline auto distanceUnitToString(const DistanceUnit unit) -> const char * {
     switch (unit) {
         case DistanceUnit::METERS:
             return "Kilometers";
@@ -20,7 +20,7 @@ inline const char *distanceUnitToString(const DistanceUnit unit) {
     }
 }
 
-inline const char *distanceUnitToShortString(const DistanceUnit unit) {
+inline auto distanceUnitToShortString(const DistanceUnit unit) -> const char * {
     switch (unit) {
         case DistanceUnit::METERS:
             return "km";
@@ -31,7 +31,7 @@ inline const char *distanceUnitToShortString(const DistanceUnit unit) {
     }
 }
 
-inline double getSpeedConversionFactor(const DistanceUnit unit) {
+inline auto getSpeedConversionFactor(const DistanceUnit unit) -> double {
     switch (unit) {
         // 1 m/s = 3.6 km/h
         case DistanceUnit::METERS:

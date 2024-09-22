@@ -13,11 +13,11 @@ class Scanner {
 public:
     explicit Scanner(const std::unordered_map<UUID, GattService, UUID::Hash> &supportedGattServices);
 
-    void startScan(const std::function<void(std::shared_ptr<Device>)> &receiver);
+    auto startScan(const std::function<void(std::shared_ptr<Device>)> &receiver)  -> void ;
 
-    void stopScan() const;
+    auto stopScan() const -> void ;
 
-    void resetPreviousScans();
+    auto resetPreviousScans() -> void ;
 
 private:
     const std::unordered_map<UUID, GattService, UUID::Hash> supportedGattServices;

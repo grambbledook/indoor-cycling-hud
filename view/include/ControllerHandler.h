@@ -6,12 +6,13 @@
 
 class ControllerHandler {
 public:
-    void subscribe(const std::function<void(const std::string&, const std::vector<std::any>&)> &receiver) const {
+    auto subscribe(
+        const std::function<void(const std::string &, const std::vector<std::any> &)> &receiver) const -> void {
         views.push_back(receiver);
     }
 
     template<typename... Args>
-    void next(const std::string &path, Args... args) const {
+    auto next(const std::string &path, Args... args) const -> void {
         const std::vector<std::any> params = {args...};
         for (const auto &receiver: views) {
             receiver(path, params);
@@ -19,5 +20,5 @@ public:
     }
 
 private:
-    mutable std::vector<std::function<void(const std::string&, const std::vector<std::any>&)>> views;
+    mutable std::vector<std::function<void(const std::string &, const std::vector<std::any> &)> > views;
 };

@@ -82,41 +82,39 @@ public:
 
     ~WorkoutDataStorage();
 
-    void aggregateHeartRate(const unsigned long val);
+    auto aggregateHeartRate(unsigned long val) const -> void;
 
-    Aggregate getHeartRate();
+    [[nodiscard]] auto getHeartRate() const -> Aggregate;
 
-    void aggregateCadence(const unsigned long val);
+    auto aggregateCadence(unsigned long val) const -> void;
 
-    Aggregate getCadence();
+    [[nodiscard]] auto getCadence() const -> Aggregate;
 
-    void aggregateSpeed(const unsigned long val);
+    auto aggregateSpeed(unsigned long val) const -> void;
 
-    Aggregate getSpeed();
+    [[nodiscard]] auto getSpeed() const -> Aggregate;
 
-    void aggregatePower(const unsigned long val);
+    auto aggregatePower(unsigned long val) const -> void;
 
-    Aggregate getPower();
+    [[nodiscard]] auto getPower() const -> Aggregate;
 
-    void newWorkout();
+    auto newWorkout() -> void;
 
-    void startWorkout();
+    auto startWorkout() const -> void;
 
-    void endWorkout();
+    auto endWorkout() const -> void;
 
+    [[nodiscard]] auto getTotalWorkoutDuration() const -> long long;
 
-    [[nodiscard]] long long getTotalWorkoutDuration() const;
+    [[nodiscard]] auto getCurrentWorkoutDuration() const -> long long;
 
-    [[nodiscard]] long long getCurrentWorkoutDuration() const;
-
-    [[nodiscard]] long long getWorkoutDuration(const std::string &query) const;
-
-private:
-    void insert(const unsigned long, const std::string &type);
-
-    Aggregate select(const std::string &type);
+    [[nodiscard]] auto getWorkoutDuration(const std::string &query) const -> long long;
 
 private:
+    auto insert(unsigned long, const std::string &type) const -> void;
+
+    [[nodiscard]] auto select(const std::string &type) const -> Aggregate;
+
     static long id;
     std::unique_ptr<SQLiteConnection> connection;
     std::filesystem::path db_file;

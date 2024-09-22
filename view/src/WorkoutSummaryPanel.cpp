@@ -119,7 +119,7 @@ WorkoutSummaryPanel::WorkoutSummaryPanel(QWidget *parent): QMainWindow(parent) {
     adjustSize();
 }
 
-void WorkoutSummaryPanel::handleWorkoutEvent(const WorkoutEvent &data) {
+auto WorkoutSummaryPanel::handleWorkoutEvent(const WorkoutEvent &data) const -> void {
     spdlog::info("WorkoutSummaryPanel::workoutSummaryReceived");
 
     durationValue->setText(QString::fromStdString(Data::DURATION.value(data)));

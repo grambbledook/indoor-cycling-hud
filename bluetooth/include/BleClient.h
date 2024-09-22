@@ -18,23 +18,22 @@ class BleClient {
 public:
     explicit BleClient(Device device);
 
-    void connect();
+    auto connect() -> void;
 
-    bool subscribe(const UUID &characteristicUuid,
-                   const std::function<void(std::shared_ptr<Device>, std::vector<uint8_t>)> &receiver) const;
+    auto subscribe(const UUID &characteristicUuid,
+                   const std::function<void(std::shared_ptr<Device>, std::vector<unsigned char>)> &receiver) const -> bool;
 
-    bool unsubscribe(const UUID &characteristicUuid) const;
+    [[nodiscard]] auto unsubscribe(const UUID &characteristicUuid) const -> bool;
 
-    void disconnect() const;
+    auto disconnect() const -> void;
 
-    [[nodiscard]] bool isConnected() const;
+    [[nodiscard]] auto isConnected() const -> bool;
 
-    [[nodiscard]] std::pair<std::vector<uint8_t>, bool> read(const UUID &characteristicUuid) const;
-
-private:
-    void fetchCharacteristics();
+    [[nodiscard]] auto read(const UUID &characteristicUuid) const -> std::pair<std::vector<unsigned char>, bool>;
 
 private:
+    auto fetchCharacteristics() -> void;
+
     Device device;
     std::shared_ptr<BluetoothLEDevice> connection;
     std::unordered_map<UUID, std::any, UUID::Hash> characteristics;

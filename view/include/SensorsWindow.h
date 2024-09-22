@@ -11,11 +11,11 @@ public:
 
     explicit SensorsWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent = nullptr);
 
-    void deviceSelected(const DeviceSelected &event) const;
+    auto deviceSelected(const DeviceSelected &event) const -> void;
 
-    void back() override;
+    auto back() -> void override;
 
-    void next() override;
+    auto next() -> void override;
 
 private:
     SelectDevicePanel *heartRateMonitorPanel;

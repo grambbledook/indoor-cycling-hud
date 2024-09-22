@@ -64,23 +64,23 @@ SystemTray::SystemTray(
     tray_icon->show();
 }
 
-void SystemTray::switchTheme() const {
+auto SystemTray::switchTheme() const -> void {
     handler->next(Constants::Commands::SWITCH_THEME);
 }
 
-void SystemTray::quit() const {
+auto SystemTray::quit() const -> void {
     handler->next(Constants::Commands::QUIT);
 }
 
-void SystemTray::setWheelSize(const WheelSize size) const {
+auto SystemTray::setWheelSize(const WheelSize size) const -> void {
     handler->next(Constants::Commands::SET_WHEEL_SIZE, size);
 }
 
-void SystemTray::setSpeedUnit(const DistanceUnit unit) const {
+auto SystemTray::setSpeedUnit(const DistanceUnit unit) const -> void {
     handler->next(Constants::Commands::SET_SPEED_UNIT, unit);
 }
 
-void SystemTray::addDevice(const std::shared_ptr<Device> &device) {
+auto SystemTray::addDevice(const std::shared_ptr<Device> &device) -> void {
     for (const auto action: device_group->actions()) {
         if (action->data().value<std::shared_ptr<Device> >()->deviceId() == device->deviceId()) {
             return;
@@ -95,11 +95,11 @@ void SystemTray::addDevice(const std::shared_ptr<Device> &device) {
     connect(action, &QAction::triggered, this, [this, device] { this->handleSetDevice(device); });
 }
 
-void SystemTray::handleSetDevice(const std::shared_ptr<Device> &device) const {
+auto SystemTray::handleSetDevice(const std::shared_ptr<Device> &device) const -> void {
     handler->next(Constants::Commands::CONNECT_TO_DEVICE, device);
 }
 
-bool SystemTray::event(QEvent *event) {
+auto SystemTray::event(QEvent *event) -> bool {
     if (event->type() > QEvent::MaxUser or event->type() < QEvent::User) {
         return QSystemTrayIcon::event(event);
     }

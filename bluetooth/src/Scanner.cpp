@@ -23,7 +23,7 @@ Scanner::Scanner(const std::unordered_map<UUID, GattService, UUID::Hash> &suppor
     supportedGattServices) {
 }
 
-void Scanner::startScan(const std::function<void(std::shared_ptr<Device>)> &receiver) {
+auto Scanner::startScan(const std::function<void(std::shared_ptr<Device>)> &receiver) -> void {
     resetPreviousScans();
 
     watcher->ScanningMode(BluetoothLEScanningMode::Active);
@@ -74,12 +74,12 @@ void Scanner::startScan(const std::function<void(std::shared_ptr<Device>)> &rece
     spdlog::info("Scanning for BLE devices...");
 }
 
-void Scanner::resetPreviousScans() {
+auto Scanner::resetPreviousScans() -> void {
     this->stopScan();
     watcher = std::make_shared<BluetoothLEAdvertisementWatcher>();
 }
 
-void Scanner::stopScan() const {
+auto Scanner::stopScan() const -> void {
     if (!watcher) return;
 
     spdlog::info("Stopping scan routine...");

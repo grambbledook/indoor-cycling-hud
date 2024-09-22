@@ -16,20 +16,20 @@ ViewNavigator::ViewNavigator(
     const std::shared_ptr<WheelSizeSelectionController> &wheelSizeSelectionController,
     const std::shared_ptr<SpeedUnitController> &speedUnitController,
     const std::shared_ptr<TrayConnectToDeviceController> &trayConnectToDeviceController
-): connectToDeviceController(connectToDeviceController), controllerHandler(controllerHandler),
+): controllerHandler(controllerHandler), connectToDeviceController(connectToDeviceController),
    deviceDialogController(deviceDialogController), trainerWindowController(trainerWindowController),
-   sensorsWindowController(sensorsWindowController), shutdownController(shutdownController),
-   switchThemeController(switchThemeController), workoutWindowController(workoutWindowController),
-   workoutSummaryWindowController(workoutSummaryWindowController),
-   selectWorkoutWindowController(selectWorkoutWindowController),
+   sensorsWindowController(sensorsWindowController), selectWorkoutWindowController(selectWorkoutWindowController),
+   workoutWindowController(workoutWindowController), workoutSummaryWindowController(workoutSummaryWindowController),
+   switchThemeController(switchThemeController), shutdownController(shutdownController),
    wheelSizeSelectionController(wheelSizeSelectionController), speedUnitController(speedUnitController),
    trayConnectToDeviceController(trayConnectToDeviceController) {
-    controllerHandler->subscribe([this](const std::string &screen, const std::vector<std::any> &args) {
+    auto receiver = [this](const std::string &screen, const std::vector<std::any> &args) {
         this->nextScreen(screen, args);
-    });
+    };
+    controllerHandler->subscribe(receiver);
 }
 
-void ViewNavigator::nextScreen(const std::string &command, const std::vector<std::any> &args) const {
+auto ViewNavigator::nextScreen(const std::string &command, const std::vector<std::any> &args) const -> void {
     if (command == Constants::Screens::TRAINER) {
         trainerWindowController->handleRequest();
     }

@@ -6,16 +6,14 @@ WorkoutPacer::WorkoutPacer(const std::shared_ptr<Model> &model): model(model) {
     connect(&timer, &QTimer::timeout, this, &WorkoutPacer::tick);
 }
 
-void WorkoutPacer::start() {
+auto WorkoutPacer::start() -> void {
     timer.start(500);
 }
 
-void WorkoutPacer::stop() {
+auto WorkoutPacer::stop() -> void {
     timer.stop();
 }
 
-void WorkoutPacer::tick() const {
-    spdlog::info("Doing work...");
+auto WorkoutPacer::tick() const -> void {
     model->tick();
-
 }

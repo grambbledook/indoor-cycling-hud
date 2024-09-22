@@ -1,8 +1,8 @@
 #pragma once
 
-#include <memory> // For std::shared_ptr and std::move
-#include <string> // For std::string
-#include <type_traits> // For std::is_base_of_v
+#include <memory>
+#include <string>
+#include <type_traits>
 
 #include "Data.h"
 
@@ -105,8 +105,8 @@ struct SpecificTrainerData : FecMeasurement {
                                  const int instantaneousPower, const int accumulatedPower,
                                  std::string targetPowerLimits, const TrainerStatus trainerStatus, FeState feState)
         : updateEventCount(updateEventCount), instantaneousCadence(instantaneousCadence),
-          targetPowerLimits(std::move(targetPowerLimits)),
-          instantaneousPower(instantaneousPower), accumulatedPower(accumulatedPower), trainerStatus(trainerStatus),
+          instantaneousPower(instantaneousPower),
+          accumulatedPower(accumulatedPower), targetPowerLimits(std::move(targetPowerLimits)), trainerStatus(trainerStatus),
           feState(std::move(feState)) {
     }
 

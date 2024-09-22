@@ -22,12 +22,12 @@ public:
        workoutWindow(workoutWindow), workoutSummaryWindow(workoutSummaryWindow), tray(tray) {
     }
 
-    void setDeviceDialog(const std::shared_ptr<DeviceDialog> &deviceDialog) {
+    auto setDeviceDialog(const std::shared_ptr<DeviceDialog> &deviceDialog)  -> void{
         std::lock_guard guard(mutex);
         this->deviceDialog = deviceDialog;
     }
 
-    void deviceDiscovered(const DeviceDiscovered &data) const {
+    auto deviceDiscovered(const DeviceDiscovered &data) const  -> void{
         const auto first = new DeviceDiscoveredEvent(data);
         QCoreApplication::postEvent(deviceDialog.get(), first);
 
@@ -35,7 +35,7 @@ public:
         QCoreApplication::postEvent(tray.get(), second);
     }
 
-    void deviceSelected(const DeviceSelected &data) const {
+    auto deviceSelected(const DeviceSelected &data) const  -> void{
         auto a = std::make_shared<DeviceSelected>(data);
         auto b = std::make_shared<DeviceSelected>(data);
 
@@ -46,7 +46,7 @@ public:
         QCoreApplication::postEvent(sensorsWindow.get(), secondEvent);
     }
 
-    void workoutData(const WorkoutEvent &data) const {
+    auto workoutData(const WorkoutEvent &data) const  -> void{
         const auto firstEvent = new WorkoutEventEvent(data);
         QCoreApplication::postEvent(sensorsWindow.get(), firstEvent);
 
@@ -54,7 +54,7 @@ public:
         QCoreApplication::postEvent(workoutWindow.get(), secondEvent);
     }
 
-    void workoutSummary(const WorkoutEvent &data) const {
+    auto workoutSummary(const WorkoutEvent &data) const  -> void{
         const auto event = new WorkoutSummaryEvent(data);
         QCoreApplication::postEvent(workoutSummaryWindow.get(), event);
     }

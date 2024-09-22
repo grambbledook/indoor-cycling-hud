@@ -10,7 +10,7 @@
 
 
 template<typename T, typename T0>
-void ViewController<T, T0>::renderView() {
+auto ViewController<T, T0>::renderView() -> void {
     auto x = 300;
     auto y = 300;
     if (!this->history->empty()) {
@@ -30,8 +30,8 @@ void ViewController<T, T0>::renderView() {
     this->history->push(view);
 }
 
-void TrainerWindowController::handleRequest(void *) {
-    if (state->state != ApplicationState::STARTING and state->state != ApplicationState::WAITING_FOR_SENSORS) {
+auto TrainerWindowController::handleRequest(void *) -> void {
+    if (state->state != ApplicationState::STARTING && state->state != ApplicationState::WAITING_FOR_SENSORS) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
     }
@@ -41,7 +41,7 @@ void TrainerWindowController::handleRequest(void *) {
     state->state = ApplicationState::WAITING_FOR_TRAINER;
 }
 
-void SensorsWindowController::handleRequest(void *) {
+auto SensorsWindowController::handleRequest(void *) -> void {
     if (state->state != ApplicationState::WAITING_FOR_TRAINER) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -58,8 +58,8 @@ void SensorsWindowController::handleRequest(void *) {
     state->state = ApplicationState::WAITING_FOR_SENSORS;
 }
 
-void SelectWorkoutWindowController::handleRequest(void *) {
-    if (state->state != ApplicationState::WAITING_FOR_SENSORS and state->state != ApplicationState::WORKOUT_SUMMARY) {
+auto SelectWorkoutWindowController::handleRequest(void *) -> void {
+    if (state->state != ApplicationState::WAITING_FOR_SENSORS && state->state != ApplicationState::WORKOUT_SUMMARY) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
     }
@@ -69,7 +69,7 @@ void SelectWorkoutWindowController::handleRequest(void *) {
     state->state = ApplicationState::WAITING_FOR_WORKOUT;
 }
 
-void WorkoutWindowController::handleRequest(void *) {
+auto WorkoutWindowController::handleRequest(void *) -> void {
     if (state->state != ApplicationState::WAITING_FOR_WORKOUT) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -81,7 +81,7 @@ void WorkoutWindowController::handleRequest(void *) {
     state->state = ApplicationState::IN_WORKOUT;
 }
 
-void WorkoutSummaryWindowController::handleRequest(void *) {
+auto WorkoutSummaryWindowController::handleRequest(void *) -> void {
     if (state->state != ApplicationState::IN_WORKOUT) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -93,8 +93,8 @@ void WorkoutSummaryWindowController::handleRequest(void *) {
     state->state = ApplicationState::WORKOUT_SUMMARY;
 }
 
-void ShowDeviceDialogController::handleRequest(void *) {
-    if (state->state != ApplicationState::WAITING_FOR_SENSORS and state->state !=
+auto ShowDeviceDialogController::handleRequest(void *) -> void {
+    if (state->state != ApplicationState::WAITING_FOR_SENSORS && state->state !=
         ApplicationState::WAITING_FOR_TRAINER) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -116,7 +116,7 @@ void ShowDeviceDialogController::handleRequest(void *) {
     }
 }
 
-void ConnectToDeviceController::handleRequest(void *) {
+auto ConnectToDeviceController::handleRequest(void *) -> void {
     if (state->state == ApplicationState::EXITING) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -168,7 +168,7 @@ void ConnectToDeviceController::handleRequest(void *) {
     auto future = QtConcurrent::run(setupConnection);
 }
 
-void TrayConnectToDeviceController::handleRequest(const std::shared_ptr<Device> &device) {
+auto TrayConnectToDeviceController::handleRequest(const std::shared_ptr<Device> &device) -> void {
     if (state->state == ApplicationState::EXITING) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -195,7 +195,7 @@ void TrayConnectToDeviceController::handleRequest(const std::shared_ptr<Device> 
     auto future = QtConcurrent::run(setupConnection);
 }
 
-void SwitchThemeController::handleRequest(void *) {
+auto SwitchThemeController::handleRequest(void *) -> void {
     state->darkThemeEnabled = !state->darkThemeEnabled;
 
     const auto theme = state->darkThemeEnabled ? StyleSheets::THEME_DARK : StyleSheets::THEME_BRIGHT;
@@ -222,19 +222,19 @@ void SwitchThemeController::handleRequest(void *) {
     workoutSummaryWindow->update();
 }
 
-void ShutdownController::handleRequest(void *) {
+auto ShutdownController::handleRequest(void *) -> void {
     state->state = ApplicationState::EXITING;
 
     registry->stop();
     QApplication::quit();
 }
 
-void WheelSizeSelectionController::handleRequest(WheelSize size) {
+auto WheelSizeSelectionController::handleRequest(WheelSize size) -> void {
     model->setWheelSize(size);
     spdlog::info("Wheel size set to: {}", size);
 }
 
-void SpeedUnitController::handleRequest(DistanceUnit size) {
+auto SpeedUnitController::handleRequest(DistanceUnit size) -> void {
     model->setSpeedUnit(size);
     spdlog::info("Speed unit set to: {}", size);
 }

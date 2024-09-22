@@ -12,7 +12,7 @@ AppWindow::AppWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget 
 
 AppWindow::~AppWindow() = default;
 
-void AppWindow::mousePressEvent(QMouseEvent *event) {
+auto AppWindow::mousePressEvent(QMouseEvent *event) -> void  {
     if (event->button() == Qt::MouseButton::LeftButton) {
         m_drag = true;
         m_DragPosition = event->globalPosition() - this->pos();
@@ -20,7 +20,7 @@ void AppWindow::mousePressEvent(QMouseEvent *event) {
     }
 }
 
-void AppWindow::mouseMoveEvent(QMouseEvent *event) {
+auto AppWindow::mouseMoveEvent(QMouseEvent *event) -> void  {
     if (event->buttons() == Qt::MouseButton::LeftButton && m_drag) {
         const auto newPosition = event->globalPosition() - m_DragPosition;
         this->move(newPosition.toPoint());
@@ -28,30 +28,31 @@ void AppWindow::mouseMoveEvent(QMouseEvent *event) {
     }
 }
 
-void AppWindow::mouseReleaseEvent(QMouseEvent *event) {
+auto AppWindow::mouseReleaseEvent(QMouseEvent *event) -> void  {
     m_drag = false;
     update();
 }
 
-void AppWindow::back() {
+auto AppWindow::back() -> void  {
     spdlog::info("AppWindow::back");
 }
 
-void AppWindow::next() {
+auto AppWindow::next() -> void  {
     spdlog::info("AppWindow::next");
 }
 
-bool AppWindow::event(QEvent *event) {
-    if (event->type() <= QEvent::MaxUser and event->type() >= QEvent::User) {
-        if (eventHandlers.contains(event->type())) {
+auto AppWindow::event(QEvent *event) -> bool {
+    const auto eventType = event->type();
 
-            eventHandlers[event->type()](event);
+    if (eventType >= QEvent::User && eventType <= QEvent::MaxUser) {
+        if (eventHandlers.contains(eventType)) {
+            eventHandlers[eventType](event);
             return true;
         }
     }
 
-    if (eventHandlers.contains(event->type())) {
-        eventHandlers[event->type()](event);
+    if (eventHandlers.contains(eventType)) {
+        eventHandlers[eventType](event);
         return true;
     }
 

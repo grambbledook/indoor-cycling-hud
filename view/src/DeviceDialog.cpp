@@ -11,14 +11,14 @@
 #include "StyleSheets.h"
 
 DeviceDialog::DeviceDialog(
-    const std::vector<std::shared_ptr<Device>> &data,
+    const std::vector<std::shared_ptr<Device> > &data,
     const std::shared_ptr<ControllerHandler> &handler, QWidget *parent
 ) : QDialog(parent),
     handler(handler), listWidget(std::make_shared<QListWidget>(this)) {
     connect(listWidget.get(), &QListWidget::itemClicked, this, &DeviceDialog::itemSelected);
     connect(listWidget.get(), &QListWidget::itemDoubleClicked, this, &DeviceDialog::itemConfirmed);
 
-    for (const auto &device : data) {
+    for (const auto &device: data) {
         renderDevice(device);
     }
     const auto closeLabel = new ButtonLabel(Constants::Buttons::OK, true, this);
@@ -46,12 +46,12 @@ DeviceDialog::DeviceDialog(
     setAttribute(Qt::WidgetAttribute::WA_TranslucentBackground);
 }
 
-void DeviceDialog::itemConfirmed(const QListWidgetItem *item) {
+auto DeviceDialog::itemConfirmed(const QListWidgetItem *item) -> void {
     itemSelected(item);
     close();
 }
 
-void DeviceDialog::renderDevice(const std::shared_ptr<Device> &device) const {
+auto DeviceDialog::renderDevice(const std::shared_ptr<Device> &device) const -> void {
     const auto deviceName = QString::fromStdString(device->name.value);
 
     const auto item = new QListWidgetItem(deviceName);
@@ -70,7 +70,7 @@ void DeviceDialog::renderDevice(const std::shared_ptr<Device> &device) const {
     listWidget->takeItem(row + 1);
 }
 
-void DeviceDialog::itemSelected(const QListWidgetItem *item) {
+auto DeviceDialog::itemSelected(const QListWidgetItem *item) -> void {
     spdlog::info("DeviceDialog::itemSelected");
 
     auto data = item->data(Qt::ItemDataRole::UserRole);
@@ -78,13 +78,13 @@ void DeviceDialog::itemSelected(const QListWidgetItem *item) {
         spdlog::info("  No data found");
     }
 
-    const auto device = get<std::shared_ptr<Device>>(data);
+    const auto device = get<std::shared_ptr<Device> >(data);
 
     spdlog::info("  Selected device: {}", device->name.value);
     selectedItem = device;
 }
 
-void DeviceDialog::closeEvent(QCloseEvent *event) {
+auto DeviceDialog::closeEvent(QCloseEvent *event) -> void {
     spdlog::info("DeviceDialog::closeEvent");
 
     if (selectedItem) {
@@ -95,7 +95,7 @@ void DeviceDialog::closeEvent(QCloseEvent *event) {
     event->accept();
 }
 
-bool DeviceDialog::event(QEvent *event) {
+auto DeviceDialog::event(QEvent *event) -> bool {
     if (event->type() > QEvent::MaxUser or event->type() < QEvent::User) {
         return QDialog::event(event);
     }

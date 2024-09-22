@@ -17,18 +17,19 @@ public:
         const std::shared_ptr<ControllerHandler> &handler);
 
 public slots:
-    void switchTheme() const;
+    auto switchTheme() const -> void;
 
-    void quit() const;
+    auto quit() const -> void;
 
-    void setWheelSize(WheelSize size) const;
+    auto setWheelSize(WheelSize size) const -> void;
 
-    void setSpeedUnit(DistanceUnit size) const;
+    auto setSpeedUnit(DistanceUnit size) const -> void;
 
-    void addDevice(const std::shared_ptr<Device> &device);
-    void handleSetDevice(const std::shared_ptr<Device> &device) const;
+    auto addDevice(const std::shared_ptr<Device> &device) -> void;
 
-    bool event(QEvent *event);
+    auto handleSetDevice(const std::shared_ptr<Device> &device) const -> void;
+
+    auto event(QEvent *event) -> bool;
 
 private:
     std::shared_ptr<TrainerWindow> trainerWindow;

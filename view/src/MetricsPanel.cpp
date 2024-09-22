@@ -8,7 +8,7 @@
 
 #include "Constants.h"
 
-MetricsPanel::MetricsPanel(Data::DataField dataField, QWidget *parent): QWidget(parent), dataField(dataField) {
+MetricsPanel::MetricsPanel(const Data::DataField &dataField, QWidget *parent): QWidget(parent), dataField(dataField) {
     auto const panel_layout = new QVBoxLayout(this);
     auto const buttonLayout = new QHBoxLayout(this);
     auto const valueLayout = new QGridLayout(this);
@@ -43,7 +43,7 @@ MetricsPanel::MetricsPanel(Data::DataField dataField, QWidget *parent): QWidget(
     setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
 }
 
-void MetricsPanel::next() {
+auto MetricsPanel::next() -> void {
     auto idx = Data::index(dataField);
 
     idx = (++idx) % Data::DATA_FIELDS.size();
@@ -52,7 +52,7 @@ void MetricsPanel::next() {
     updateValueLabel();
 }
 
-void MetricsPanel::prev() {
+auto MetricsPanel::prev() -> void {
     auto idx = Data::index(dataField);
 
     idx = ((--idx) + Data::DATA_FIELDS.size()) % Data::DATA_FIELDS.size();
@@ -61,15 +61,16 @@ void MetricsPanel::prev() {
     updateValueLabel();
 }
 
-void MetricsPanel::measurementsReceived(const WorkoutEvent &data) {
+auto MetricsPanel::measurementsReceived(const WorkoutEvent &data) -> void {
     this->data = std::make_shared<WorkoutEvent>(data);
     updateValueLabel();
 }
 
-void MetricsPanel::updateTextLabel() {
+auto MetricsPanel::updateTextLabel() const -> void {
     label->setText(QString::fromStdString(dataField.text));
 }
-void MetricsPanel::updateValueLabel() {
+
+auto MetricsPanel::updateValueLabel() const -> void {
     if (!data) {
         valueLabel->setText(QString::fromStdString("--"));
         return;

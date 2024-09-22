@@ -5,15 +5,17 @@
 #include "BleDeviceServices.h"
 
 template<DerivedFromMeasurement T>
-INotificationService<T>::INotificationService(std::shared_ptr<DeviceRegistry> &registry,
-                                              std::shared_ptr<Model> &model,
-                                              const GattService &service): registry(registry),
-                                                                           service(service),
-                                                                           model(model) {
+INotificationService<T>::INotificationService(
+    std::shared_ptr<DeviceRegistry> &registry,
+    std::shared_ptr<Model> &model,
+    const GattService &service
+): service(service),
+   model(model),
+   registry(registry) {
 }
 
 template<DerivedFromMeasurement T>
-void INotificationService<T>::setDevice(std::shared_ptr<Device> device) {
+auto INotificationService<T>::setDevice(std::shared_ptr<Device> device) -> void {
     spdlog::info("INotificationService::set_device");
 
     const auto client = this->registry->connect(*device);
@@ -30,7 +32,7 @@ void INotificationService<T>::setDevice(std::shared_ptr<Device> device) {
 }
 
 template<DerivedFromMeasurement T>
-void INotificationService<T>::unsetDevice(std::shared_ptr<Device> device) {
+auto INotificationService<T>::unsetDevice(const std::shared_ptr<Device> device) -> void {
     spdlog::info("INotificationService::unset_device");
 
     const auto client = this->registry->connect(*device);
@@ -40,17 +42,20 @@ void INotificationService<T>::unsetDevice(std::shared_ptr<Device> device) {
     spdlog::info("  Unsubscribed from {} service: {}", service.type, result);
 }
 
-HrmNotificationService::HrmNotificationService(std::shared_ptr<DeviceRegistry> &registry,
-                                               std::shared_ptr<Model> &model): INotificationService(
-    registry, model, BLE::Services::HRM) {
+HrmNotificationService::HrmNotificationService(
+    std::shared_ptr<DeviceRegistry> &registry,
+    std::shared_ptr<Model> &model
+): INotificationService(registry, model, BLE::Services::HRM) {
 }
 
-void HrmNotificationService::processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) {
+auto HrmNotificationService::processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) -> void {
     model->setHeartRateMonitor(device);
 }
 
-void HrmNotificationService::processMeasurement(const std::shared_ptr<Device> &device,
-                                                const std::vector<uint8_t> &data) {
+auto HrmNotificationService::processMeasurement(
+    const std::shared_ptr<Device> &device,
+    const std::vector<uint8_t> &data
+) -> void {
     const auto flag = data[0];
 
     int hrm;
@@ -65,12 +70,15 @@ void HrmNotificationService::processMeasurement(const std::shared_ptr<Device> &d
 }
 
 CyclingCadenceAndSpeedNotificationService::CyclingCadenceAndSpeedNotificationService(
-    std::shared_ptr<DeviceRegistry> &registry, std::shared_ptr<Model> &model): INotificationService(
-    registry, model, BLE::Services::CSC) {
+    std::shared_ptr<DeviceRegistry> &registry,
+    std::shared_ptr<Model> &model
+): INotificationService(registry, model, BLE::Services::CSC) {
 }
 
-void CyclingCadenceAndSpeedNotificationService::processFeatureAndSetDevices(BleClient &client,
-                                                                            std::shared_ptr<Device> &device) {
+auto CyclingCadenceAndSpeedNotificationService::processFeatureAndSetDevices(
+    BleClient &client,
+    std::shared_ptr<Device> &device
+) -> void {
     auto [data, success] = client.read(UUID("00002a5c-0000-1000-8000-00805f9b34fb"));
 
     if (not success) {
@@ -88,19 +96,21 @@ void CyclingCadenceAndSpeedNotificationService::processFeatureAndSetDevices(BleC
     }
 }
 
-void CyclingCadenceAndSpeedNotificationService::processMeasurement(const std::shared_ptr<Device> &device,
-                                                                   const std::vector<uint8_t> &data) {
+auto CyclingCadenceAndSpeedNotificationService::processMeasurement(
+    const std::shared_ptr<Device> &device,
+    const std::vector<uint8_t> &data
+) -> void {
     const auto flag = data[0];
     auto offset = 1;
 
     if (flag & 0b01) {
-        const auto cwr = static_cast<uint32_t>(data[0 + offset]) |
-                         static_cast<uint32_t>(data[1 + offset]) << 8 |
-                         static_cast<uint32_t>(data[2 + offset]) << 16 |
-                         static_cast<uint32_t>(data[3 + offset]) << 24;
+        const auto cwr = static_cast<unsigned long>(data[0 + offset]) |
+                         static_cast<unsigned long>(data[1 + offset]) << 8 |
+                         static_cast<unsigned long>(data[2 + offset]) << 16 |
+                         static_cast<unsigned long>(data[3 + offset]) << 24;
 
-        const auto lwet = static_cast<uint16_t>(data[4 + offset]) |
-                          static_cast<uint16_t>(data[5 + offset]) << 8;
+        const auto lwet = static_cast<unsigned short>(data[4 + offset]) |
+                          static_cast<unsigned short>(data[5 + offset]) << 8;
         offset += 6;
 
         const SpeedMeasurement speed(cwr, lwet);
@@ -108,10 +118,10 @@ void CyclingCadenceAndSpeedNotificationService::processMeasurement(const std::sh
     }
 
     if (flag & 0b10) {
-        const auto ccr = static_cast<uint16_t>(data[0 + offset]) |
-                         static_cast<uint16_t>(data[1 + offset]) << 8;
-        const auto lcet = static_cast<uint16_t>(data[2 + offset]) |
-            static_cast<uint16_t>(data[3 + offset]) << 8;
+        const auto ccr = static_cast<unsigned short>(data[0 + offset]) |
+                         static_cast<unsigned short>(data[1 + offset]) << 8;
+        const auto lcet = static_cast<unsigned short>(data[2 + offset]) |
+                          static_cast<unsigned short>(data[3 + offset]) << 8;
 
         const CadenceMeasurement cadence(ccr, lcet);
         model->recordCadenceData(MeasurementEvent(device, cadence));
@@ -123,27 +133,29 @@ PowerNotificationService::PowerNotificationService(std::shared_ptr<DeviceRegistr
     registry, model, BLE::Services::PWR) {
 }
 
-void PowerNotificationService::processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) {
+auto PowerNotificationService::processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) -> void {
     model->setPowerMeter(device);
 }
 
-void PowerNotificationService::processMeasurement(const std::shared_ptr<Device> &device,
-                                                  const std::vector<uint8_t> &data) {
+auto PowerNotificationService::processMeasurement(const std::shared_ptr<Device> &device,
+                                                  const std::vector<uint8_t> &data) -> void {
     const auto value = static_cast<int>(data[2]) | (static_cast<int>(data[3]) << 8);
 
     const PowerMeasurement power(value);
     model->recordPowerData(MeasurementEvent(device, power));
 }
 
-FecService::FecService(std::shared_ptr<DeviceRegistry> &registry, std::shared_ptr<Model> &model): INotificationService(
-    registry, model, BLE::Services::FEC_BIKE_TRAINER) {
+FecService::FecService(
+    std::shared_ptr<DeviceRegistry> &registry,
+    std::shared_ptr<Model> &model
+): INotificationService(registry, model, BLE::Services::FEC_BIKE_TRAINER) {
 }
 
-void FecService::processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) {
+auto FecService::processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) -> void {
     model->setBikeTrainer(device);
 }
 
-void FecService::processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) {
+auto FecService::processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) -> void {
     int payloadSize = data[1];
     const std::vector message(data.begin() + 4, data.begin() + 4 + payloadSize - 1);
     int pageType = message[0];
@@ -221,7 +233,7 @@ void FecService::processMeasurement(const std::shared_ptr<Device> &device, const
     }
 }
 
-FeState FecService::parseFeStateByte(const unsigned char fitnessEquipmentStateBit) {
+auto FecService::parseFeStateByte(const unsigned char fitnessEquipmentStateBit) -> FeState {
     const bool lapToggle = fitnessEquipmentStateBit & 0x80;
     switch (fitnessEquipmentStateBit & 0x40) {
         case 1: return FeState(BLE::Tacx::Status::ASLEEP, lapToggle);

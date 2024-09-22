@@ -12,15 +12,16 @@ class WorkoutPacer : public QObject {
 public:
     explicit WorkoutPacer(const std::shared_ptr<Model> &model);
 
-    void start();
-    void stop();
+    auto start() -> void;
 
-    void tick() const;
+    auto stop() -> void;
+
+    auto tick() const -> void;
+
 private:
     std::shared_ptr<Model> model;
     QTimer timer;
 };
-
 
 
 #endif //WORKOUTPACER_H

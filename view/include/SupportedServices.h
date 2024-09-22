@@ -4,26 +4,20 @@
 
 struct AppService {
     Service service;
-    // GattService gattService;
 };
 
-static const AppService HEART_RATE = {
-    Service::HEART_RATE//,
-    // BLE::Services::HRM
+static constexpr AppService HEART_RATE = {
+    Service::HEART_RATE
 };
-static const AppService CADENCE = {
-    Service::CADENCE//,
-    // BLE::Services::CSC
+static constexpr AppService CADENCE = {
+    Service::CADENCE
 };
-static const AppService SPEED = {
-    Service::SPEED//,
-    // BLE::Services::CSC
+static constexpr AppService SPEED = {
+    Service::SPEED
 };
-static const AppService POWER = {
-    Service::POWER//,
-    // BLE::Services::CSC
+static constexpr AppService POWER = {
+    Service::POWER
 };
-static const AppService BIKE_TRAINER = {
-    Service::BIKE_TRAINER//,
-    // BLE::Services::FEC_BIKE_TRAINER
+static constexpr AppService BIKE_TRAINER = {
+    Service::BIKE_TRAINER
 };

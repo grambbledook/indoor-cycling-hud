@@ -24,7 +24,7 @@ class Controller {
 public:
     virtual ~Controller() = default;
 
-    virtual void handleRequest(V v) = 0;
+    virtual auto handleRequest(V v)-> void = 0;
 };
 
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<QWidget, T> > >
@@ -38,7 +38,7 @@ public:
         : history(history), state(state) {
     }
 
-    void handleRequest(void * = nullptr) override = 0;
+    auto handleRequest(void * = nullptr) -> void override = 0;
 
 protected:
     std::shared_ptr<AppState> state;
@@ -55,9 +55,8 @@ public:
         : WidgetController<T>(state, history), view(view) {
     }
 
-    void renderView();
+    auto renderView() -> void;
 
-public:
     std::shared_ptr<T> view;
 };
 
@@ -70,7 +69,7 @@ public:
         : ViewController(view, state, history) {
     }
 
-    void handleRequest(void * = nullptr) override;
+    auto handleRequest(void * = nullptr) -> void override;
 };
 
 class SensorsWindowController final : public ViewController<SensorsWindow> {
@@ -82,7 +81,7 @@ public:
         : ViewController(view, state, history) {
     }
 
-    void handleRequest(void * = nullptr) override;
+    auto handleRequest(void * = nullptr) -> void override;
 };
 
 class SelectWorkoutWindowController final : public ViewController<SelectWorkoutWindow> {
@@ -95,7 +94,7 @@ public:
         : ViewController(view, state, history) {
     }
 
-    void handleRequest(void * = nullptr) override;
+    auto handleRequest(void * = nullptr) -> void override;
 };
 
 class WorkoutWindowController final : public ViewController<WorkoutWindow> {
@@ -110,7 +109,7 @@ public:
         : ViewController(view, state, history), model(model), pacer(pacer) {
     }
 
-    void handleRequest(void * = nullptr) override;
+    auto handleRequest(void * = nullptr) -> void override;
 
 private:
     std::shared_ptr<Model> model;
@@ -129,7 +128,7 @@ public:
         : ViewController(view, state, history), model(model), pacer(pacer) {
     }
 
-    void handleRequest(void * = nullptr) override;
+    auto handleRequest(void * = nullptr) -> void override;
 
 private:
     std::shared_ptr<Model> model;
@@ -151,7 +150,7 @@ public:
           qtAdapter(qtAdapter) {
     }
 
-    void handleRequest(void * = nullptr) override;
+    auto handleRequest(void * = nullptr) -> void override;
 
 private:
     std::shared_ptr<Model> model;
@@ -178,7 +177,7 @@ public:
           fecService(fecService), scannerService(scannerService) {
     }
 
-    void handleRequest(void * = nullptr) override;
+    auto handleRequest(void * = nullptr) -> void override;
 
 private:
     std::shared_ptr<HrmNotificationService> hrmNotificationService;
@@ -201,11 +200,11 @@ public:
         const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history
     )
         : WidgetController(state, history), app(app), trainerWindow(trainerWindow), sensorsWindow(sensorsWindow),
-          selectWorkoutWindow(selectWorkoutWindow), workoutWindow(workoutWindow),
+          workoutWindow(workoutWindow), selectWorkoutWindow(selectWorkoutWindow),
           workoutSummaryWindow(workoutSummaryWindow) {
     }
 
-    void handleRequest(void * = nullptr) override;
+    auto handleRequest(void * = nullptr) -> void override;
 
 private:
     QApplication *app;
@@ -232,7 +231,7 @@ public:
           fecService(fecService), scannerService(scannerService), state(state), registry(registry) {
     }
 
-    void handleRequest(void * = nullptr) override;
+    auto handleRequest(void * = nullptr) -> void override;
 
 private:
     std::shared_ptr<HrmNotificationService> hrmNotificationService;
@@ -250,7 +249,7 @@ public:
         : model(model) {
     }
 
-    void handleRequest(WheelSize size) override;
+    auto handleRequest(WheelSize size)  -> void override;
 
 private:
     std::shared_ptr<Model> model;
@@ -262,7 +261,7 @@ public:
         : model(model) {
     }
 
-    void handleRequest(DistanceUnit size) override;
+    auto handleRequest(DistanceUnit size) -> void override;
 
 private:
     std::shared_ptr<Model> model;
@@ -284,7 +283,7 @@ public:
           fecService(fecService), state(state) {
     }
 
-    void handleRequest(const std::shared_ptr<Device> &device) override;
+    auto handleRequest(const std::shared_ptr<Device> &device) -> void override;
 
 private:
     std::shared_ptr<HrmNotificationService> hrmNotificationService;

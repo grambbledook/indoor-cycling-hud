@@ -15,13 +15,11 @@ public:
 
     virtual ~INotificationService() = default;
 
-public:
     virtual void setDevice(std::shared_ptr<Device> device);
     virtual void unsetDevice(std::shared_ptr<Device> device);
     virtual void processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) = 0;
     virtual void processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) = 0;
 
-public:
     GattService service;
     std::shared_ptr<Model> &model;
     std::shared_ptr<DeviceRegistry> &registry;
@@ -34,7 +32,6 @@ public:
 
     ~HrmNotificationService() override = default;
 
-public:
     void processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) override;
     void processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) override;
 };
@@ -46,7 +43,6 @@ public:
 
     ~CyclingCadenceAndSpeedNotificationService() override = default;
 
-public:
     void processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) override;
     void processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) override;
 };
@@ -59,7 +55,6 @@ public:
 
     ~PowerNotificationService() override = default;
 
-public:
     void processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) override;
     void processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) override;
 };
@@ -71,7 +66,6 @@ public:
 
     ~FecService() override = default;
 
-public:
     void processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) override;
     void processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) override;
 

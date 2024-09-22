@@ -24,10 +24,11 @@ SelectDevicePanel::SelectDevicePanel(
     const std::string &highlighted_icon_path,
     const std::shared_ptr<ControllerHandler> &handler,
     QWidget *parent
-) : QMainWindow(parent), handler(handler), service(service) {
+) : QMainWindow(parent), service(service), handler(handler) {
     selectIcon = new ClickableLabel(normal_icon_path, highlighted_icon_path, this);
     selectIcon->setToolTip("No device selected");
     connect(selectIcon, &ClickableLabel::clicked, this, &SelectDevicePanel::handleDeviceButtonClick);
+
     metricLabel = new ValueLabel("--/--", LabelSize::MEDIUM, this);
     metricLabel->setToolTip("No device selected");
 
@@ -45,7 +46,7 @@ SelectDevicePanel::SelectDevicePanel(
     setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
 }
 
-void SelectDevicePanel::deviceSelected(const DeviceSelected &event) {
+auto SelectDevicePanel::deviceSelected(const DeviceSelected &event) -> void {
     if (event.service != this->service.service) {
         return;
     }
@@ -60,7 +61,7 @@ void SelectDevicePanel::deviceSelected(const DeviceSelected &event) {
     setToolTip(name);
 }
 
-void SelectDevicePanel::measurementsReceived(const WorkoutEvent &measurements_update) {
+auto SelectDevicePanel::measurementsReceived(const WorkoutEvent &measurements_update) const -> void {
     if (service.service == HEART_RATE.service) {
         const auto heart_rate = measurements_update.hrm.val;
         metricLabel->setText(QString::number(heart_rate));
@@ -82,6 +83,6 @@ void SelectDevicePanel::measurementsReceived(const WorkoutEvent &measurements_up
     }
 }
 
-void SelectDevicePanel::handleDeviceButtonClick() const {
+auto SelectDevicePanel::handleDeviceButtonClick() const -> void {
     handler->next(Constants::Screens::DEVICE_DIALOG);
 }

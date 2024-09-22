@@ -14,8 +14,10 @@
 #include "Events.h"
 #include "SupportedServices.h"
 
-SelectWorkoutWindow::SelectWorkoutWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent): AppWindow(
-    handler, parent) {
+SelectWorkoutWindow::SelectWorkoutWindow(
+    const std::shared_ptr<ControllerHandler> &handler,
+    QWidget *parent
+): AppWindow(handler, parent) {
     const auto listWidget = new QListWidget(this);
     listWidget->addItem("Basic workout");
 
@@ -33,6 +35,6 @@ SelectWorkoutWindow::SelectWorkoutWindow(const std::shared_ptr<ControllerHandler
     setCentralWidget(centralWidget);
 }
 
-void SelectWorkoutWindow::next() {
+auto SelectWorkoutWindow::next()  -> void {
     controllerHandler->next(Constants::Screens::WORKOUT);
 }

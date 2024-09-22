@@ -17,16 +17,16 @@ public:
         QWidget *parent = nullptr
     );
 
-    void closeEvent(QCloseEvent *event) override;
+    auto closeEvent(QCloseEvent *event) -> void override;
 
-    bool event(QEvent *event) override;
+    auto event(QEvent *event) -> bool override;
 
 public slots:
-    void renderDevice(const std::shared_ptr<Device> &device) const;
+    auto renderDevice(const std::shared_ptr<Device> &device) const -> void;
 
-    void itemSelected(const QListWidgetItem *item);
+    auto itemSelected(const QListWidgetItem *item) -> void;
 
-    void itemConfirmed(const QListWidgetItem *item);
+    auto itemConfirmed(const QListWidgetItem *item) -> void;
 
 public:
     std::shared_ptr<ControllerHandler> handler;

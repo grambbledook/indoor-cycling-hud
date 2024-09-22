@@ -6,11 +6,11 @@
 template<typename T>
 class Channel {
 public:
-    void subscribe(const std::function<void(T)> &receiver) const{
+    auto subscribe(const std::function<void(T)> &receiver) const -> void {
         receivers.push_back(receiver);
     }
 
-    void publish(T data) {
+    auto publish(T data) -> void {
         for (const auto &receiver: receivers) {
             receiver(data);
         }

@@ -7,11 +7,11 @@ class ScannerService {
 public:
     ScannerService(const std::shared_ptr<Model> &model, Scanner scanner);
 
-    void startScan(const std::function<void(const std::shared_ptr<Device> &device)> &receiver);
+    auto startScan(const std::function<void(const std::shared_ptr<Device> &device)> &receiver) -> void;
 
-    void startScan();
+    auto startScan() -> void;
 
-    void stopScan() const;
+    auto stopScan() const -> void;
 
 private:
     std::shared_ptr<Model> model;

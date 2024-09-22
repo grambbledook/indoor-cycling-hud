@@ -11,13 +11,12 @@
 #include "Events.h"
 #include "SupportedServices.h"
 
-TrainerWindow::TrainerWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent): AppWindow(
-    handler, parent) {
-    spdlog::info("TrainerWindow::TrainerWindow");
-    const int device_selected_type = getDeviceSelectedType();
-    spdlog::info("  TrainerWindow::DeviceSelectedType: {}", device_selected_type);
+TrainerWindow::TrainerWindow(
+    const std::shared_ptr<ControllerHandler> &handler,
+    QWidget *parent
+): AppWindow(handler, parent) {
     eventHandlers.insert({
-         getDeviceSelectedType(), [this](QEvent *event) {
+        getDeviceSelectedType(), [this](QEvent *event) {
             const auto device = dynamic_cast<DeviceSelectedEvent *>(event);
             deviceSelected(device->getEvent());
         }
@@ -45,12 +44,12 @@ TrainerWindow::TrainerWindow(const std::shared_ptr<ControllerHandler> &handler, 
     setCentralWidget(centralWidget);
 }
 
-void TrainerWindow::deviceSelected(const DeviceSelected event) const {
+auto TrainerWindow::deviceSelected(const DeviceSelected &event) const -> void {
     spdlog::info("TrainerWindow::deviceSelected");
     selectTrainerPanel->deviceSelected(event);
 }
 
-void TrainerWindow::next() {
+auto TrainerWindow::next() -> void {
     spdlog::info("TrainerWindow::next");
     controllerHandler->next(Constants::Screens::SENSORS);
 }

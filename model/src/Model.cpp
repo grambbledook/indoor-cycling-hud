@@ -10,24 +10,24 @@
 using std::chrono::duration_cast;
 using std::chrono::seconds;
 
-void Model::addDevice(const std::shared_ptr<Device> &device) {
+auto Model::addDevice(const std::shared_ptr<Device> &device) -> void {
     std::lock_guard guard(mutex);
 
     const auto oldDevice = devices[device->deviceId()];
-    if (oldDevice and *oldDevice == *device) {
+    if (oldDevice && *oldDevice == *device) {
         return;
     }
 
     const auto newDevice = oldDevice ? std::make_shared<Device>(*oldDevice | *device) : device;
 
-    if (oldDevice and *newDevice == *oldDevice) {
+    if (oldDevice && *newDevice == *oldDevice) {
         return;
     }
     devices[device->deviceId()] = newDevice;
     notifications.deviceDiscovered.publish(DeviceDiscovered{newDevice});
 }
 
-std::vector<std::shared_ptr<Device> > Model::getDevices(const GattService *service) {
+auto Model::getDevices(const GattService *service) -> std::vector<std::shared_ptr<Device> > {
     std::lock_guard guard(mutex);
 
     if (service == nullptr) {
@@ -42,7 +42,7 @@ std::vector<std::shared_ptr<Device> > Model::getDevices(const GattService *servi
            | std::ranges::to<std::vector<std::shared_ptr<Device> > >();
 }
 
-void Model::setDevice(const std::shared_ptr<Device> &device) {
+auto Model::setDevice(const std::shared_ptr<Device> &device) -> void {
     std::lock_guard guard(mutex);
 
     if (device->services.contains(BLE::Services::HRM)) {
@@ -60,58 +60,62 @@ void Model::setDevice(const std::shared_ptr<Device> &device) {
     }
 }
 
-void Model::setHeartRateMonitor(const std::shared_ptr<Device> &device) {
+auto Model::setHeartRateMonitor(const std::shared_ptr<Device> &device) -> void {
     std::lock_guard guard(mutex);
-    if (hrmState.device and hrmState.device->deviceId() == device->deviceId()) {
+
+    if (hrmState.device && hrmState.device->deviceId() == device->deviceId()) {
         return;
     }
     hrmState.device = device;
     notifications.deviceSelected.publish(DeviceSelected{Service::HEART_RATE, hrmState.device});
 }
 
-void Model::setCadenceSensor(const std::shared_ptr<Device> &device) {
+auto Model::setCadenceSensor(const std::shared_ptr<Device> &device) -> void {
     std::lock_guard guard(mutex);
-    if (cadenceState.device and cadenceState.device->deviceId() == device->deviceId()) {
+
+    if (cadenceState.device && cadenceState.device->deviceId() == device->deviceId()) {
         return;
     }
     cadenceState.device = device;
     notifications.deviceSelected.publish(DeviceSelected{Service::CADENCE, cadenceState.device});
 }
 
-void Model::setSpeedSensor(const std::shared_ptr<Device> &device) {
+auto Model::setSpeedSensor(const std::shared_ptr<Device> &device) -> void {
     std::lock_guard guard(mutex);
-    if (speedState.device and speedState.device->deviceId() == device->deviceId()) {
+
+    if (speedState.device && speedState.device->deviceId() == device->deviceId()) {
         return;
     }
     speedState.device = device;
     notifications.deviceSelected.publish(DeviceSelected{Service::SPEED, speedState.device});
 }
 
-void Model::setPowerMeter(const std::shared_ptr<Device> &device) {
+auto Model::setPowerMeter(const std::shared_ptr<Device> &device) -> void {
     std::lock_guard guard(mutex);
-    if (powerState.device and powerState.device->deviceId() == device->deviceId()) {
+
+    if (powerState.device && powerState.device->deviceId() == device->deviceId()) {
         return;
     }
     powerState.device = device;
     notifications.deviceSelected.publish(DeviceSelected{Service::POWER, powerState.device});
 }
 
-void Model::setBikeTrainer(const std::shared_ptr<Device> &device) {
+auto Model::setBikeTrainer(const std::shared_ptr<Device> &device) -> void {
     std::lock_guard guard(mutex);
     spdlog::info("Dummy: Model::setBikeTrainer: {}", device->deviceId());
 }
 
-void Model::setSpeedUnit(const DistanceUnit unit) {
+auto Model::setSpeedUnit(const DistanceUnit unit) -> void {
     std::lock_guard guard(mutex);
     this->distanceUnit = unit;
 }
 
-void Model::setWheelSize(const WheelSize size) {
+auto Model::setWheelSize(const WheelSize size) -> void {
     std::lock_guard guard(mutex);
     this->wheelSize = size;
 }
 
-void Model::startWorkout() {
+auto Model::startWorkout() -> void {
     std::lock_guard guard(mutex);
 
     spdlog::info("Starting new workout  ");
@@ -122,7 +126,7 @@ void Model::startWorkout() {
     spdlog::info("  Workput started");
 }
 
-void Model::stopWorkout() {
+auto Model::stopWorkout() -> void {
     std::lock_guard guard(mutex);
 
     spdlog::info("Stopping workout");
@@ -132,7 +136,7 @@ void Model::stopWorkout() {
     spdlog::info("  Workout stopped");
 }
 
-void Model::recordHeartData(const MeasurementEvent<HrmMeasurement> &event) {
+auto Model::recordHeartData(const MeasurementEvent<HrmMeasurement> &event) -> void {
     std::lock_guard guard(mutex);
     if (*hrmState.device != *event.device) {
         return;
@@ -141,7 +145,7 @@ void Model::recordHeartData(const MeasurementEvent<HrmMeasurement> &event) {
     buffer.heartRate = {event.measurement.hrm, system_clock::now()};
 }
 
-void Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event) {
+auto Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event) -> void {
     std::lock_guard guard(mutex);
     if (*cadenceState.device != *event.device) {
         return;
@@ -149,13 +153,12 @@ void Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event)
 
     cadenceState.recordMetric(std::pair{event.measurement.ccr, event.measurement.lcet});
 
-    auto [events, dataPresent] = cadenceState.getLastN(2);
-    auto [prevCcr, prevLcet, ccr, lcet] = std::tuple_cat(events[0], events[1]);
-
-    if (!dataPresent) {
+    auto events = cadenceState.getLastN(2);
+    if (!events.has_value()) {
         return;
     }
-
+    const auto data = events->data();
+    auto [prevCcr, prevLcet, ccr, lcet] = std::tuple_cat(data[0], data[1]);
     if (lcet == prevLcet) {
         cadenceState.unrecordMetric();
         return;
@@ -167,7 +170,7 @@ void Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event)
     buffer.cadence = {cadence, system_clock::now()};
 }
 
-void Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) {
+auto Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) -> void {
     std::lock_guard guard(mutex);
     if (*speedState.device != *event.device) {
         return;
@@ -175,14 +178,15 @@ void Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) {
 
     speedState.recordMetric(std::pair{event.measurement.cwr, event.measurement.lwet});
 
-    auto [events, dataPresent] = speedState.getLastN(2);
-    auto [prevCwr, prevLwet, cwr, lwet] = std::tuple_cat(events[0], events[1]);
-
-    if (!dataPresent) {
+    auto events = speedState.getLastN(2);
+    if (!events.has_value()) {
         return;
     }
 
-    if (lwet == prevLwet and dataPresent) {
+    const auto data = events->data();
+    auto [prevCwr, prevLwet, cwr, lwet] = std::tuple_cat(data[0], data[1]);
+
+    if (lwet == prevLwet) {
         speedState.unrecordMetric();
         return;
     }
@@ -195,7 +199,7 @@ void Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) {
     buffer.speed = {speed, system_clock::now()};
 }
 
-void Model::recordPowerData(const MeasurementEvent<PowerMeasurement> &event) {
+auto Model::recordPowerData(const MeasurementEvent<PowerMeasurement> &event) -> void {
     std::lock_guard guard(mutex);
     if (*powerState.device != *event.device) {
         return;
@@ -204,19 +208,19 @@ void Model::recordPowerData(const MeasurementEvent<PowerMeasurement> &event) {
     buffer.power = {event.measurement.power, system_clock::now()};
 }
 
-void Model::recordTrainerData(const MeasurementEvent<GeneralData> &event) {
+auto Model::recordTrainerData(const MeasurementEvent<GeneralData> &event) -> void {
     std::lock_guard guard(mutex);
 }
 
-void Model::recordTrainerData(const MeasurementEvent<GeneralSettings> &event) {
+auto Model::recordTrainerData(const MeasurementEvent<GeneralSettings> &event) -> void {
     std::lock_guard guard(mutex);
 }
 
-void Model::recordTrainerData(const MeasurementEvent<SpecificTrainerData> &event) {
+auto Model::recordTrainerData(const MeasurementEvent<SpecificTrainerData> &event) -> void {
     std::lock_guard guard(mutex);
 }
 
-void Model::tick() {
+auto Model::tick() -> void {
     std::lock_guard guard(mutex);
 
     const auto now = system_clock::now();
@@ -247,7 +251,7 @@ void Model::tick() {
     publishWorkoutEvent(WorkoutState::IN_PROGRESS, notifications.measurements);
 }
 
-void Model::publishWorkoutEvent(const WorkoutState status, Channel<WorkoutEvent> &channel) {
+auto Model::publishWorkoutEvent(const WorkoutState status, Channel<WorkoutEvent> &channel) -> void {
     std::lock_guard guard(mutex);
 
     const auto duration = status == WorkoutState::IN_PROGRESS

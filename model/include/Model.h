@@ -1,4 +1,5 @@
 #pragma once
+#include <expected>
 #include <mutex>
 
 #include "Channel.h"
@@ -23,22 +24,22 @@ struct State {
     std::shared_ptr<Device> device;
     std::vector<A> data;
 
-    std::pair<std::vector<A>, bool> getLastN(int n) {
+    std::expected<std::vector<A>, void *> getLastN(int n) {
         if (n > data.size()) {
-            return {std::vector<A>(n), false};
+            return std::unexpected<void *>(nullptr);
         }
 
-        return {std::vector<A>(data.end() - n, data.end()), true};
+        return {std::vector<A>(data.end() - n, data.end())};
     }
 
-    void recordMetric(A value) {
+    auto recordMetric(A value) -> void {
         if (data.size() == 2) {
             data.erase(data.begin());
         }
         data.push_back(value);
     }
 
-    void unrecordMetric() {
+    auto unrecordMetric() -> void {
         if (data.empty()) {
             return;
         }
@@ -65,48 +66,48 @@ public:
              storage(std::make_unique<WorkoutDataStorage>()) {
     }
 
-    void addDevice(const std::shared_ptr<Device> &device);
+    auto addDevice(const std::shared_ptr<Device> &device) -> void;
 
-    std::vector<std::shared_ptr<Device> > getDevices(const GattService *service);
+    auto getDevices(const GattService *service) -> std::vector<std::shared_ptr<Device> >;
 
-    void setDevice(const std::shared_ptr<Device> &device);
+    auto setDevice(const std::shared_ptr<Device> &device) -> void;
 
-    void setHeartRateMonitor(const std::shared_ptr<Device> &device);
+    auto setHeartRateMonitor(const std::shared_ptr<Device> &device) -> void;
 
-    void setCadenceSensor(const std::shared_ptr<Device> &device);
+    auto setCadenceSensor(const std::shared_ptr<Device> &device) -> void;
 
-    void setSpeedSensor(const std::shared_ptr<Device> &device);
+    auto setSpeedSensor(const std::shared_ptr<Device> &device) -> void;
 
-    void setPowerMeter(const std::shared_ptr<Device> &device);
+    auto setPowerMeter(const std::shared_ptr<Device> &device) -> void;
 
-    void setBikeTrainer(const std::shared_ptr<Device> &device);
+    auto setBikeTrainer(const std::shared_ptr<Device> &device) -> void;
 
-    void setSpeedUnit(DistanceUnit unit);
+    auto setSpeedUnit(DistanceUnit unit) -> void;
 
-    void setWheelSize(WheelSize size);
+    auto setWheelSize(WheelSize size) -> void;
 
-    void startWorkout();
+    auto startWorkout() -> void;
 
-    void stopWorkout();
+    auto stopWorkout() -> void;
 
-    void recordHeartData(const MeasurementEvent<HrmMeasurement> &event);
+    auto recordHeartData(const MeasurementEvent<HrmMeasurement> &event) -> void;
 
-    void recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event);
+    auto recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event) -> void;
 
-    void recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event);
+    auto recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) -> void;
 
-    void recordPowerData(const MeasurementEvent<PowerMeasurement> &event);
+    auto recordPowerData(const MeasurementEvent<PowerMeasurement> &event) -> void;
 
-    void recordTrainerData(const MeasurementEvent<GeneralData> &event);
+    auto recordTrainerData(const MeasurementEvent<GeneralData> &event) -> void;
 
-    void recordTrainerData(const MeasurementEvent<GeneralSettings> &event);
+    auto recordTrainerData(const MeasurementEvent<GeneralSettings> &event) -> void;
 
-    void recordTrainerData(const MeasurementEvent<SpecificTrainerData> &event);
+    auto recordTrainerData(const MeasurementEvent<SpecificTrainerData> &event) -> void;
 
-    void tick();
+    auto tick() -> void;
 
 private:
-    void publishWorkoutEvent(const WorkoutState status, Channel<WorkoutEvent> &channel);
+    auto publishWorkoutEvent(WorkoutState status, Channel<WorkoutEvent> &channel) -> void;
 
 public:
     Notifications notifications;
@@ -131,14 +132,14 @@ private:
         std::vector<int>{}
     };
 
-    State<std::pair<uint32_t, uint32_t> > cadenceState = {
+    State<std::pair<unsigned long, unsigned long> > cadenceState = {
         __nullptr,
-        std::vector<std::pair<uint32_t, uint32_t> >{}
+        std::vector<std::pair<unsigned long, unsigned long> >{}
     };
 
-    State<std::pair<uint32_t, uint32_t> > speedState = {
+    State<std::pair<unsigned long, unsigned long> > speedState = {
         __nullptr,
-        std::vector<std::pair<uint32_t, uint32_t> >{}
+        std::vector<std::pair<unsigned long, unsigned long> >{}
     };
 
     State<int> powerState = {

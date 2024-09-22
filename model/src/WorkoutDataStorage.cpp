@@ -12,42 +12,41 @@ WorkoutDataStorage::WorkoutDataStorage() {
     newWorkout();
 }
 
-WorkoutDataStorage::~WorkoutDataStorage() {
-}
+WorkoutDataStorage::~WorkoutDataStorage() = default;
 
-void WorkoutDataStorage::aggregateHeartRate(const unsigned long val) {
+auto WorkoutDataStorage::aggregateHeartRate(const unsigned long val) const -> void {
     insert(val, "hrm");
 }
 
-Aggregate WorkoutDataStorage::getHeartRate() {
+auto WorkoutDataStorage::getHeartRate() const -> Aggregate {
     return select("hrm");
 }
 
-void WorkoutDataStorage::aggregateCadence(const unsigned long val) {
+auto WorkoutDataStorage::aggregateCadence(const unsigned long val) const -> void {
     insert(val, "cad");
 }
 
-Aggregate WorkoutDataStorage::getCadence() {
+auto WorkoutDataStorage::getCadence() const -> Aggregate {
     return select("cad");
 }
 
-void WorkoutDataStorage::aggregateSpeed(const unsigned long val) {
+auto WorkoutDataStorage::aggregateSpeed(const unsigned long val) const -> void {
     insert(val, "spd");
 }
 
-Aggregate WorkoutDataStorage::getSpeed() {
+auto WorkoutDataStorage::getSpeed() const -> Aggregate {
     return select("spd");
 }
 
-void WorkoutDataStorage::aggregatePower(const unsigned long val) {
+auto WorkoutDataStorage::aggregatePower(const unsigned long val) const -> void {
     insert(val, "pwr");
 }
 
-Aggregate WorkoutDataStorage::getPower() {
+auto WorkoutDataStorage::getPower() const -> Aggregate {
     return select("pwr");
 }
 
-void WorkoutDataStorage::newWorkout() {
+auto WorkoutDataStorage::newWorkout() -> void {
     const auto temp_dir = std::filesystem::temp_directory_path() / "hud";
     create_directory(temp_dir);
 
@@ -70,24 +69,23 @@ void WorkoutDataStorage::newWorkout() {
     }
 }
 
-void WorkoutDataStorage::startWorkout() {
+auto WorkoutDataStorage::startWorkout() const -> void {
     insert(0, "start");
 }
 
-void WorkoutDataStorage::endWorkout() {
+auto WorkoutDataStorage::endWorkout() const -> void {
     insert(0, "end");
 }
 
-
-long long WorkoutDataStorage::getTotalWorkoutDuration() const {
+auto WorkoutDataStorage::getTotalWorkoutDuration() const -> long long {
     return getWorkoutDuration(select_workout_duration_sql);
 }
 
-long long WorkoutDataStorage::getCurrentWorkoutDuration() const {
+auto WorkoutDataStorage::getCurrentWorkoutDuration() const -> long long {
     return getWorkoutDuration(select_current_workout_duration_sql);
 }
 
-long long WorkoutDataStorage::getWorkoutDuration(const std::string &query) const {
+auto WorkoutDataStorage::getWorkoutDuration(const std::string &query) const -> long long {
     const auto select = std::make_unique<SQLiteStatement>(connection.get(), query);
 
     const auto rc = sqlite3_step(select->get());
@@ -104,7 +102,7 @@ long long WorkoutDataStorage::getWorkoutDuration(const std::string &query) const
     return 0L;
 }
 
-void WorkoutDataStorage::insert(const unsigned long value, const std::string &type) {
+auto WorkoutDataStorage::insert(const unsigned long value, const std::string &type) const -> void {
     const auto select = std::make_unique<SQLiteStatement>(connection.get(), select_latest_sql);
     auto rc = sqlite3_bind_text(select->get(), 1, type.c_str(), -1, SQLITE_TRANSIENT);
     if (rc != SQLITE_OK) {
@@ -166,7 +164,7 @@ void WorkoutDataStorage::insert(const unsigned long value, const std::string &ty
     }
 }
 
-Aggregate WorkoutDataStorage::select(const std::string &type) {
+auto WorkoutDataStorage::select(const std::string &type) const -> Aggregate {
     const auto statement = std::make_unique<SQLiteStatement>(connection.get(), select_aggregate_sql);
 
     auto rc = sqlite3_bind_text(statement->get(), 1, type.c_str(), -1, SQLITE_TRANSIENT);

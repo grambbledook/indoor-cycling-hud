@@ -16,20 +16,18 @@ public:
 
     ~AppWindow() override;
 
-    void mousePressEvent(QMouseEvent *event) override;
+    auto mousePressEvent(QMouseEvent *event) -> void override;
 
-    void mouseMoveEvent(QMouseEvent *event) override;
+    auto mouseMoveEvent(QMouseEvent *event) -> void override;
 
-    void mouseReleaseEvent(QMouseEvent *event) override;
+    auto mouseReleaseEvent(QMouseEvent *event) -> void override;
 
-    // void paintEvent(QPaintEvent *event) override;
-
-    bool event(QEvent *event) override;
+    auto event(QEvent *event) -> bool override;
 
 public slots:
-    virtual void back();
+    virtual auto back() -> void;
 
-    virtual void next();
+    virtual auto next() -> void;
 
 protected:
     std::shared_ptr<ControllerHandler> controllerHandler;

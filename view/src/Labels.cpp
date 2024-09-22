@@ -22,19 +22,19 @@ ClickableLabel::ClickableLabel(
     setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
 }
 
-void ClickableLabel::enterEvent(QEnterEvent *event) {
+auto ClickableLabel::enterEvent(QEnterEvent *event) -> void {
     setPixmap(*highlighted);
 }
 
-void ClickableLabel::leaveEvent(QEvent *event) {
+auto ClickableLabel::leaveEvent(QEvent *event) -> void {
     setPixmap(*normal);
 }
 
-void ClickableLabel::mousePressEvent(QMouseEvent *event) {
+auto ClickableLabel::mousePressEvent(QMouseEvent *event) -> void {
     emit clicked();
 }
 
-std::shared_ptr<QPixmap> ClickableLabel::pixmap(const std::string &path) {
+auto ClickableLabel::pixmap(const std::string &path) -> std::shared_ptr<QPixmap> {
     const auto exeDir = QCoreApplication::applicationDirPath();
     const auto absolutePath = QDir(exeDir).absoluteFilePath(QString::fromStdString(path));
 
@@ -53,9 +53,9 @@ std::shared_ptr<QPixmap> ClickableLabel::pixmap(const std::string &path) {
             if (color.alpha() == 0) {
                 continue;
             }
-            auto r = 0xFF;
-            auto g = 0xFF;
-            auto b = 0xFF;
+            constexpr auto r = 0xFF;
+            constexpr auto g = 0xFF;
+            constexpr auto b = 0xFF;
             color.setRgb(r, g, b);
             image.setPixel(x, y, color.rgba());
         }
@@ -63,7 +63,11 @@ std::shared_ptr<QPixmap> ClickableLabel::pixmap(const std::string &path) {
     return std::make_shared<QPixmap>(QPixmap::fromImage(image));
 }
 
-TextLabel::TextLabel(std::string text, const LabelSize &size, QWidget *parent) : QLabel(parent), text(std::move(text)) {
+TextLabel::TextLabel(
+    std::string text,
+    const LabelSize &size,
+    QWidget *parent
+) : QLabel(parent), text(std::move(text)) {
     setText(QString::fromStdString(this->text));
     setObjectName(size.asString());
     setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
@@ -73,14 +77,18 @@ ValueLabel::ValueLabel(std::string text, const LabelSize &size, QWidget *parent)
     std::move(text), size, parent) {
 }
 
-ButtonLabel::ButtonLabel(std::string text, const bool borders, QWidget *parent): TextLabel(
-    std::move(text), LabelSize::SMALL, parent
-) {
-    if (borders) {
-        setObjectName(Constants::Classes::WITH_BORDERS);
+ButtonLabel::ButtonLabel(
+    std::string text,
+    const bool borders,
+    QWidget *parent
+): TextLabel(std::move(text), LabelSize::SMALL, parent) {
+    if (!borders) {
+        return;
     }
+
+    setObjectName(Constants::Classes::WITH_BORDERS);
 }
 
-void ButtonLabel::mousePressEvent(QMouseEvent *event) {
+auto ButtonLabel::mousePressEvent(QMouseEvent *event) -> void {
     emit clicked();
 }

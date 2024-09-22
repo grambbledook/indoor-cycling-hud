@@ -23,19 +23,21 @@ struct fmt::formatter<ApplicationState> {
         switch (state) {
             case ApplicationState::STARTING:
                 stateStr = "STARTING";
-            break;
+                break;
             case ApplicationState::WAITING_FOR_TRAINER:
                 stateStr = "WAITING_FOR_TRAINER";
-            break;
+                break;
             case ApplicationState::WAITING_FOR_SENSORS:
                 stateStr = "WAITING_FOR_SENSORS";
-            break;
+                break;
             case ApplicationState::IN_WORKOUT:
                 stateStr = "IN_WORKOUT";
-            break;
+                break;
             case ApplicationState::EXITING:
                 stateStr = "EXITING";
-            break;
+                break;
+            default:
+                std::unreachable();
         }
         return fmt::format_to(ctx.out(), "{}", stateStr);
     }

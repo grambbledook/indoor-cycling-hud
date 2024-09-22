@@ -12,10 +12,10 @@ DeviceRegistry::~DeviceRegistry() {
     stop(); // Ensure all clients are disconnected and cleaned up on destruction
 }
 
-std::shared_ptr<BleClient> DeviceRegistry::connect(const Device &device) {
-    spdlog::info("DeviceRegistry::connect");
+auto DeviceRegistry::connect(const Device &device) -> std::shared_ptr<BleClient> {
     std::lock_guard guard(mutex);
-    spdlog::info("    lock acquired");
+
+    spdlog::info("DeviceRegistry::connect");
 
     if (!clients.contains(device.deviceId())) {
         spdlog::info("    Creating new client for device: {}", device.deviceId());
@@ -34,8 +34,9 @@ std::shared_ptr<BleClient> DeviceRegistry::connect(const Device &device) {
     return client;
 }
 
-void DeviceRegistry::stop() {
+auto DeviceRegistry::stop() -> void  {
     std::lock_guard guard(mutex);
+
     spdlog::info("Stopping all clients.");
 
     for (const auto &[_, client]: clients) {

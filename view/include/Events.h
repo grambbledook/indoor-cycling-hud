@@ -30,7 +30,7 @@ public:
         : QEvent(getDeviceDiscoveredType()), event(event) {
     }
 
-    [[nodiscard]] DeviceDiscovered getEvent() const { return event; }
+    [[nodiscard]] auto getEvent() const -> DeviceDiscovered { return event; }
 
 private:
     DeviceDiscovered event;
@@ -42,19 +42,19 @@ public:
         : QEvent(getDeviceSelectedType()), event(event) {
     }
 
-    [[nodiscard]] DeviceSelected getEvent() const { return event; }
+    [[nodiscard]] auto getEvent() const -> DeviceSelected { return event; }
 
 private:
-     DeviceSelected event;
+    DeviceSelected event;
 };
 
 class WorkoutEventEvent final : public QEvent {
 public:
-    explicit WorkoutEventEvent(WorkoutEvent data)
+    explicit WorkoutEventEvent(const WorkoutEvent &data)
         : QEvent(getWorkoutEventType()), data(data) {
     }
 
-    [[nodiscard]] WorkoutEvent getData() const { return data; }
+    [[nodiscard]] auto getData() const -> WorkoutEvent { return data; }
 
 private:
     WorkoutEvent data;
@@ -62,11 +62,11 @@ private:
 
 class WorkoutSummaryEvent final : public QEvent {
 public:
-    explicit WorkoutSummaryEvent(WorkoutEvent data)
+    explicit WorkoutSummaryEvent(const WorkoutEvent &data)
         : QEvent(getWorkoutSummaryType()), data(data) {
     }
 
-    [[nodiscard]] WorkoutEvent getData() const { return data; }
+    [[nodiscard]] auto getData() const -> WorkoutEvent { return data; }
 
 private:
     WorkoutEvent data;
