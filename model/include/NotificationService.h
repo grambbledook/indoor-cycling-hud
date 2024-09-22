@@ -15,10 +15,10 @@ public:
 
     virtual ~INotificationService() = default;
 
-    virtual void setDevice(std::shared_ptr<Device> device);
-    virtual void unsetDevice(std::shared_ptr<Device> device);
-    virtual void processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) = 0;
-    virtual void processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) = 0;
+    virtual auto setDevice(const std::shared_ptr<Device> &device) -> void;
+    virtual auto unsetDevice(const std::shared_ptr<Device> &device) -> void;
+    virtual auto processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device)  -> void = 0;
+    virtual auto processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data)  -> void= 0;
 
     GattService service;
     std::shared_ptr<Model> &model;
@@ -32,8 +32,8 @@ public:
 
     ~HrmNotificationService() override = default;
 
-    void processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) override;
-    void processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) override;
+    auto processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) -> void override;
+    auto processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) -> void override;
 };
 
 class CyclingCadenceAndSpeedNotificationService final : public INotificationService<HrmMeasurement> {
@@ -43,8 +43,8 @@ public:
 
     ~CyclingCadenceAndSpeedNotificationService() override = default;
 
-    void processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) override;
-    void processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) override;
+    auto processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) -> void override;
+    auto processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) -> void override;
 };
 
 
@@ -55,8 +55,8 @@ public:
 
     ~PowerNotificationService() override = default;
 
-    void processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) override;
-    void processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) override;
+    auto processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) -> void override;
+    auto processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) -> void override;
 };
 
 class FecService final : public INotificationService<FecMeasurement> {
@@ -66,8 +66,8 @@ public:
 
     ~FecService() override = default;
 
-    void processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) override;
-    void processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) override;
+    auto processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) -> void override;
+    auto processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) -> void override;
 
 private:
     static FeState parseFeStateByte(const unsigned char fitnessEquipmentStateBit);
