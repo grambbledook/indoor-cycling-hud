@@ -30,8 +30,9 @@ private:
 class SQLiteStatement {
 public:
     SQLiteStatement(const SQLiteConnection *conn, const std::string &sql) {
-        if (sqlite3_prepare_v2(conn->get(), sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
-            throw std::runtime_error("Failed to prepare statement");
+        auto rc = sqlite3_prepare_v2(conn->get(), sql.c_str(), -1, &stmt, nullptr);
+        if (rc != SQLITE_OK) {
+            throw std::runtime_error("Failed to prepare statement" + std::string(sqlite3_errmsg(conn->get())));
         }
     }
 

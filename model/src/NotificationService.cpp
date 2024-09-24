@@ -20,7 +20,7 @@ auto INotificationService<T>::setDevice(const std::shared_ptr<Device> &device) -
 
     const auto client = this->registry->connect(*device);
 
-    this->processFeatureAndSetDevices(*client, device);
+    this->processFeatureAndSetDevices(client.get(), device);
 
     auto lambda = [this](const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) {
         this->processMeasurement(device, data);
@@ -49,8 +49,8 @@ HrmNotificationService::HrmNotificationService(
 }
 
 auto HrmNotificationService::processFeatureAndSetDevices(
-    BleClient &client,
-    std::shared_ptr<Device> &device
+    BleClient *client,
+    const std::shared_ptr<Device> &device
 ) -> void {
     model->setHeartRateMonitor(device);
 }
@@ -77,10 +77,10 @@ CyclingCadenceAndSpeedNotificationService::CyclingCadenceAndSpeedNotificationSer
 }
 
 auto CyclingCadenceAndSpeedNotificationService::processFeatureAndSetDevices(
-    BleClient &client,
-    std::shared_ptr<Device> &device
+    BleClient *client,
+    const std::shared_ptr<Device> &device
 ) -> void {
-    const auto result = client.read(UUID("00002a5c-0000-1000-8000-00805f9b34fb"));
+    const auto result = client->read(UUID("00002a5c-0000-1000-8000-00805f9b34fb"));
 
     if (!result.has_value()) {
         spdlog::error("Failed to read CSC feature.");
@@ -137,8 +137,8 @@ PowerNotificationService::PowerNotificationService(
 }
 
 auto PowerNotificationService::processFeatureAndSetDevices(
-    BleClient &client,
-    std::shared_ptr<Device> &device
+    BleClient *client,
+    const std::shared_ptr<Device> &device
 ) -> void {
     model->setPowerMeter(device);
 }
@@ -160,8 +160,8 @@ FecService::FecService(
 }
 
 auto FecService::processFeatureAndSetDevices(
-    BleClient &client,
-    std::shared_ptr<Device> &device
+    BleClient *client,
+    const std::shared_ptr<Device> &device
 ) -> void {
     model->setBikeTrainer(device);
 }

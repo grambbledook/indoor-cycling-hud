@@ -48,15 +48,16 @@ struct State {
 };
 
 struct MeasurementsBuffer {
+    template<typename T>
     struct Record {
-        unsigned long value;
+        T value;
         system_clock::time_point timestamp;
     };
 
-    Record heartRate;
-    Record cadence;
-    Record speed;
-    Record power;
+    Record<unsigned long> heartRate;
+    Record<std::tuple<long, unsigned long> > cadence;
+    Record<std::tuple<long, unsigned long> > speed;
+    Record<unsigned long> power;
 };
 
 class Model {
@@ -121,10 +122,10 @@ private:
     std::unique_ptr<WorkoutDataStorage> storage;
 
     MeasurementsBuffer buffer = {
-        0, system_clock::now(),
-        0, system_clock::now(),
-        0, system_clock::now(),
-        0, system_clock::now(),
+        {0, system_clock::now()},
+        {{}, system_clock::now()},
+        {{}, system_clock::now()},
+        {0, system_clock::now()},
     };
 
     State<int> hrmState = {

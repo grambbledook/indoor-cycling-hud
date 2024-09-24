@@ -66,7 +66,7 @@ auto Model::setHeartRateMonitor(const std::shared_ptr<Device> &device) -> void {
     if (hrmState.device && hrmState.device->deviceId() == device->deviceId()) {
         return;
     }
-    hrmState.device = device;
+    hrmState = {device};
     notifications.deviceSelected.publish(DeviceSelected{Service::HEART_RATE, hrmState.device});
 }
 
@@ -76,7 +76,7 @@ auto Model::setCadenceSensor(const std::shared_ptr<Device> &device) -> void {
     if (cadenceState.device && cadenceState.device->deviceId() == device->deviceId()) {
         return;
     }
-    cadenceState.device = device;
+    cadenceState = {device};
     notifications.deviceSelected.publish(DeviceSelected{Service::CADENCE, cadenceState.device});
 }
 
@@ -86,7 +86,7 @@ auto Model::setSpeedSensor(const std::shared_ptr<Device> &device) -> void {
     if (speedState.device && speedState.device->deviceId() == device->deviceId()) {
         return;
     }
-    speedState.device = device;
+    speedState = {device};
     notifications.deviceSelected.publish(DeviceSelected{Service::SPEED, speedState.device});
 }
 
@@ -96,22 +96,25 @@ auto Model::setPowerMeter(const std::shared_ptr<Device> &device) -> void {
     if (powerState.device && powerState.device->deviceId() == device->deviceId()) {
         return;
     }
-    powerState.device = device;
+    powerState = {device};
     notifications.deviceSelected.publish(DeviceSelected{Service::POWER, powerState.device});
 }
 
 auto Model::setBikeTrainer(const std::shared_ptr<Device> &device) -> void {
     std::lock_guard guard(mutex);
+
     spdlog::info("Dummy: Model::setBikeTrainer: {}", device->deviceId());
 }
 
 auto Model::setSpeedUnit(const DistanceUnit unit) -> void {
     std::lock_guard guard(mutex);
+
     this->distanceUnit = unit;
 }
 
 auto Model::setWheelSize(const WheelSize size) -> void {
     std::lock_guard guard(mutex);
+
     this->wheelSize = size;
 }
 
@@ -157,16 +160,14 @@ auto Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event)
     if (!events.has_value()) {
         return;
     }
-    const auto& data = events.value();
+    const auto &data = events.value();
     auto [prevCcr, prevLcet, ccr, lcet] = std::tuple_cat(data[0], data[1]);
     if (lcet == prevLcet) {
         cadenceState.unrecordMetric();
         return;
     }
 
-    const unsigned int cadence = BLE::Math::computeCadence(lcet, prevLcet, ccr, prevCcr);
-    spdlog::trace("lcet: {}, prevLcet: {}, ccr: {}, prevCcr: {}, cadence: {}", lcet, prevLcet, ccr, prevCcr, cadence);
-
+    const auto cadence = BLE::Math::computeCadence(lcet, prevLcet, ccr, prevCcr);
     buffer.cadence = {cadence, system_clock::now()};
 }
 
@@ -183,7 +184,7 @@ auto Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) -> 
         return;
     }
 
-    const auto& data = events.value();
+    const auto &data = events.value();
     auto [prevCwr, prevLwet, cwr, lwet] = std::tuple_cat(data[0], data[1]);
 
     if (lwet == prevLwet) {
@@ -191,11 +192,7 @@ auto Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) -> 
         return;
     }
 
-    const unsigned int speed = BLE::Math::computeSpeed(
-        lwet, prevLwet, cwr, prevCwr,
-        getWheelCircumferenceInMM(wheelSize)
-    );
-
+    const auto speed = BLE::Math::computeSpeed(lwet, prevLwet, cwr, prevCwr);
     buffer.speed = {speed, system_clock::now()};
 }
 
@@ -231,22 +228,26 @@ auto Model::tick() -> void {
                          ? 0
                          : buffer.heartRate.value;
 
-    storage->aggregateHeartRate(hrm);
+    const auto [cadence, totalCrankRevs] = duration_cast<seconds>(now - buffer.cadence.timestamp).count() >
+                                           MAX_RELEVANCE_SECONDS
+                                               ? std::make_tuple(0L, 0UL)
+                                               : buffer.cadence.value;
 
-    const auto cadence = duration_cast<seconds>(now - buffer.cadence.timestamp).count() > MAX_RELEVANCE_SECONDS
-                             ? 0
-                             : buffer.cadence.value;
-    storage->aggregateCadence(cadence);
-
-    const auto speed = duration_cast<seconds>(now - buffer.speed.timestamp).count() > MAX_RELEVANCE_SECONDS
-                           ? 0
-                           : buffer.speed.value;
-    storage->aggregateSpeed(speed);
+    const auto [speed, totalWheelRevs] = duration_cast<seconds>(now - buffer.speed.timestamp).count() >
+                                         MAX_RELEVANCE_SECONDS
+                                             ? std::make_tuple(0L, 0UL)
+                                             : buffer.speed.value;
 
     const auto power = duration_cast<seconds>(now - buffer.power.timestamp).count() > MAX_RELEVANCE_SECONDS
                            ? 0
                            : buffer.power.value;
+
+    storage->aggregateHeartRate(hrm);
+    storage->aggregateCadence(cadence);
+    storage->aggregateSpeed(speed);
     storage->aggregatePower(power);
+
+    storage->aggregate(now.time_since_epoch(), hrm, power, cadence, totalCrankRevs, speed, totalWheelRevs);
 
     publishWorkoutEvent(WorkoutState::IN_PROGRESS, notifications.measurements);
 }
@@ -257,6 +258,7 @@ auto Model::publishWorkoutEvent(const WorkoutState status, Channel<WorkoutEvent>
     const auto duration = status == WorkoutState::IN_PROGRESS
                               ? storage->getCurrentWorkoutDuration()
                               : storage->getTotalWorkoutDuration();
+
     const auto hrm = storage->getHeartRate();
     const auto cadence = storage->getCadence();
     const auto power = storage->getPower();

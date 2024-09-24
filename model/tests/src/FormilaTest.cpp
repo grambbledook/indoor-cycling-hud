@@ -9,7 +9,7 @@ TEST(ComputeCadenceTest, ShouldComputeCadence_FakeData) {
     constexpr auto startLCET = 0;
     constexpr auto endLCET = 1024;
 
-    const auto cadence = BLE::Math::computeCadence(endLCET, startLCET, endCCR, startCCR);
+    const auto [revs, cadence] = BLE::Math::computeCadence(endLCET, startLCET, endCCR, startCCR);
     ASSERT_EQ(cadence, 60);
 }
 
@@ -20,7 +20,7 @@ TEST(ComputeCadenceTest, ShouldComputeCadence_RealData) {
     constexpr auto startLCET = 52746;
     constexpr auto endLCET = 53600;
 
-    const auto cadence = BLE::Math::computeCadence(endLCET, startLCET, endCCR, startCCR);
+    const auto [revs, cadence] = BLE::Math::computeCadence(endLCET, startLCET, endCCR, startCCR);
     ASSERT_EQ(cadence, 72);
 }
 
@@ -31,7 +31,7 @@ TEST(ComputeCadenceTest, ShouldComputeCadence_CcrOverflow_FakeData) {
     constexpr auto startLCET = 38642;
     constexpr auto endLCET = 40250;
 
-    const auto cadence = BLE::Math::computeCadence(endLCET, startLCET, endCCR, startCCR);
+    const auto [revs, cadence] = BLE::Math::computeCadence(endLCET, startLCET, endCCR, startCCR);
     ASSERT_EQ(cadence, 76);
 }
 
@@ -42,9 +42,8 @@ TEST(ComputeSpeedTest, ShouldComputeSpeed_FakeData) {
     constexpr auto startLWET = 0;
     constexpr auto endLWET = 1024;
 
-    const auto wheel = getWheelCircumferenceInMM(WheelSize::ROAD_700x35C);
-    const auto cadence = BLE::Math::computeSpeed(endLWET, startLWET, endCWR, startCWR, wheel);
-    ASSERT_EQ(cadence, 651);
+    const auto [revs, speed] = BLE::Math::computeSpeed(endLWET, startLWET, endCWR, startCWR);
+    ASSERT_EQ(speed, 651);
 }
 
 TEST(ComputeSpeedTest, ShouldComputeSpeed_RealData) {
@@ -55,8 +54,8 @@ TEST(ComputeSpeedTest, ShouldComputeSpeed_RealData) {
     constexpr auto endLWET = 36343;
 
     const auto wheel = getWheelCircumferenceInMM(WheelSize::ROAD_700x35C);
-    const auto cadence = BLE::Math::computeSpeed(endLWET, startLWET, endCWR, startCWR, wheel);
-    ASSERT_EQ(cadence, 618);
+    const auto [revs, speed] = BLE::Math::computeSpeed(endLWET, startLWET, endCWR, startCWR);
+    ASSERT_EQ(speed, 618);
 }
 
 TEST(ComputeSpeedTest, ShouldComputeSpeed_LwetOverflow_RealData) {
@@ -67,8 +66,8 @@ TEST(ComputeSpeedTest, ShouldComputeSpeed_LwetOverflow_RealData) {
     constexpr auto endLWET = 646;
 
     const auto wheel = getWheelCircumferenceInMM(WheelSize::ROAD_700x35C);
-    const auto cadence = BLE::Math::computeSpeed(endLWET, startLWET, endCWR, startCWR, wheel);
-    ASSERT_EQ(cadence, 756);
+    const auto [revs, speed] = BLE::Math::computeSpeed(endLWET, startLWET, endCWR, startCWR);
+    ASSERT_EQ(speed, 756);
 }
 
 TEST(ComputeDistanceTest, ShouldComputeDistance_Kilometers) {

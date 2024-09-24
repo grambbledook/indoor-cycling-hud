@@ -16,9 +16,13 @@ public:
     virtual ~INotificationService() = default;
 
     virtual auto setDevice(const std::shared_ptr<Device> &device) -> void;
+
     virtual auto unsetDevice(const std::shared_ptr<Device> &device) -> void;
-    virtual auto processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device)  -> void = 0;
-    virtual auto processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data)  -> void= 0;
+
+    virtual auto processFeatureAndSetDevices(BleClient *client, const std::shared_ptr<Device> &device) -> void = 0;
+
+    virtual auto processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) -> void =
+    0;
 
     GattService service;
     std::shared_ptr<Model> &model;
@@ -32,7 +36,8 @@ public:
 
     ~HrmNotificationService() override = default;
 
-    auto processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) -> void override;
+    auto processFeatureAndSetDevices(BleClient *client, const std::shared_ptr<Device> &device) -> void override;
+
     auto processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) -> void override;
 };
 
@@ -43,7 +48,8 @@ public:
 
     ~CyclingCadenceAndSpeedNotificationService() override = default;
 
-    auto processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) -> void override;
+    auto processFeatureAndSetDevices(BleClient *client, const std::shared_ptr<Device> &device) -> void override;
+
     auto processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) -> void override;
 };
 
@@ -55,7 +61,8 @@ public:
 
     ~PowerNotificationService() override = default;
 
-    auto processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) -> void override;
+    auto processFeatureAndSetDevices(BleClient *client, const std::shared_ptr<Device> &device) -> void override;
+
     auto processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) -> void override;
 };
 
@@ -66,7 +73,8 @@ public:
 
     ~FecService() override = default;
 
-    auto processFeatureAndSetDevices(BleClient &client, std::shared_ptr<Device> &device) -> void override;
+    auto processFeatureAndSetDevices(BleClient *client, const std::shared_ptr<Device> &device) -> void override;
+
     auto processMeasurement(const std::shared_ptr<Device> &device, const std::vector<uint8_t> &data) -> void override;
 
 private:

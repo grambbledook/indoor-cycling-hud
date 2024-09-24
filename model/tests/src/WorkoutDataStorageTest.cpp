@@ -5,6 +5,47 @@
 #include <gtest/gtest.h>
 #include "WorkoutDataStorage.h"
 
+TEST(WorkoutDataStorageTest, ShouldSuccesfullyAggregateData) {
+    const auto storage = std::make_unique<WorkoutDataStorage>();
+
+    const auto timestamp = std::chrono::system_clock::now().time_since_epoch();
+    storage->aggregate(timestamp, 10, 10, 10, 10, 10, 10);
+
+    const auto aggregate = storage->getDataAt(timestamp);
+
+    ASSERT_EQ(aggregate.hrm, 10);
+    ASSERT_EQ(aggregate.hrm_avg, 10);
+    ASSERT_EQ(aggregate.cadence, 10);
+    ASSERT_EQ(aggregate.cadence_avg, 10);
+    ASSERT_EQ(aggregate.speed, 10);
+    ASSERT_EQ(aggregate.speed_avg, 10);
+    ASSERT_EQ(aggregate.power, 10);
+    ASSERT_EQ(aggregate.power_avg, 10);
+    ASSERT_EQ(aggregate.power_3s, 10);
+}
+
+TEST(WorkoutDataStorageTest, ShouldSuccesfullyComputeAverage) {
+    const auto storage = std::make_unique<WorkoutDataStorage>();
+
+    const auto timestamp = std::chrono::system_clock::now().time_since_epoch();
+
+    storage->aggregate(timestamp - std::chrono::seconds(4), 10, 10, 10, 10, 10, 10);
+    storage->aggregate(timestamp - std::chrono::seconds(1), 20, 20, 20, 20, 20, 20);
+    storage->aggregate(timestamp, 60, 60, 60, 60, 60, 60);
+
+    const auto aggregate = storage->getDataAt(timestamp);
+
+    ASSERT_EQ(aggregate.hrm, 60);
+    ASSERT_EQ(aggregate.hrm_avg, 30);
+    ASSERT_EQ(aggregate.cadence, 60);
+    ASSERT_EQ(aggregate.cadence_avg, 30);
+    ASSERT_EQ(aggregate.speed, 60);
+    ASSERT_EQ(aggregate.speed_avg, 30);
+    ASSERT_EQ(aggregate.power, 60);
+    ASSERT_EQ(aggregate.power_avg, 30);
+    ASSERT_EQ(aggregate.power_3s, 40);
+}
+
 TEST(WorkoutDataStorageTest, ShouldSuccessfullyReadAggregatedData_HRM) {
     const auto storage = std::make_unique<WorkoutDataStorage>();
 

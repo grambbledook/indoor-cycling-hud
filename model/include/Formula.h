@@ -12,10 +12,9 @@ namespace BLE {
         constexpr auto MS_IN_HOUR = 60 * 60 * 1000;
         constexpr auto DISTANCE_CONVERSION_FACTOR = 2.777777777777778e-6;
 
-        inline long computeCadence(
-            const long lcet, const long prevLcet, const long long ccr, const long long prevCcr
+        inline std::tuple<unsigned long, unsigned long> computeCadence(
+            const unsigned long lcet, const unsigned long prevLcet, const long long ccr, const long long prevCcr
         ) {
-
             const auto lcetResetCorrection = lcet > prevLcet ? 0 : 0x10000;
             const auto ccrResetCorrection = ccr > prevCcr ? 0 : 0xFFFFFFFF;
 
@@ -26,14 +25,12 @@ namespace BLE {
             const auto timeDeltaMS = timeDelta * MS_IN_SECOND / BLE_MS_IN_SECOND;
 
             const auto cadence = totalRevolutions * MS_IN_MIN / timeDeltaMS;
-            return cadence;
+            return {totalRevolutions, cadence};
         }
 
-        inline long computeSpeed(
-            const long lwet, const long prevLwet, const long cwr, const long prevCwr,
-            const long wheelCircumferenceInMM
+        inline std::tuple<long, long> computeSpeed(
+            const unsigned long lwet, const unsigned long prevLwet, const unsigned long cwr, const unsigned long prevCwr
         ) {
-
             // Because the counter can go down and given that max uint32
             // combined with 2.1m wheel size gives un roughly 9 million kilometers in total,
             // which is unlikely to happen during a workout, we don't do correction for CWR
@@ -44,10 +41,10 @@ namespace BLE {
 
             // for lwet unit is 1 / 1024 seconds
             const auto timeDeltaMS = timeDelta * MS_IN_SECOND / BLE_MS_IN_SECOND;
-            const auto distanceTraveled = totalRevolutions * wheelCircumferenceInMM;
-            const auto speedMms = distanceTraveled * INT_MATH_COEFFICIENT / timeDeltaMS;
+            // const auto distanceTraveled = totalRevolutions * wheelCircumferenceInMM;
+            const auto speed = totalRevolutions * INT_MATH_COEFFICIENT / timeDeltaMS;
 
-            return speedMms;
+            return {totalRevolutions, speed};
         }
 
         // Returns total distance in meters or in (miles * 1000)
