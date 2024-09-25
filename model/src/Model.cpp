@@ -242,12 +242,8 @@ auto Model::tick() -> void {
                            ? 0
                            : buffer.power.value;
 
-    storage->aggregateHeartRate(hrm);
-    storage->aggregateCadence(cadence);
-    storage->aggregateSpeed(speed);
-    storage->aggregatePower(power);
-
-    storage->aggregate(now.time_since_epoch(), hrm, power, cadence, totalCrankRevs, speed, totalWheelRevs);
+    const auto millis = duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+    storage->aggregate(millis, hrm, power, cadence, totalCrankRevs, speed, totalWheelRevs);
 
     publishWorkoutEvent(WorkoutState::IN_PROGRESS, notifications.measurements);
 }
@@ -259,22 +255,31 @@ auto Model::publishWorkoutEvent(const WorkoutState status, Channel<WorkoutEvent>
                               ? storage->getCurrentWorkoutDuration()
                               : storage->getTotalWorkoutDuration();
 
-    const auto hrm = storage->getHeartRate();
-    const auto cadence = storage->getCadence();
-    const auto power = storage->getPower();
+    const auto now = duration_cast<std::chrono::milliseconds>(system_clock::now().time_since_epoch());
+    auto data = storage->getDataAt(now);
 
-    auto speed = storage->getSpeed();
-    spdlog::trace("Speed: {}, avg Speed: {}, duration: {}", speed.val, speed.avg, duration);
-    speed.val *= getSpeedConversionFactor(distanceUnit);
-    speed.avg *= getSpeedConversionFactor(distanceUnit);
-    speed.windowedAvg *= getSpeedConversionFactor(distanceUnit);
-    speed.min *= getSpeedConversionFactor(distanceUnit);
-    speed.max *= getSpeedConversionFactor(distanceUnit);
+    spdlog::trace("Speed: {}, avg Speed: {}, duration: {}", data.speed.value_or(0), data.speed_avg.value_or(0),
+                  duration);
 
-    const auto distance = BLE::Math::computeDistance(speed.val, duration);
-    spdlog::trace("   Speed: {}, avg Speed: {}, distance: {}", speed.val, speed.avg, distance);
+    auto distance_unit = distanceUnit;
+    data.speed = data.speed.transform([distance_unit](const unsigned long x) {
+        return x * getSpeedConversionFactor(distance_unit);
+    });
+    data.speed_avg = data.speed_avg.transform([distance_unit](const unsigned long x) {
+        return x * getSpeedConversionFactor(distance_unit);
+    });
+    data.speed_min = data.speed_min.transform([distance_unit](const unsigned long x) {
+        return x * getSpeedConversionFactor(distance_unit);
+    });
+    data.speed_max = data.speed_max.transform([distance_unit](const unsigned long x) {
+        return x * getSpeedConversionFactor(distance_unit);
+    });
+
+    const auto distance = BLE::Math::computeDistance(data.speed_avg.value_or(0), duration);
+    spdlog::trace("   Speed: {}, avg Speed: {}, distance: {}", data.speed.value_or(0), data.speed_avg.value_or(0),
+                  distance);
     const auto summary = WorkoutEvent{
-        status, duration, distance, distanceUnit, hrm, cadence, speed, power
+        status, duration, distance, distanceUnit, data, Aggregate{}, Aggregate{}, Aggregate{}, Aggregate{}
     };
 
     channel.publish(summary);

@@ -5,13 +5,17 @@
 #include <gtest/gtest.h>
 #include "WorkoutDataStorage.h"
 
+inline std::chrono::milliseconds toMillis(std::chrono::duration<long long, std::ratio<1, 10000000> > duration) {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(duration);
+}
+
 TEST(WorkoutDataStorageTest, ShouldSuccesfullyAggregateData) {
     const auto storage = std::make_unique<WorkoutDataStorage>();
 
     const auto timestamp = std::chrono::system_clock::now().time_since_epoch();
-    storage->aggregate(timestamp, 10, 10, 10, 10, 10, 10);
+    storage->aggregate(toMillis(timestamp), 10, 10, 10, 10, 10, 10);
 
-    const auto aggregate = storage->getDataAt(timestamp);
+    const auto aggregate = storage->getDataAt(toMillis(timestamp));
 
     ASSERT_EQ(aggregate.hrm, 10);
     ASSERT_EQ(aggregate.hrm_avg, 10);
@@ -24,16 +28,21 @@ TEST(WorkoutDataStorageTest, ShouldSuccesfullyAggregateData) {
     ASSERT_EQ(aggregate.power_3s, 10);
 }
 
-TEST(WorkoutDataStorageTest, ShouldSuccesfullyComputeAverage) {
+TEST(WorkoutDataStorageTest, ShouldSuccesfullyComputeAverages) {
     const auto storage = std::make_unique<WorkoutDataStorage>();
 
     const auto timestamp = std::chrono::system_clock::now().time_since_epoch();
 
-    storage->aggregate(timestamp - std::chrono::seconds(4), 10, 10, 10, 10, 10, 10);
-    storage->aggregate(timestamp - std::chrono::seconds(1), 20, 20, 20, 20, 20, 20);
-    storage->aggregate(timestamp, 60, 60, 60, 60, 60, 60);
+    const auto first = toMillis(timestamp - std::chrono::seconds(4));
+    storage->aggregate(first, 10, 10, 10, 10, 10, 10);
 
-    const auto aggregate = storage->getDataAt(timestamp);
+    const auto second = toMillis(timestamp - std::chrono::seconds(1));
+    storage->aggregate(second, 20, 20, 20, 20, 20, 20);
+
+    const auto third = toMillis(timestamp);
+    storage->aggregate(third, 60, 60, 60, 60, 60, 60);
+
+    const auto aggregate = storage->getDataAt(toMillis(timestamp));
 
     ASSERT_EQ(aggregate.hrm, 60);
     ASSERT_EQ(aggregate.hrm_avg, 30);
@@ -46,132 +55,39 @@ TEST(WorkoutDataStorageTest, ShouldSuccesfullyComputeAverage) {
     ASSERT_EQ(aggregate.power_3s, 40);
 }
 
-TEST(WorkoutDataStorageTest, ShouldSuccessfullyReadAggregatedData_HRM) {
+TEST(WorkoutDataStorageTest, ShouldSuccesfullyReadMDataIfSomeFieldsMissing) {
     const auto storage = std::make_unique<WorkoutDataStorage>();
 
-    storage->aggregateHeartRate(10);
-    storage->aggregateHeartRate(100);
+    const auto timestamp = std::chrono::system_clock::now().time_since_epoch();
 
-    const auto [val, avg, windowAvg, max, min] = storage->getHeartRate();
-    ASSERT_EQ(val, 100);
-    ASSERT_EQ(avg, 55);
-    ASSERT_EQ(windowAvg, 55);
-    ASSERT_EQ(max, 100);
-    ASSERT_EQ(min, 10);
+    storage->aggregate(toMillis(timestamp), 10, 0, 0, 0, 0, 0);
+
+    const auto aggregate = storage->getDataAt(toMillis(timestamp));
+
+    ASSERT_EQ(aggregate.hrm, 10);
+    ASSERT_EQ(aggregate.hrm_avg, 10);
+    ASSERT_FALSE(aggregate.cadence.has_value());
+    ASSERT_FALSE(aggregate.cadence_avg);
+    ASSERT_FALSE(aggregate.speed);
+    ASSERT_FALSE(aggregate.speed_avg);
+    ASSERT_FALSE(aggregate.power);
+    ASSERT_FALSE(aggregate.power_avg);
+    ASSERT_FALSE(aggregate.power_3s);
 }
 
-TEST(WorkoutDataStorageTest, ShouldReturnEmptyAggregatedDataOnMissingData_HRM) {
+TEST(WorkoutDataStorageTest, ShouldRead_DURATION) {
     const auto storage = std::make_unique<WorkoutDataStorage>();
 
-    const auto [val, avg, windowAvg, max, min] = storage->getHeartRate();
-    ASSERT_EQ(val, 0);
-    ASSERT_EQ(avg, 0);
-    ASSERT_EQ(windowAvg, 0);
-    ASSERT_EQ(max, 0);
-    ASSERT_EQ(min, 0);
-}
+    const auto now = std::chrono::system_clock::now();
 
-TEST(WorkoutDataStorageTest, ShouldSuccessfullyReadAggregatedData_CADENCE) {
-    const auto storage = std::make_unique<WorkoutDataStorage>();
+    const auto first = now - std::chrono::seconds(10);
+    storage->aggregate(toMillis(first.time_since_epoch()), 0, 0, 0, 0, 0, 0);
 
-    storage->aggregateCadence(10);
-    storage->aggregateCadence(100);
-
-    const auto [val, avg, windowAvg, max, min] = storage->getHeartRate();
-    ASSERT_EQ(val, 0);
-    ASSERT_EQ(avg, 0);
-    ASSERT_EQ(windowAvg, 0);
-    ASSERT_EQ(max, 0);
-    ASSERT_EQ(min, 0);
-}
-
-TEST(WorkoutDataStorageTest, ShouldReturnEmptyAggregatedDataOnMissingData_CADENCE) {
-    const auto storage = std::make_unique<WorkoutDataStorage>();
-
-    const auto [val, avg, windowAvg, max, min] = storage->getHeartRate();
-    ASSERT_EQ(val, 0);
-    ASSERT_EQ(avg, 0);
-    ASSERT_EQ(windowAvg, 0);
-    ASSERT_EQ(max, 0);
-    ASSERT_EQ(min, 0);
-}
-
-TEST(WorkoutDataStorageTest, ShouldSuccessfullyReadAggregatedData_SPEED) {
-    const auto storage = std::make_unique<WorkoutDataStorage>();
-
-    storage->aggregateSpeed(10);
-    storage->aggregateSpeed(100);
-
-    const auto [val, avg, windowAvg, max, min] = storage->getSpeed();
-    ASSERT_EQ(val, 100);
-    ASSERT_EQ(avg, 55);
-    ASSERT_EQ(windowAvg, 55);
-    ASSERT_EQ(max, 100);
-    ASSERT_EQ(min, 10);
-}
-
-TEST(WorkoutDataStorageTest, ShouldReturnEmptyAggregatedDataOnMissingData_SPEED) {
-    const auto storage = std::make_unique<WorkoutDataStorage>();
-
-    const auto [val, avg, windowAvg, max, min] = storage->getSpeed();
-    ASSERT_EQ(val, 0);
-    ASSERT_EQ(avg, 0);
-    ASSERT_EQ(windowAvg, 0);
-    ASSERT_EQ(max, 0);
-    ASSERT_EQ(min, 0);
-}
-
-TEST(WorkoutDataStorageTest, ShouldSuccessfullyReadAggregatedData_POWER) {
-    const auto storage = std::make_unique<WorkoutDataStorage>();
-
-    storage->aggregatePower(10);
-    storage->aggregatePower(100);
-
-    const auto [val, avg, windowAvg, max, min] = storage->getPower();
-    ASSERT_EQ(val, 100);
-    ASSERT_EQ(avg, 55);
-    ASSERT_EQ(windowAvg, 55);
-    ASSERT_EQ(max, 100);
-    ASSERT_EQ(min, 10);
-}
-
-TEST(WorkoutDataStorageTest, ShouldReturnEmptyAggregatedDataOnMissingData_POWER) {
-    const auto storage = std::make_unique<WorkoutDataStorage>();
-
-    const auto [val, avg, windowAvg, max, min] = storage->getHeartRate();
-    ASSERT_EQ(val, 0);
-    ASSERT_EQ(avg, 0);
-    ASSERT_EQ(windowAvg, 0);
-    ASSERT_EQ(max, 0);
-    ASSERT_EQ(min, 0);
-}
-
-TEST(WorkoutDataStorageTest, ShouldAggregateDataAfterEachRequest) {
-    const auto storage = std::make_unique<WorkoutDataStorage>();
-
-    storage->aggregateHeartRate(1);
-    auto result = storage->getHeartRate();
-    ASSERT_EQ(result.avg, 1);
-
-    storage->aggregateHeartRate(2);
-    result = storage->getHeartRate();
-    ASSERT_EQ(result.avg, 2);
-
-    storage->aggregateHeartRate(2);
-    result = storage->getHeartRate();
-    ASSERT_EQ(result.avg, 2);
-}
-
-TEST(WorkoutDataStorageTest, ShouldReadAggregatedData_DURATION) {
-    const auto storage = std::make_unique<WorkoutDataStorage>();
-
-    storage->aggregateHeartRate(10);
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    storage->aggregateHeartRate(100);
+    const auto second = now + std::chrono::seconds(10);
+    storage->aggregate(toMillis(second.time_since_epoch()), 0, 0, 0, 0, 0, 0);
 
     const auto duration = storage->getTotalWorkoutDuration();
-    ASSERT_GE(duration, 100);
-    ASSERT_LE(duration, 1000);
+    ASSERT_EQ(duration, 20 * 1000);
 }
 
 TEST(WorkoutDataStorageTest, ShouldReturnEmptyAggregatedDataOnMissingData_DURATION) {
@@ -180,4 +96,3 @@ TEST(WorkoutDataStorageTest, ShouldReturnEmptyAggregatedDataOnMissingData_DURATI
     const auto duration = storage->getTotalWorkoutDuration();
     ASSERT_EQ(duration, 0);
 }
-

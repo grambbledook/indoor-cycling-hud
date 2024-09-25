@@ -6,7 +6,7 @@
 #include "ModelEvents.h"
 
 namespace Data {
-    inline std::string formatDuration(long long durationMs) {
+    inline std::string formatDuration(const long long durationMs) {
         const long long ms = durationMs % 1000;
         const long long total_seconds = durationMs / 1000;
         const long long seconds = total_seconds % 60;
@@ -23,12 +23,26 @@ namespace Data {
         return oss.str();
     }
 
-    inline std::string formatDistance(const long distance, const DistanceUnit unit) {
+    inline std::string formatDistance(const unsigned long distance, const DistanceUnit unit) {
         const double distanceKm = distance / 1000.0;
 
         std::ostringstream oss;
         oss << std::fixed << std::setprecision(2) << distanceKm << " " << distanceUnitToShortString(unit);
         return oss.str();
+    }
+
+    inline std::string toString(const std::optional<unsigned long> &value) {
+        if (value.has_value()) {
+            return std::to_string(value.value());
+        }
+        return "N/A";
+    }
+
+    inline std::string toString(const std::optional<double> &value) {
+        if (value.has_value()) {
+            return std::format("{:.1f}", value.value() * .01);
+        }
+        return "N/A";
     }
 
     struct DataField {
@@ -50,57 +64,57 @@ namespace Data {
 
     const auto HEART_RATE = DataField{
         "Heart rate",
-        [](const WorkoutEvent &data) { return std::to_string(data.hrm.val); }
+        [](const WorkoutEvent &event) { return toString(event.data.hrm); }
     };
 
     const auto AVG_HEART_RATE = DataField{
         "Avg Heart rate",
-        [](const WorkoutEvent &data) { return std::to_string(data.hrm.avg); }
+        [](const WorkoutEvent &event) { return toString(event.data.hrm); }
     };
 
     const auto CADENCE = DataField{
         "Cadence",
-        [](const WorkoutEvent &data) { return std::to_string(data.cadence.val); }
+        [](const WorkoutEvent &event) { return toString(event.data.cadence); }
     };
 
     const auto AVG_CADENCE = DataField{
         "Avg Cadence",
-        [](const WorkoutEvent &data) { return std::to_string(data.cadence.avg); }
+        [](const WorkoutEvent &event) { return toString(event.data.cadence_avg); }
     };
 
     const auto SPEED = DataField{
         "Speed",
-        [](const WorkoutEvent &data) { return std::format("{:.1f}", data.speed.val * .01); }
+        [](const WorkoutEvent &event) { return toString(event.data.speed); }
     };
 
     const auto AVG_SPEED = DataField{
         "Avg Speed",
-        [](const WorkoutEvent &data) { return std::format("{:.1f}", data.speed.avg * .01); }
+        [](const WorkoutEvent &event) { return toString(event.data.speed_avg); }
     };
 
     const auto POWER = DataField{
         "Power",
-        [](const WorkoutEvent &data) { return std::to_string(data.power.val); }
+        [](const WorkoutEvent &event) { return std::to_string(event.data.power.value_or(0)); }
     };
 
     const auto AVG_POWER = DataField{
         "Avg Power",
-        [](const WorkoutEvent &data) { return std::to_string(data.power.avg); }
+        [](const WorkoutEvent &event) { return toString(event.data.power_avg); }
     };
 
     const auto AVG_3S_POWER = DataField{
         "3s Avg Power",
-        [](const WorkoutEvent &data) { return std::to_string(data.power.windowedAvg); }
+        [](const WorkoutEvent &event) { return toString(event.data.power_3s); }
     };
 
     const auto DURATION_WORKOUT = DataField{
         "Duration",
-        [](const WorkoutEvent &data) { return formatDuration(data.durationMs); }
+        [](const WorkoutEvent &event) { return formatDuration(event.durationMs); }
     };
 
     const auto DISTANCE_WORKOUT = DataField{
         "Distance",
-        [](const WorkoutEvent &data) { return formatDistance(data.distance, data.distanceUnit); }
+        [](const WorkoutEvent &event) { return formatDistance(event.distance, event.distanceUnit); }
     };
 
     const std::vector DATA_FIELDS = {
@@ -124,15 +138,15 @@ namespace Data {
 
     const auto DURATION = SummaryData{
         "Duration",
-        [](const WorkoutEvent &data) {
-            return formatDuration(data.durationMs);
+        [](const WorkoutEvent &event) {
+            return formatDuration(event.durationMs);
         }
     };
 
     const auto DISTANCE = SummaryData{
         "Distance",
-        [](const WorkoutEvent &data) {
-            return formatDistance(data.distance, data.distanceUnit);
+        [](const WorkoutEvent &event) {
+            return formatDistance(event.distance, event.distanceUnit);
         }
     };
 }
