@@ -9,6 +9,11 @@
 #include "ModelEvents.h"
 
 constexpr auto create_tables_sql = R"CREATE(
+    CREATE TABLE signals (
+        ts integer
+        type text
+    );
+
     CREATE TABLE measurements (
         ts INTEGER PRIMARY KEY,
         count INTEGER,
@@ -66,7 +71,7 @@ constexpr auto select_workout_duration_sql = R"QUERY(
         min(ts) over () AS start,
         max(ts) over () AS end
     FROM
-        measurements;
+        signals;
 )QUERY";
 
 constexpr auto select_current_workout_duration_sql = R"QUERY(
@@ -74,7 +79,7 @@ constexpr auto select_current_workout_duration_sql = R"QUERY(
         min(ts) over () AS start,
         unixepoch('subsec') AS end
     FROM
-        measurements;
+        signals;
 )QUERY";
 
 
@@ -90,14 +95,6 @@ public:
 
     auto endWorkout() -> void;
 
-    [[nodiscard]] auto getTotalWorkoutDuration() const -> long long;
-
-    [[nodiscard]] auto getCurrentWorkoutDuration() const -> long long;
-
-    [[nodiscard]] auto getDataAt(
-        std::chrono::milliseconds timestamp
-    ) const -> Aggregate2;
-
     void aggregate(
         std::chrono::milliseconds timestamp,
         const unsigned long hrm,
@@ -108,7 +105,16 @@ public:
         const unsigned long wheelRevs
     );
 
+    [[nodiscard]] auto getDataAt(std::chrono::milliseconds timestamp) const -> Aggregate;
+
+    [[nodiscard]] auto getTotalWorkoutDuration() const -> long long;
+
+    [[nodiscard]] auto getCurrentWorkoutDuration() const -> long long;
+
+
 private:
+    auto signal(std::chrono::milliseconds timestamp, const std::string &type) const -> void;
+
     [[nodiscard]] auto getWorkoutDuration(const std::string &query) const -> long long;
 
     static long id;

@@ -19,7 +19,7 @@ struct DeviceSelected {
     }
 };
 
-struct Aggregate2 {
+struct Aggregate {
      std::optional<unsigned long> hrm;
      std::optional<unsigned long> hrm_avg;
      std::optional<unsigned long> hrm_min;
@@ -39,7 +39,7 @@ struct Aggregate2 {
      std::optional<unsigned long> speed_max;
 };
 
-struct Aggregate {
+struct MeasurementAggregate {
     unsigned long val;
     unsigned long avg;
     unsigned long windowedAvg;
@@ -60,9 +60,9 @@ struct WorkoutEvent {
     unsigned long distance;
     DistanceUnit distanceUnit;
 
-    Aggregate2 data;
-    Aggregate hrm;
-    Aggregate cadence;
-    Aggregate speed;
-    Aggregate power;
+    Aggregate data;
+    MeasurementAggregate hrm;
+    MeasurementAggregate cadence;
+    MeasurementAggregate speed;
+    MeasurementAggregate power;
 };

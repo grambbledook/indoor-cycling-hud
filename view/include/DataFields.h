@@ -7,7 +7,6 @@
 
 namespace Data {
     inline std::string formatDuration(const long long durationMs) {
-        const long long ms = durationMs % 1000;
         const long long total_seconds = durationMs / 1000;
         const long long seconds = total_seconds % 60;
         const long long total_minutes = total_seconds / 60;
@@ -17,8 +16,7 @@ namespace Data {
         std::ostringstream oss;
         oss << std::setfill('0') << std::setw(2) << hours << ":"
                 << std::setfill('0') << std::setw(2) << minutes << ":"
-                << std::setfill('0') << std::setw(2) << seconds << "."
-                << std::setfill('0') << std::setw(3) << ms;
+                << std::setfill('0') << std::setw(2) << seconds;
 
         return oss.str();
     }
@@ -69,7 +67,7 @@ namespace Data {
 
     const auto AVG_HEART_RATE = DataField{
         "Avg Heart rate",
-        [](const WorkoutEvent &event) { return toString(event.data.hrm); }
+        [](const WorkoutEvent &event) { return toString(event.data.hrm_avg); }
     };
 
     const auto CADENCE = DataField{
@@ -94,7 +92,7 @@ namespace Data {
 
     const auto POWER = DataField{
         "Power",
-        [](const WorkoutEvent &event) { return std::to_string(event.data.power.value_or(0)); }
+        [](const WorkoutEvent &event) { return toString(event.data.power); }
     };
 
     const auto AVG_POWER = DataField{

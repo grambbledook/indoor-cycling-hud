@@ -279,7 +279,7 @@ auto Model::publishWorkoutEvent(const WorkoutState status, Channel<WorkoutEvent>
     spdlog::trace("   Speed: {}, avg Speed: {}, distance: {}", data.speed.value_or(0), data.speed_avg.value_or(0),
                   distance);
     const auto summary = WorkoutEvent{
-        status, duration, distance, distanceUnit, data, Aggregate{}, Aggregate{}, Aggregate{}, Aggregate{}
+        status, duration, distance, distanceUnit, data, MeasurementAggregate{}, MeasurementAggregate{}, MeasurementAggregate{}, MeasurementAggregate{}
     };
 
     channel.publish(summary);
