@@ -29,15 +29,15 @@ SelectDevicePanel::SelectDevicePanel(
     selectIcon->setToolTip("No device selected");
     connect(selectIcon, &ClickableLabel::clicked, this, &SelectDevicePanel::handleDeviceButtonClick);
 
-    metricLabel = new ValueLabel("--/--", LabelSize::MEDIUM, this);
-    metricLabel->setToolTip("No device selected");
+    sensorNameLabel = new ValueLabel("--/--", LabelSize::MEDIUM, this);
+    sensorNameLabel->setToolTip("No device selected");
 
     const auto spacer = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
     const auto layout = new QGridLayout(this);
     layout->addWidget(selectIcon, 0, 0, Qt::AlignCenter);
     layout->addItem(spacer, 1, 0, Qt::AlignCenter);
-    layout->addWidget(metricLabel, 2, 0, Qt::AlignCenter);
+    layout->addWidget(sensorNameLabel, 2, 0, Qt::AlignCenter);
 
     const auto centralWidget = new QWidget(this);
     centralWidget->setLayout(layout);
@@ -51,36 +51,15 @@ auto SelectDevicePanel::deviceSelected(const DeviceSelected &event) -> void {
         return;
     }
 
-    const auto name = QString::fromStdString(event.device->name.value);
+    const auto name = QString::fromStdString(event.device->name.value.substr(0, 10));
     if (selectIcon) {
         selectIcon->setToolTip(name);
     }
-    if (metricLabel) {
-        metricLabel->setToolTip(name);
+    if (sensorNameLabel) {
+        sensorNameLabel->setToolTip(name);
     }
     setToolTip(name);
-}
-
-auto SelectDevicePanel::measurementsReceived(const WorkoutEvent &measurements_update) const -> void {
-    if (service.service == HEART_RATE.service) {
-        const auto heart_rate = measurements_update.hrm.val;
-        metricLabel->setText(QString::number(heart_rate));
-    }
-
-    if (service.service == CADENCE.service) {
-        const auto cadence = measurements_update.cadence.val;
-        metricLabel->setText(QString::number(cadence));
-    }
-
-    if (service.service == SPEED.service) {
-        const auto speed = measurements_update.speed.val * 0.01;
-        metricLabel->setText(QString::number(speed, 'f', 1));
-    }
-
-    if (service.service == POWER.service) {
-        const auto power = measurements_update.power.val;
-        metricLabel->setText(QString::number(power));
-    }
+    sensorNameLabel->setText(name);
 }
 
 auto SelectDevicePanel::handleDeviceButtonClick() const -> void {

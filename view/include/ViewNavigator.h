@@ -13,8 +13,7 @@ public:
         const std::shared_ptr<ControllerHandler> &controllerHandler,
         const std::shared_ptr<ShowDeviceDialogController> &deviceDialogController,
         const std::shared_ptr<ConnectToDeviceController> &connectToDeviceController,
-        const std::shared_ptr<TrainerWindowController> &trainerWindowController,
-        const std::shared_ptr<SensorsWindowController> &sensorsWindowController,
+        const std::shared_ptr<UeberWindowController> &deviceWindowController,
         const std::shared_ptr<SelectWorkoutWindowController> &selectWorkoutWindowController,
         const std::shared_ptr<WorkoutWindowController> &workoutWindowController,
         const std::shared_ptr<WorkoutSummaryWindowController> &workoutSummaryWindowController,
@@ -32,8 +31,7 @@ private:
     std::shared_ptr<ControllerHandler> controllerHandler;
     std::shared_ptr<ConnectToDeviceController> connectToDeviceController;
     std::shared_ptr<ShowDeviceDialogController> deviceDialogController;
-    std::shared_ptr<TrainerWindowController> trainerWindowController;
-    std::shared_ptr<SensorsWindowController> sensorsWindowController;
+    std::shared_ptr<UeberWindowController> deviceWindowController;
     std::shared_ptr<SelectWorkoutWindowController> selectWorkoutWindowController;
     std::shared_ptr<WorkoutWindowController> workoutWindowController;
     std::shared_ptr<WorkoutSummaryWindowController> workoutSummaryWindowController;

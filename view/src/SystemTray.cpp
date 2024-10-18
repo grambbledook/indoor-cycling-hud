@@ -5,6 +5,7 @@
 #include <QActionGroup>
 
 #include "Constants.h"
+#include "Events.h"
 #include "Units.h"
 #include "WheelSizes.h"
 

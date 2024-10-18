@@ -3,7 +3,6 @@
 
 enum class ApplicationState {
     STARTING,
-    WAITING_FOR_TRAINER,
     WAITING_FOR_SENSORS,
     WAITING_FOR_WORKOUT,
     IN_WORKOUT,
@@ -23,9 +22,6 @@ struct fmt::formatter<ApplicationState> {
         switch (state) {
             case ApplicationState::STARTING:
                 stateStr = "STARTING";
-                break;
-            case ApplicationState::WAITING_FOR_TRAINER:
-                stateStr = "WAITING_FOR_TRAINER";
                 break;
             case ApplicationState::WAITING_FOR_SENSORS:
                 stateStr = "WAITING_FOR_SENSORS";

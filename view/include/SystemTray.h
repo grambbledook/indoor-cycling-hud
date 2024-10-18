@@ -1,13 +1,13 @@
 #pragma once
+#include <QActionGroup>
 #include <QSystemTrayIcon>
 #include <qobject>
 #include <qtmetamacros.h>
 
-#include "SensorsWindow.h"
-#include "TrainerWindow.h"
+#include "ControllerHandler.h"
+#include "Data.h"
 #include "Units.h"
 #include "WheelSizes.h"
-#include "WorkoutWindow.h"
 
 class SystemTray final : public QSystemTrayIcon {
     Q_OBJECT
@@ -32,10 +32,6 @@ public slots:
     auto event(QEvent *event) -> bool;
 
 private:
-    std::shared_ptr<TrainerWindow> trainerWindow;
-    std::shared_ptr<SensorsWindow> sensorsWindow;
-    std::shared_ptr<WorkoutWindow> workoutWindow;
-
     bool darkThemeEvanled = false;
     std::shared_ptr<ControllerHandler> handler;
 

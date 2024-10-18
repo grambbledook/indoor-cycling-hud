@@ -2,7 +2,6 @@
 
 #include <Constants.h>
 #include "StyleSheets.h"
-#include "TrainerWindow.h"
 
 #include <spdlog/spdlog.h>
 #include <Labels.h>

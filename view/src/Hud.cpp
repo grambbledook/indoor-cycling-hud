@@ -6,13 +6,12 @@
 #include "Constants.h"
 #include "Controller.h"
 #include "QtEventPublisher.h"
-#include "SensorsWindow.h"
 #include "SystemTray.h"
-#include "TrainerWindow.h"
 #include "ViewNavigator.h"
 #include "WorkoutWindow.h"
 
 #include "BleDeviceServices.h"
+#include "DeviceWindow.h"
 
 using namespace winrt;
 
@@ -30,13 +29,10 @@ int main(int argc, char **argv) {
     };
 
     auto model = std::make_shared<Model>();
-    auto trainerWindow = std::make_shared<TrainerWindow>(controllerHandler);
-    auto trainerWindowController = std::make_shared<TrainerWindowController>(
-        trainerWindow, appState, history);
 
-    auto sensorsWindow = std::make_shared<SensorsWindow>(controllerHandler);
-    auto sensorWindowController = std::make_shared<SensorsWindowController>(
-        sensorsWindow, appState, history);
+    auto deviceWindow = std::make_shared<DeviceWindow>(controllerHandler);
+    auto deviceWindowController = std::make_shared<UeberWindowController>(
+        deviceWindow, appState, history);
 
     auto selectWorkoutWindow = std::make_shared<SelectWorkoutWindow>(controllerHandler);
     auto selectWorkoutWindowController = std::make_shared<SelectWorkoutWindowController>(
@@ -54,9 +50,7 @@ int main(int argc, char **argv) {
 
     const auto tray = std::make_shared<SystemTray>(controllerHandler);
 
-    auto qtAdapter = std::make_shared<QtEventPublisher>(
-        trainerWindow, sensorsWindow, workoutWindow, workoutSummaryWindow, tray
-    );
+    auto qtAdapter = std::make_shared<QtEventPublisher>(deviceWindow, workoutWindow, workoutSummaryWindow, tray);
 
     model->notifications.deviceDiscovered.subscribe(
         std::bind(&QtEventPublisher::deviceDiscovered, qtAdapter, std::placeholders::_1));
@@ -82,7 +76,7 @@ int main(int argc, char **argv) {
         hrm, csc, pwr, fec, scanner, appState, history);
 
     auto switchThemeController = std::make_shared<SwitchThemeController>(
-        app, trainerWindow, sensorsWindow, selectWorkoutWindow, workoutWindow, workoutSummaryWindow, appState, history
+        app, deviceWindow, selectWorkoutWindow, workoutWindow, workoutSummaryWindow, appState, history
     );
 
     const auto shutdownController = std::make_shared<ShutdownController>(
@@ -97,7 +91,7 @@ int main(int argc, char **argv) {
 
     const auto viewNavigator = std::make_unique<ViewNavigator>(
         controllerHandler,
-        deviceDialogController, connectToDeviceController, trainerWindowController, sensorWindowController,
+        deviceDialogController, connectToDeviceController, deviceWindowController,
         selectWorkoutWindowController, workoutWindowController, workoutSummaryWindowController, switchThemeController,
         shutdownController, wheelSizeSelectionController, speedUnitController, trayConnectToDeviceController
     );
@@ -105,7 +99,7 @@ int main(int argc, char **argv) {
     tray->switchTheme();
     tray->show();
 
-    viewNavigator->nextScreen(Constants::Screens::TRAINER);
+    viewNavigator->nextScreen(Constants::Screens::SENSORS);
 
     return app->exec();
 }

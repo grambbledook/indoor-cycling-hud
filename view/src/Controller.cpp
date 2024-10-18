@@ -30,19 +30,8 @@ auto ViewController<T, T0>::renderView() -> void {
     this->history->push(view);
 }
 
-auto TrainerWindowController::handleRequest(void *) -> void {
-    if (state->state != ApplicationState::STARTING && state->state != ApplicationState::WAITING_FOR_SENSORS) {
-        spdlog::info("  Wrong state: {}", state->state);
-        return;
-    }
-
-    renderView();
-    history->push(view);
-    state->state = ApplicationState::WAITING_FOR_TRAINER;
-}
-
-auto SensorsWindowController::handleRequest(void *) -> void {
-    if (state->state != ApplicationState::WAITING_FOR_TRAINER) {
+auto UeberWindowController::handleRequest(void *) -> void {
+    if (state->state != ApplicationState::STARTING) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
     }
@@ -94,8 +83,7 @@ auto WorkoutSummaryWindowController::handleRequest(void *) -> void {
 }
 
 auto ShowDeviceDialogController::handleRequest(void *) -> void {
-    if (state->state != ApplicationState::WAITING_FOR_SENSORS && state->state !=
-        ApplicationState::WAITING_FOR_TRAINER) {
+    if (state->state != ApplicationState::WAITING_FOR_SENSORS) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
     }
@@ -211,14 +199,12 @@ auto SwitchThemeController::handleRequest(void *) -> void {
         possiblyDialog->update();
     }
     workoutWindow->setStyleSheet(sheet);
-    sensorsWindow->setStyleSheet(sheet);
     selectWorkoutWindow->setStyleSheet(sheet);
-    trainerWindow->setStyleSheet(sheet);
+    deviceWindow->setStyleSheet(sheet);
     workoutSummaryWindow->setStyleSheet(sheet);
     workoutWindow->update();
-    sensorsWindow->update();
     selectWorkoutWindow->update();
-    trainerWindow->update();
+    deviceWindow->update();
     workoutSummaryWindow->update();
 }
 

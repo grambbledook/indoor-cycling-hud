@@ -74,7 +74,6 @@ namespace Constants {
     }
 
     namespace Screens {
-        const std::string TRAINER = "trainer";
         const std::string SENSORS = "sensors";
         const std::string SELECT_WORKOUT = "select_workout";
         const std::string WORKOUT = "workout";

@@ -13,8 +13,7 @@
 #include "QtEventPublisher.h"
 #include "ScannerService.h"
 #include "SelectWorkoutWindow.h"
-#include "SensorsWindow.h"
-#include "TrainerWindow.h"
+#include "DeviceWindow.h"
 #include "WorkoutPacer.h"
 #include "WorkoutSummaryWindow.h"
 #include "WorkoutWindow.h"
@@ -60,22 +59,10 @@ public:
     std::shared_ptr<T> view;
 };
 
-class TrainerWindowController final : public ViewController<TrainerWindow> {
+class UeberWindowController final : public ViewController<DeviceWindow> {
 public:
-    explicit TrainerWindowController(
-        const std::shared_ptr<TrainerWindow> &view,
-        const std::shared_ptr<AppState> &state,
-        const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history)
-        : ViewController(view, state, history) {
-    }
-
-    auto handleRequest(void * = nullptr) -> void override;
-};
-
-class SensorsWindowController final : public ViewController<SensorsWindow> {
-public:
-    explicit SensorsWindowController(
-        const std::shared_ptr<SensorsWindow> &view,
+    explicit UeberWindowController(
+        const std::shared_ptr<DeviceWindow> &view,
         const std::shared_ptr<AppState> &state,
         const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history)
         : ViewController(view, state, history) {
@@ -191,15 +178,14 @@ class SwitchThemeController final : public WidgetController<QWidget> {
 public:
     explicit SwitchThemeController(
         QApplication *app,
-        const std::shared_ptr<TrainerWindow> &trainerWindow,
-        const std::shared_ptr<SensorsWindow> &sensorsWindow,
+        const std::shared_ptr<DeviceWindow> &deviceWindow,
         const std::shared_ptr<SelectWorkoutWindow> &selectWorkoutWindow,
         const std::shared_ptr<WorkoutWindow> &workoutWindow,
         const std::shared_ptr<WorkoutSummaryWindow> &workoutSummaryWindow,
         const std::shared_ptr<AppState> &state,
         const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history
     )
-        : WidgetController(state, history), app(app), trainerWindow(trainerWindow), sensorsWindow(sensorsWindow),
+        : WidgetController(state, history), app(app), deviceWindow(deviceWindow),
           workoutWindow(workoutWindow), selectWorkoutWindow(selectWorkoutWindow),
           workoutSummaryWindow(workoutSummaryWindow) {
     }
@@ -208,8 +194,7 @@ public:
 
 private:
     QApplication *app;
-    std::shared_ptr<TrainerWindow> trainerWindow;
-    std::shared_ptr<SensorsWindow> sensorsWindow;
+    std::shared_ptr<DeviceWindow> deviceWindow;
     std::shared_ptr<WorkoutWindow> workoutWindow;
     std::shared_ptr<SelectWorkoutWindow> selectWorkoutWindow;
     std::shared_ptr<WorkoutSummaryWindow> workoutSummaryWindow;

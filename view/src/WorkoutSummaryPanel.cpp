@@ -1,7 +1,6 @@
 #include "WorkoutSummaryPanel.h"
 
 #include <Constants.h>
-#include "TrainerWindow.h"
 
 #include <spdlog/spdlog.h>
 

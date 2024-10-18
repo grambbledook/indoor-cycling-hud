@@ -22,7 +22,6 @@ public:
     );
 
     auto deviceSelected(const DeviceSelected &event) -> void;
-    auto measurementsReceived(const WorkoutEvent &measurements_update) const -> void;
 
 public slots:
     auto handleDeviceButtonClick() const -> void;
@@ -32,5 +31,5 @@ private:
 
     std::shared_ptr<ControllerHandler> handler;
     ClickableLabel *selectIcon;
-    ValueLabel *metricLabel;
+    TextLabel *sensorNameLabel;
 };

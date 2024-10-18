@@ -3,13 +3,11 @@
 #include "ModelEvents.h"
 #include "SelectDevicePanel.h"
 
-class SensorsWindow final : public AppWindow {
+class DeviceWindow final : public AppWindow {
     Q_OBJECT
 
 public:
-    void measurementsReceived(const WorkoutEvent &measurements_update) const;
-
-    explicit SensorsWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent = nullptr);
+    explicit DeviceWindow(const std::shared_ptr<ControllerHandler> &handler, QWidget *parent = nullptr);
 
     auto deviceSelected(const DeviceSelected &event) const -> void;
 
@@ -18,6 +16,7 @@ public:
     auto next() -> void override;
 
 private:
+    SelectDevicePanel *trainerPanel;
     SelectDevicePanel *heartRateMonitorPanel;
     SelectDevicePanel *cadencePanel;
     SelectDevicePanel *speedPanel;

@@ -1,5 +1,5 @@
-#include "StyleSheets.h"
-#include "SensorsWindow.h"
+#include "DeviceWindow.h"
+
 
 #include <Constants.h>
 #include <spdlog/spdlog.h>
@@ -10,7 +10,7 @@
 #include "Events.h"
 #include "SupportedServices.h"
 
-SensorsWindow::SensorsWindow(
+DeviceWindow::DeviceWindow(
     const std::shared_ptr<ControllerHandler> &handler,
     QWidget *parent
 ): AppWindow(handler, parent) {
@@ -18,13 +18,6 @@ SensorsWindow::SensorsWindow(
         getDeviceSelectedType(), [this](QEvent *event) {
             const auto device = dynamic_cast<DeviceSelectedEvent *>(event);
             deviceSelected(device->getEvent());
-        }
-    });
-
-    eventHandlers.insert({
-        getWorkoutEventType(), [this](QEvent *event) {
-            const auto data = dynamic_cast<WorkoutEventEvent *>(event);
-            measurementsReceived(data->getData());
         }
     });
 
@@ -56,20 +49,25 @@ SensorsWindow::SensorsWindow(
         handler, this
     );
 
-    const auto backLabel = new ButtonLabel(Constants::Buttons::BACK, true, this);
-    connect(backLabel, &ButtonLabel::clicked, this, &SensorsWindow::back);
+    trainerPanel = new SelectDevicePanel(
+        BIKE_TRAINER,
+        Constants::Icons::BIKE_TRAINER,
+        Constants::Icons::BIKE_TRAINER,
+        handler, this
+    );
 
     const auto nextLabel = new ButtonLabel(Constants::Buttons::NEXT, true, this);
-    connect(nextLabel, &ButtonLabel::clicked, this, &SensorsWindow::next);
+    connect(nextLabel, &ButtonLabel::clicked, this, &DeviceWindow::next);
 
     auto *layout = new QGridLayout(this);
     layout->addWidget(heartRateMonitorPanel, 0, 0, Qt::AlignCenter);
-    layout->addWidget(cadencePanel, 0, 1, Qt::AlignCenter);
-    layout->addWidget(speedPanel, 1, 0, Qt::AlignCenter);
-    layout->addWidget(powerPanel, 1, 1, Qt::AlignCenter);
+    layout->addWidget(nextLabel, 0, 1, Qt::AlignCenter);
+    layout->addWidget(cadencePanel, 0, 2, Qt::AlignCenter);
 
-    layout->addWidget(backLabel, 3, 0, Qt::AlignCenter);
-    layout->addWidget(nextLabel, 3, 1, Qt::AlignCenter);
+    layout->addWidget(powerPanel, 1, 0, Qt::AlignCenter);
+    layout->addWidget(trainerPanel, 1, 1, Qt::AlignCenter);
+    layout->addWidget(speedPanel, 1, 2, Qt::AlignCenter);
+
 
     const auto centralWidget = new QWidget(this);
     centralWidget->setObjectName(Constants::Classes::PANEL);
@@ -77,7 +75,7 @@ SensorsWindow::SensorsWindow(
     setCentralWidget(centralWidget);
 }
 
-auto SensorsWindow::deviceSelected(const DeviceSelected &event) const -> void {
+auto DeviceWindow::deviceSelected(const DeviceSelected &event) const -> void {
     spdlog::info("SensorsWindow::deviceSelected");
 
     if (event.service == Service::HEART_RATE) {
@@ -95,19 +93,15 @@ auto SensorsWindow::deviceSelected(const DeviceSelected &event) const -> void {
     if (event.service == Service::POWER) {
         powerPanel->deviceSelected(event);
     }
+
+    if (event.service == Service::BIKE_TRAINER) {
+        trainerPanel->deviceSelected(event);
+    }
 }
 
-auto SensorsWindow::measurementsReceived(const WorkoutEvent &measurements_update) const -> void {
-    heartRateMonitorPanel->measurementsReceived(measurements_update);
-    cadencePanel->measurementsReceived(measurements_update);
-    speedPanel->measurementsReceived(measurements_update);
-    powerPanel->measurementsReceived(measurements_update);
+auto DeviceWindow::back() -> void {
 }
 
-auto SensorsWindow::back() -> void {
-    controllerHandler->next(Constants::Screens::TRAINER);
-}
-
-auto SensorsWindow::next() -> void {
+auto DeviceWindow::next() -> void {
     controllerHandler->next(Constants::Screens::SELECT_WORKOUT);
 }

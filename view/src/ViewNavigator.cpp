@@ -1,13 +1,11 @@
 #include "ViewNavigator.h"
 #include "Constants.h"
-#include "DeviceDialog.h"
 
 ViewNavigator::ViewNavigator(
     const std::shared_ptr<ControllerHandler> &controllerHandler,
     const std::shared_ptr<ShowDeviceDialogController> &deviceDialogController,
     const std::shared_ptr<ConnectToDeviceController> &connectToDeviceController,
-    const std::shared_ptr<TrainerWindowController> &trainerWindowController,
-    const std::shared_ptr<SensorsWindowController> &sensorsWindowController,
+    const std::shared_ptr<UeberWindowController> &deviceWindowController,
     const std::shared_ptr<SelectWorkoutWindowController> &selectWorkoutWindowController,
     const std::shared_ptr<WorkoutWindowController> &workoutWindowController,
     const std::shared_ptr<WorkoutSummaryWindowController> &workoutSummaryWindowController,
@@ -17,12 +15,11 @@ ViewNavigator::ViewNavigator(
     const std::shared_ptr<SpeedUnitController> &speedUnitController,
     const std::shared_ptr<TrayConnectToDeviceController> &trayConnectToDeviceController
 ): controllerHandler(controllerHandler), connectToDeviceController(connectToDeviceController),
-   deviceDialogController(deviceDialogController), trainerWindowController(trainerWindowController),
-   sensorsWindowController(sensorsWindowController), selectWorkoutWindowController(selectWorkoutWindowController),
-   workoutWindowController(workoutWindowController), workoutSummaryWindowController(workoutSummaryWindowController),
-   switchThemeController(switchThemeController), shutdownController(shutdownController),
-   wheelSizeSelectionController(wheelSizeSelectionController), speedUnitController(speedUnitController),
-   trayConnectToDeviceController(trayConnectToDeviceController) {
+   deviceDialogController(deviceDialogController), deviceWindowController(deviceWindowController),
+   selectWorkoutWindowController(selectWorkoutWindowController), workoutWindowController(workoutWindowController),
+   workoutSummaryWindowController(workoutSummaryWindowController), switchThemeController(switchThemeController),
+   shutdownController(shutdownController), wheelSizeSelectionController(wheelSizeSelectionController),
+   speedUnitController(speedUnitController), trayConnectToDeviceController(trayConnectToDeviceController) {
     auto receiver = [this](const std::string &screen, const std::vector<std::any> &args) {
         this->nextScreen(screen, args);
     };
@@ -30,11 +27,8 @@ ViewNavigator::ViewNavigator(
 }
 
 auto ViewNavigator::nextScreen(const std::string &command, const std::vector<std::any> &args) const -> void {
-    if (command == Constants::Screens::TRAINER) {
-        trainerWindowController->handleRequest();
-    }
     if (command == Constants::Screens::SENSORS) {
-        sensorsWindowController->handleRequest();
+        deviceWindowController->handleRequest();
     }
 
     if (command == Constants::Screens::SELECT_WORKOUT) {

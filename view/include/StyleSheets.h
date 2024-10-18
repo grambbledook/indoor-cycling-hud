@@ -3,6 +3,9 @@
 
 namespace StyleSheets {
     inline std::string SCALE_MEDIUM = R"MEDIUM(
+        RoundPanel {
+            border-radius: 10px;
+        }
         QListWidget {
             font-weight: bold;
             font-size: 20px;
@@ -50,6 +53,9 @@ namespace StyleSheets {
 )MEDIUM";
 
     inline std::string THEME_DARK = R"DARK(
+        RoundPanel {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
         QWidget#panel {
             background-color: rgba(0, 0, 0, 0.8);
         }
