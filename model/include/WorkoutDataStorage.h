@@ -9,18 +9,16 @@
 #include "ModelEvents.h"
 
 constexpr auto create_tables_sql = R"CREATE(
-    CREATE TABLE signals (
-        ts integer
-        type text
-    );
-
     CREATE TABLE measurements (
         ts INTEGER PRIMARY KEY,
-        count INTEGER,
         hrm INTEGER,
+        hrm_count INTEGER,
         power INTEGER,
+        power_count INTEGER,
         cadence INTEGER,
+        cadence_count INTEGER,
         speed INTEGER,
+        speed_count INTEGER,
         aggregated_heart_rate INTEGER,
         aggregated_power INTEGER,
         aggregated_crank_revs INTEGER,
@@ -29,13 +27,13 @@ constexpr auto create_tables_sql = R"CREATE(
 )CREATE";
 
 constexpr auto insert_sql = R"INSERT(
-    INSERT INTO measurements (ts, count, hrm, power, cadence, speed, aggregated_heart_rate, aggregated_power, aggregated_crank_revs, aggregated_wheel_revs)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    INSERT INTO measurements (ts, hrm, hrm_count, power, power_count, cadence, cadence_count, speed, speed_count, aggregated_heart_rate, aggregated_power, aggregated_crank_revs, aggregated_wheel_revs)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 )INSERT";
 
 constexpr auto select_latest_sql = R"QUERY(
     SELECT
-        count, aggregated_heart_rate, aggregated_power, aggregated_crank_revs, aggregated_wheel_revs
+        aggregated_heart_rate, hrm_count, aggregated_power, power_count, aggregated_crank_revs, cadence_count, aggregated_wheel_revs, speed_count
     FROM
         measurements
     ORDER BY
@@ -46,12 +44,15 @@ constexpr auto select_latest_sql = R"QUERY(
 constexpr auto select_aggregate_sql = R"QUERY(
     SELECT
         ts,
-        count,
         hrm,
+        hrm_count,
         power,
+        power_count,
         AVG(power) OVER () AS three_sec_avg_power,
         cadence,
+        cadence_count,
         speed,
+        speed_count,
         aggregated_heart_rate,
         aggregated_power,
         aggregated_crank_revs,
@@ -71,7 +72,7 @@ constexpr auto select_workout_duration_sql = R"QUERY(
         min(ts) over () AS start,
         max(ts) over () AS end
     FROM
-        signals;
+        measurements;
 )QUERY";
 
 constexpr auto select_current_workout_duration_sql = R"QUERY(
@@ -79,7 +80,7 @@ constexpr auto select_current_workout_duration_sql = R"QUERY(
         min(ts) over () AS start,
         unixepoch('subsec') AS end
     FROM
-        signals;
+        measurements;
 )QUERY";
 
 

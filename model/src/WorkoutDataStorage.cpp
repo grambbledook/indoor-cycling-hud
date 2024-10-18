@@ -40,17 +40,17 @@ auto WorkoutDataStorage::newWorkout() -> void {
 auto WorkoutDataStorage::startWorkout() -> void {
     const auto now = std::chrono::system_clock::now();
     const auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
-    signal(millis,"start");
+    signal(millis, "start");
 }
 
 auto WorkoutDataStorage::endWorkout() -> void {
     const auto now = std::chrono::system_clock::now();
     const auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
-    signal(millis,"end");
+    signal(millis, "end");
 }
 
 void WorkoutDataStorage::aggregate(
-    std::chrono::milliseconds timestamp,
+    const std::chrono::milliseconds timestamp,
     const unsigned long hrm,
     const unsigned long power,
     const unsigned long cadence,
@@ -61,7 +61,10 @@ void WorkoutDataStorage::aggregate(
     const auto select = std::make_unique<SQLiteStatement>(connection.get(), select_latest_sql);
     auto rc = sqlite3_step(select->get());
 
-    auto prev_count = 0UL;
+    auto hrm_count = 0UL;
+    auto power_count = 0UL;
+    auto speed_count = 0UL;
+    auto cadence_count = 0UL;
     auto prevAggregatedHrm = 0UL;
     auto prevAggregatedPower = 0UL;
     auto prevAggregatedCR = 0UL;
@@ -74,11 +77,14 @@ void WorkoutDataStorage::aggregate(
     };
 
     if (rc == SQLITE_ROW) {
-        prev_count = get(select->get(), 0);
-        prevAggregatedHrm = get(select->get(), 1);
+        prevAggregatedHrm = get(select->get(), 0);
+        hrm_count = get(select->get(), 1);
         prevAggregatedPower = get(select->get(), 2);
-        prevAggregatedCR = get(select->get(), 3);
-        prevAggregatedWR = get(select->get(), 4);
+        power_count = get(select->get(), 3);
+        prevAggregatedCR = get(select->get(), 4);
+        cadence_count = get(select->get(), 5);
+        prevAggregatedWR = get(select->get(), 6);
+        speed_count = get(select->get(), 7);
     }
 
     auto offset = 1;
@@ -95,11 +101,14 @@ void WorkoutDataStorage::aggregate(
     auto duration = timestamp.count();
 
     bind(statement->get(), duration, "ts");
-    bind(statement->get(), prev_count + 1, "count");
     bind(statement->get(), hrm, "hrm");
+    bind(statement->get(), hrm_count + (hrm == 0 ? 0 : 1), "hrm_count");
     bind(statement->get(), power, "power");
+    bind(statement->get(), power_count +( power == 0 ? 0 : 1), "power_count");
     bind(statement->get(), cadence, "cadence");
+    bind(statement->get(), cadence_count + (cadence == 0 ? 0 : 1), "cadence_count");
     bind(statement->get(), speed, "speed");
+    bind(statement->get(), speed_count + (speed == 0 ? 0 : 1), "speed_count");
     bind(statement->get(), prevAggregatedHrm + hrm, "aggregated_heart_rate");
     bind(statement->get(), prevAggregatedPower + power, "aggregated_power");
     bind(statement->get(), prevAggregatedCR + crankRevs, "aggregated_crank_revs");
@@ -140,16 +149,19 @@ auto WorkoutDataStorage::getDataAt(const std::chrono::milliseconds timestamp) co
         return std::optional(static_cast<unsigned long>(value));
     };
 
-    const auto count = read(statement->get(), 1).value_or(1UL);
-    const auto hrm = read(statement->get(), 2);
+    const auto hrm = read(statement->get(), 1);
+    const auto hrm_count = read(statement->get(), 2).value_or(1UL);
     const auto power = read(statement->get(), 3);
-    const auto power_3s = read(statement->get(), 4);
-    const auto cadence = read(statement->get(), 5);
-    const auto speed = read(statement->get(), 6);
-    const auto aggregatedHRM = read(statement->get(), 7);
-    const auto aggregatedPOW = read(statement->get(), 8);
-    const auto aggregatedCAD = read(statement->get(), 9);
-    const auto aggregatedSPD = read(statement->get(), 10);
+    const auto power_count = read(statement->get(), 4).value_or(1UL);
+    const auto power_3s = read(statement->get(), 5);
+    const auto cadence = read(statement->get(), 6);
+    const auto cadence_count = read(statement->get(), 7).value_or(1UL);
+    const auto speed = read(statement->get(), 8);
+    const auto speed_count = read(statement->get(), 9).value_or(1UL);
+    const auto aggregatedHRM = read(statement->get(), 10);
+    const auto aggregatedPOW = read(statement->get(), 11);
+    const auto aggregatedCAD = read(statement->get(), 12);
+    const auto aggregatedSPD = read(statement->get(), 13);
 
     auto avg = [](const std::optional<unsigned long> &value, const unsigned long &count) {
         return value.transform([&count](const unsigned long v) { return v / count; });
@@ -157,17 +169,17 @@ auto WorkoutDataStorage::getDataAt(const std::chrono::milliseconds timestamp) co
 
     return Aggregate{
         hrm,
-        avg(aggregatedHRM, count),
+        avg(aggregatedHRM, hrm_count),
         std::optional<unsigned long>(), std::optional<unsigned long>(),
         power,
-        avg(aggregatedPOW, count),
+        avg(aggregatedPOW, power_count),
         power_3s,
         std::optional<unsigned long>(), std::optional<unsigned long>(),
         cadence,
-        avg(aggregatedCAD, count),
+        avg(aggregatedCAD, cadence_count),
         std::optional<unsigned long>(), std::optional<unsigned long>(),
         speed,
-        avg(aggregatedSPD, count),
+        avg(aggregatedSPD, speed_count),
         std::optional<unsigned long>(), std::optional<unsigned long>(),
     };
 }

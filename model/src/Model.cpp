@@ -222,7 +222,7 @@ auto Model::tick() -> void {
 
     const auto now = system_clock::now();
 
-    constexpr int MAX_RELEVANCE_SECONDS = 1;
+    constexpr int MAX_RELEVANCE_SECONDS = 2;
 
     const auto hrm = duration_cast<seconds>(now - buffer.heartRate.timestamp).count() > MAX_RELEVANCE_SECONDS
                          ? 0
@@ -242,8 +242,8 @@ auto Model::tick() -> void {
                            ? 0
                            : buffer.power.value;
 
-    const auto millis = duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
-    storage->aggregate(millis, hrm, power, cadence, totalCrankRevs, speed, totalWheelRevs);
+    const auto timestamp = duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+    storage->aggregate(timestamp, hrm, power, cadence, totalCrankRevs, speed, totalWheelRevs);
 
     publishWorkoutEvent(WorkoutState::IN_PROGRESS, notifications.measurements);
 }
