@@ -25,8 +25,8 @@ struct Aggregate {
      std::optional<unsigned long> hrm_min;
      std::optional<unsigned long> hrm_max;
      std::optional<unsigned long> power;
-     std::optional<unsigned long> power_avg;
      std::optional<unsigned long> power_3s;
+     std::optional<unsigned long> power_avg;
      std::optional<unsigned long> power_min;
      std::optional<unsigned long> power_max;
      std::optional<unsigned long> cadence;

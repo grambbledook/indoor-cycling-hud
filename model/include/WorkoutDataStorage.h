@@ -41,7 +41,7 @@ constexpr auto select_latest_sql = R"QUERY(
     LIMIT 1;
 )QUERY";
 
-constexpr auto select_aggregate_sql = R"QUERY(
+constexpr auto select_window_aggregate_sql = R"QUERY(
     SELECT
         ts,
         hrm,
@@ -66,6 +66,27 @@ constexpr auto select_aggregate_sql = R"QUERY(
     LIMIT 1;
 )QUERY";
 
+constexpr auto select_workout_aggregate_sql = R"QUERY(
+    SELECT
+        AVG(hrm) AS avg_hrm,
+        MIN(hrm) AS min_hrm,
+        MAX(hrm) AS max_hrm,
+        AVG(power) AS avg_power,
+        MIN(power) AS min_power,
+        MAX(power) AS max_power,
+        AVG(cadence) AS avg_cadence,
+        MIN(cadence) AS min_cadence,
+        MAX(cadence) AS max_cadence,
+        AVG(speed) AS avg_speed,
+        MIN(speed) AS min_speed,
+        MAX(speed) AS max_speed
+    FROM
+        measurements
+    ORDER BY
+        ts DESC
+    LIMIT 1;
+)QUERY";
+
 
 constexpr auto select_workout_duration_sql = R"QUERY(
     SELECT
@@ -75,15 +96,6 @@ constexpr auto select_workout_duration_sql = R"QUERY(
         measurements;
 )QUERY";
 
-constexpr auto select_current_workout_duration_sql = R"QUERY(
-    SELECT
-        min(ts) over () AS start,
-        unixepoch('subsec') AS end
-    FROM
-        measurements;
-)QUERY";
-
-
 class WorkoutDataStorage {
 public:
     WorkoutDataStorage();
@@ -92,9 +104,9 @@ public:
 
     auto newWorkout() -> void;
 
-    auto startWorkout() -> void;
+    auto startWorkout() const -> void;
 
-    auto endWorkout() -> void;
+    auto endWorkout() const -> void;
 
     void aggregate(
         std::chrono::milliseconds timestamp,
@@ -104,7 +116,7 @@ public:
         const unsigned long speed,
         const unsigned long crankRevs,
         const unsigned long wheelRevs
-    );
+    ) const;
 
     [[nodiscard]] auto getDataAt(std::chrono::milliseconds timestamp) const -> Aggregate;
 
@@ -112,11 +124,12 @@ public:
 
     [[nodiscard]] auto getCurrentWorkoutDuration() const -> long long;
 
+    [[nodiscard]] auto getWorkoutSummary() const -> Aggregate;
 
 private:
-    auto signal(std::chrono::milliseconds timestamp, const std::string &type) const -> void;
+    auto signal(std::chrono::milliseconds timestamp) const -> void;
 
-    [[nodiscard]] auto getWorkoutDuration(const std::string &query) const -> long long;
+    [[nodiscard]] auto getWorkoutDuration(const std::string &query) const -> std::pair<long long, long long>;
 
     static long id;
     std::unique_ptr<SQLiteConnection> connection;

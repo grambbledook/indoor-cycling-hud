@@ -256,7 +256,9 @@ auto Model::publishWorkoutEvent(const WorkoutState status, Channel<WorkoutEvent>
                               : storage->getTotalWorkoutDuration();
 
     const auto now = duration_cast<std::chrono::milliseconds>(system_clock::now().time_since_epoch());
-    auto data = storage->getDataAt(now);
+    auto data = status == WorkoutState::IN_PROGRESS
+                    ? storage->getDataAt(now)
+                    : storage->getWorkoutSummary();
 
     spdlog::trace("Speed: {}, avg Speed: {}, duration: {}", data.speed.value_or(0), data.speed_avg.value_or(0),
                   duration);
@@ -279,7 +281,8 @@ auto Model::publishWorkoutEvent(const WorkoutState status, Channel<WorkoutEvent>
     spdlog::trace("   Speed: {}, avg Speed: {}, distance: {}", data.speed.value_or(0), data.speed_avg.value_or(0),
                   distance);
     const auto summary = WorkoutEvent{
-        status, duration, distance, distanceUnit, data, MeasurementAggregate{}, MeasurementAggregate{}, MeasurementAggregate{}, MeasurementAggregate{}
+        status, duration, distance, distanceUnit, data, MeasurementAggregate{}, MeasurementAggregate{},
+        MeasurementAggregate{}, MeasurementAggregate{}
     };
 
     channel.publish(summary);

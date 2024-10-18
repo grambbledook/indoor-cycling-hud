@@ -70,6 +70,16 @@ namespace Data {
         [](const WorkoutEvent &event) { return toString(event.data.hrm_avg); }
     };
 
+    const auto MAX_HEART_RATE = DataField{
+        "Max Heart rate",
+        [](const WorkoutEvent &event) { return toString(event.data.hrm_max); }
+    };
+
+    const auto MIN_HEART_RATE = DataField{
+        "Min Heart rate",
+        [](const WorkoutEvent &event) { return toString(event.data.hrm_min); }
+    };
+
     const auto CADENCE = DataField{
         "Cadence",
         [](const WorkoutEvent &event) { return toString(event.data.cadence); }
@@ -78,6 +88,16 @@ namespace Data {
     const auto AVG_CADENCE = DataField{
         "Avg Cadence",
         [](const WorkoutEvent &event) { return toString(event.data.cadence_avg); }
+    };
+
+    const auto MAX_CADENCE = DataField{
+        "Max Cadence",
+        [](const WorkoutEvent &event) { return toString(event.data.cadence_max); }
+    };
+
+    const auto MIN_CADENCE = DataField{
+        "Min Cadence",
+        [](const WorkoutEvent &event) { return toString(event.data.cadence_min); }
     };
 
     const auto SPEED = DataField{
@@ -90,14 +110,19 @@ namespace Data {
         [](const WorkoutEvent &event) { return toString(event.data.speed_avg); }
     };
 
+    const auto MAX_SPEED = DataField{
+        "Max Speed",
+        [](const WorkoutEvent &event) { return toString(event.data.speed_max); }
+    };
+
+    const auto MIN_SPEED = DataField{
+        "Min Speed",
+        [](const WorkoutEvent &event) { return toString(event.data.speed_min); }
+    };
+
     const auto POWER = DataField{
         "Power",
         [](const WorkoutEvent &event) { return toString(event.data.power); }
-    };
-
-    const auto AVG_POWER = DataField{
-        "Avg Power",
-        [](const WorkoutEvent &event) { return toString(event.data.power_avg); }
     };
 
     const auto AVG_3S_POWER = DataField{
@@ -105,6 +130,20 @@ namespace Data {
         [](const WorkoutEvent &event) { return toString(event.data.power_3s); }
     };
 
+    const auto AVG_POWER = DataField{
+        "Avg Power",
+        [](const WorkoutEvent &event) { return toString(event.data.power_avg); }
+    };
+
+    const auto MAX_POWER = DataField{
+        "Max Power",
+        [](const WorkoutEvent &event) { return toString(event.data.power_max); }
+    };
+
+    const auto MIN_POWER = DataField{
+        "Min Power",
+        [](const WorkoutEvent &event) { return toString(event.data.power_min); }
+    };
     const auto DURATION_WORKOUT = DataField{
         "Duration",
         [](const WorkoutEvent &event) { return formatDuration(event.durationMs); }

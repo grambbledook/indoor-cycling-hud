@@ -37,16 +37,16 @@ auto WorkoutDataStorage::newWorkout() -> void {
     }
 }
 
-auto WorkoutDataStorage::startWorkout() -> void {
+auto WorkoutDataStorage::startWorkout() const -> void {
     const auto now = std::chrono::system_clock::now();
-    const auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
-    signal(millis, "start");
+    const auto timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+    signal(timestamp);
 }
 
-auto WorkoutDataStorage::endWorkout() -> void {
+auto WorkoutDataStorage::endWorkout() const -> void {
     const auto now = std::chrono::system_clock::now();
-    const auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
-    signal(millis, "end");
+    const auto timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+    signal(timestamp);
 }
 
 void WorkoutDataStorage::aggregate(
@@ -57,7 +57,7 @@ void WorkoutDataStorage::aggregate(
     const unsigned long speed,
     const unsigned long crankRevs,
     const unsigned long wheelRevs
-) {
+) const {
     const auto select = std::make_unique<SQLiteStatement>(connection.get(), select_latest_sql);
     auto rc = sqlite3_step(select->get());
 
@@ -104,7 +104,7 @@ void WorkoutDataStorage::aggregate(
     bind(statement->get(), hrm, "hrm");
     bind(statement->get(), hrm_count + (hrm == 0 ? 0 : 1), "hrm_count");
     bind(statement->get(), power, "power");
-    bind(statement->get(), power_count +( power == 0 ? 0 : 1), "power_count");
+    bind(statement->get(), power_count + (power == 0 ? 0 : 1), "power_count");
     bind(statement->get(), cadence, "cadence");
     bind(statement->get(), cadence_count + (cadence == 0 ? 0 : 1), "cadence_count");
     bind(statement->get(), speed, "speed");
@@ -122,7 +122,7 @@ void WorkoutDataStorage::aggregate(
 }
 
 auto WorkoutDataStorage::getDataAt(const std::chrono::milliseconds timestamp) const -> Aggregate {
-    const auto statement = std::make_unique<SQLiteStatement>(connection.get(), select_aggregate_sql);
+    const auto statement = std::make_unique<SQLiteStatement>(connection.get(), select_window_aggregate_sql);
 
     const auto depth = timestamp - std::chrono::milliseconds(3000);
     auto rc = sqlite3_bind_int64(statement->get(), 1, depth.count());
@@ -172,8 +172,8 @@ auto WorkoutDataStorage::getDataAt(const std::chrono::milliseconds timestamp) co
         avg(aggregatedHRM, hrm_count),
         std::optional<unsigned long>(), std::optional<unsigned long>(),
         power,
-        avg(aggregatedPOW, power_count),
         power_3s,
+        avg(aggregatedPOW, power_count),
         std::optional<unsigned long>(), std::optional<unsigned long>(),
         cadence,
         avg(aggregatedCAD, cadence_count),
@@ -186,41 +186,92 @@ auto WorkoutDataStorage::getDataAt(const std::chrono::milliseconds timestamp) co
 
 
 auto WorkoutDataStorage::getTotalWorkoutDuration() const -> long long {
-    return getWorkoutDuration(select_workout_duration_sql);
+    auto [start, end] = getWorkoutDuration(select_workout_duration_sql);
+
+    return end - start;
 }
 
 auto WorkoutDataStorage::getCurrentWorkoutDuration() const -> long long {
-    return getWorkoutDuration(select_current_workout_duration_sql);
+    const auto now = std::chrono::system_clock::now();
+    const auto end = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+
+    auto [start, _] = getWorkoutDuration(select_workout_duration_sql);
+    return end.count() - start;
 }
 
-auto WorkoutDataStorage::getWorkoutDuration(const std::string &query) const -> long long {
+auto WorkoutDataStorage::getWorkoutSummary() const -> Aggregate {
+    const auto statement = std::make_unique<SQLiteStatement>(connection.get(), select_workout_aggregate_sql);
+
+    const auto rc = sqlite3_step(statement->get());
+    if (rc == SQLITE_DONE) {
+        return Aggregate();
+    }
+
+    if (rc != SQLITE_ROW) {
+        spdlog::error("SQLite error: {}", sqlite3_errmsg(connection->get()));
+        throw std::runtime_error("Failed to execute select statement");
+    }
+
+    auto read = [](sqlite3_stmt *stmt, const int offset) {
+        if (sqlite3_column_type(stmt, offset) == SQLITE_NULL) {
+            return std::optional<unsigned long>();
+        }
+
+        const auto value = sqlite3_column_int64(stmt, offset);
+        return std::optional(static_cast<unsigned long>(value));
+    };
+
+    const auto avg_hrm = read(statement->get(), 0);
+    const auto min_hrm = read(statement->get(), 1);
+    const auto max_hrm = read(statement->get(), 2);
+
+    const auto avg_power = read(statement->get(), 3);
+    const auto min_power = read(statement->get(), 4);
+    const auto max_power = read(statement->get(), 5);
+
+    const auto avg_cadence = read(statement->get(), 6);
+    const auto min_cadence = read(statement->get(), 7);
+    const auto max_cadence = read(statement->get(), 8);
+
+    const auto avg_speed = read(statement->get(), 9);
+    const auto min_speed = read(statement->get(), 10);
+    const auto max_speeed = read(statement->get(), 11);
+
+    return Aggregate{
+        std::optional<unsigned long>(),
+        avg_hrm, min_hrm, max_hrm,
+        std::optional<unsigned long>(), std::optional<unsigned long>(),
+        avg_power, min_power, max_power,
+        std::optional<unsigned long>(),
+        avg_cadence, min_cadence, max_cadence,
+        std::optional<unsigned long>(),
+        avg_speed, min_speed, max_speeed,
+    };
+}
+
+auto WorkoutDataStorage::getWorkoutDuration(const std::string &query) const -> std::pair<long long, long long> {
     const auto select = std::make_unique<SQLiteStatement>(connection.get(), query);
 
     const auto rc = sqlite3_step(select->get());
     if (rc == SQLITE_ROW) {
         const auto start = sqlite3_column_int64(select->get(), 0);
         const auto end = sqlite3_column_int64(select->get(), 1);
-        return end - start;
+        return {start, end};
     }
     if (rc != SQLITE_DONE) {
         spdlog::error("SQLite error: {}", sqlite3_errmsg(connection->get()));
         throw std::runtime_error("Failed to execute select statement");
     }
 
-    return 0L;
+    return {0L, 0L};
 }
 
-auto WorkoutDataStorage::signal(const std::chrono::milliseconds timestamp, const std::string &type) const -> void {
+auto WorkoutDataStorage::signal(const std::chrono::milliseconds timestamp) const -> void {
     const auto statement = std::make_unique<SQLiteStatement>(connection.get(), insert_sql);
 
     auto rc = sqlite3_bind_int64(statement->get(), 1, timestamp.count());
     if (rc != SQLITE_OK) {
         throw std::runtime_error("Failed to bind [timestamp] value");
-    }
-
-    rc = sqlite3_bind_text(statement->get(), 2, type.c_str(), -1, SQLITE_TRANSIENT);
-    if (rc != SQLITE_OK) {
-        throw std::runtime_error("Failed to bind [type] value");
     }
 
     rc = sqlite3_step(statement->get());
