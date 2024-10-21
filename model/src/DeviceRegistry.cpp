@@ -6,7 +6,8 @@
 #include <memory>
 #include <spdlog/spdlog.h>
 
-DeviceRegistry::DeviceRegistry() = default;
+DeviceRegistry::DeviceRegistry(const std::shared_ptr<EventBus> &bus) : bus(bus) {
+}
 
 DeviceRegistry::~DeviceRegistry() {
     stop(); // Ensure all clients are disconnected and cleaned up on destruction
@@ -17,9 +18,19 @@ auto DeviceRegistry::connect(const Device &device) -> std::shared_ptr<BleClient>
 
     spdlog::info("DeviceRegistry::connect");
 
+    auto lambda = [this](BleClientEvent event) {
+        const auto status = event.status == BleConnectionStatus::CONNECTED
+                                ? ConnectionStatus::CONNECTED
+                                : ConnectionStatus::DISCONNECTED;
+
+        const auto device_connection_event = DeviceConnectionEvent{event.device, status};
+        bus->publish(device_connection_event);
+    };
+
+
     if (!clients.contains(device.deviceId())) {
         spdlog::info("    Creating new client for device: {}", device.deviceId());
-        clients[device.deviceId()] = std::make_shared<BleClient>(device);
+        clients[device.deviceId()] = std::make_shared<BleClient>(device, lambda);
         spdlog::info("    Created new client for device: {}", device.deviceId());
     }
 
@@ -34,7 +45,7 @@ auto DeviceRegistry::connect(const Device &device) -> std::shared_ptr<BleClient>
     return client;
 }
 
-auto DeviceRegistry::stop() -> void  {
+auto DeviceRegistry::stop() -> void {
     std::lock_guard guard(mutex);
 
     spdlog::info("Stopping all clients.");

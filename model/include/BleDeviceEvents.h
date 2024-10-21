@@ -11,19 +11,14 @@ public:
     virtual ~Measurement() = default;
 };
 
-template<typename T>
-concept DerivedFromMeasurement = std::is_base_of_v<Measurement, T>;
-
-template<typename T>
-    requires DerivedFromMeasurement<T>
 class MeasurementEvent {
 public:
-    explicit MeasurementEvent(const std::shared_ptr<Device> &device, T measurement)
-        : device(device), measurement(measurement) {
+    explicit MeasurementEvent(const std::shared_ptr<Device> &device, const std::shared_ptr<Measurement> &measurement): device(device),
+        measurement(measurement) {
     }
 
     std::shared_ptr<Device> device;
-    T measurement;
+    std::shared_ptr<Measurement> measurement;
 };
 
 struct HrmMeasurement final : Measurement {
@@ -106,7 +101,8 @@ struct SpecificTrainerData : FecMeasurement {
                                  std::string targetPowerLimits, const TrainerStatus trainerStatus, FeState feState)
         : updateEventCount(updateEventCount), instantaneousCadence(instantaneousCadence),
           instantaneousPower(instantaneousPower),
-          accumulatedPower(accumulatedPower), targetPowerLimits(std::move(targetPowerLimits)), trainerStatus(trainerStatus),
+          accumulatedPower(accumulatedPower), targetPowerLimits(std::move(targetPowerLimits)),
+          trainerStatus(trainerStatus),
           feState(std::move(feState)) {
     }
 
@@ -118,4 +114,3 @@ struct SpecificTrainerData : FecMeasurement {
     TrainerStatus trainerStatus;
     FeState feState;
 };
-

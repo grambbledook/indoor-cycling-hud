@@ -10,6 +10,10 @@
 using std::chrono::duration_cast;
 using std::chrono::seconds;
 
+//
+// Device discovery
+//
+
 auto Model::addDevice(const std::shared_ptr<Device> &device) -> void {
     std::lock_guard guard(mutex);
 
@@ -24,7 +28,7 @@ auto Model::addDevice(const std::shared_ptr<Device> &device) -> void {
         return;
     }
     devices[device->deviceId()] = newDevice;
-    notifications.deviceDiscovered.publish(DeviceDiscovered{newDevice});
+    notifications.deviceDiscovered.publish(DeviceDiscovered(newDevice));
 }
 
 auto Model::getDevices(const GattService *service) -> std::vector<std::shared_ptr<Device> > {
@@ -42,68 +46,49 @@ auto Model::getDevices(const GattService *service) -> std::vector<std::shared_pt
            | std::ranges::to<std::vector<std::shared_ptr<Device> > >();
 }
 
-auto Model::setDevice(const std::shared_ptr<Device> &device) -> void {
+//
+// Device management
+//
+
+auto Model::setDevice( const Service &service, const std::shared_ptr<Device> &device) -> void {
     std::lock_guard guard(mutex);
 
-    if (device->services.contains(BLE::Services::HRM)) {
-        setHeartRateMonitor(device);
+    if (service == Service::HEART_RATE) {
+        if (hrmState.device && hrmState.device->deviceId() == device->deviceId()) {
+            return;
+        }
+
+        hrmState = {device};
+        notifications.deviceSelected.publish(DeviceSelected{Service::HEART_RATE, hrmState.device});
     }
-    if (device->services.contains(BLE::Services::CSC)) {
-        setCadenceSensor(device);
-        setSpeedSensor(device);
+
+    if (service == Service::CADENCE) {
+        if (cadenceState.device && cadenceState.device->deviceId() == device->deviceId()) {
+            return;
+        }
+        cadenceState = {device};
+        notifications.deviceSelected.publish(DeviceSelected{Service::CADENCE, cadenceState.device});
     }
-    if (device->services.contains(BLE::Services::PWR)) {
-        setPowerMeter(device);
+
+    if (service == Service::SPEED) {
+        if (speedState.device && speedState.device->deviceId() == device->deviceId()) {
+            return;
+        }
+        speedState = {device};
+        notifications.deviceSelected.publish(DeviceSelected{Service::SPEED, speedState.device});
     }
-    if (device->services.contains(BLE::Services::FEC_BIKE_TRAINER)) {
-        setBikeTrainer(device);
+
+    if (service == Service::POWER) {
+        if (powerState.device && powerState.device->deviceId() == device->deviceId()) {
+            return;
+        }
+        powerState = {device};
+        notifications.deviceSelected.publish(DeviceSelected{Service::POWER, powerState.device});
     }
-}
 
-auto Model::setHeartRateMonitor(const std::shared_ptr<Device> &device) -> void {
-    std::lock_guard guard(mutex);
-
-    if (hrmState.device && hrmState.device->deviceId() == device->deviceId()) {
-        return;
+    if (service == Service::BIKE_TRAINER) {
+        spdlog::warn("Bike trainer not supported");
     }
-    hrmState = {device};
-    notifications.deviceSelected.publish(DeviceSelected{Service::HEART_RATE, hrmState.device});
-}
-
-auto Model::setCadenceSensor(const std::shared_ptr<Device> &device) -> void {
-    std::lock_guard guard(mutex);
-
-    if (cadenceState.device && cadenceState.device->deviceId() == device->deviceId()) {
-        return;
-    }
-    cadenceState = {device};
-    notifications.deviceSelected.publish(DeviceSelected{Service::CADENCE, cadenceState.device});
-}
-
-auto Model::setSpeedSensor(const std::shared_ptr<Device> &device) -> void {
-    std::lock_guard guard(mutex);
-
-    if (speedState.device && speedState.device->deviceId() == device->deviceId()) {
-        return;
-    }
-    speedState = {device};
-    notifications.deviceSelected.publish(DeviceSelected{Service::SPEED, speedState.device});
-}
-
-auto Model::setPowerMeter(const std::shared_ptr<Device> &device) -> void {
-    std::lock_guard guard(mutex);
-
-    if (powerState.device && powerState.device->deviceId() == device->deviceId()) {
-        return;
-    }
-    powerState = {device};
-    notifications.deviceSelected.publish(DeviceSelected{Service::POWER, powerState.device});
-}
-
-auto Model::setBikeTrainer(const std::shared_ptr<Device> &device) -> void {
-    std::lock_guard guard(mutex);
-
-    spdlog::info("Dummy: Model::setBikeTrainer: {}", device->deviceId());
 }
 
 auto Model::setSpeedUnit(const DistanceUnit unit) -> void {
@@ -117,6 +102,90 @@ auto Model::setWheelSize(const WheelSize size) -> void {
 
     this->wheelSize = size;
 }
+
+//
+// Data recording
+//
+
+auto Model::recordData(const MeasurementEvent &event) -> void {
+    std::lock_guard guard(mutex);
+    spdlog::trace("Recording data for device: {}", event.device->deviceId());
+
+    if (const auto hrm = dynamic_cast<const HrmMeasurement *>(event.measurement.get())) {
+        if (*hrmState.device != *event.device) {
+            return;
+        }
+
+        recordHeartData(*hrm);
+    }
+
+    if (const auto cad = dynamic_cast<const CadenceMeasurement *>(event.measurement.get())) {
+        if (*cadenceState.device != *event.device) {
+            return;
+        }
+
+        recordCadenceData(*cad);
+    }
+
+    if (const auto spd = dynamic_cast<const SpeedMeasurement *>(event.measurement.get())) {
+        if (*cadenceState.device != *event.device) {
+            return;
+        }
+
+        recordSpeedData(*spd);
+    }
+}
+
+auto Model::recordHeartData(const HrmMeasurement &event) -> void {
+    buffer.heartRate = {event.hrm, system_clock::now()};
+}
+
+auto Model::recordPowerData(const PowerMeasurement &event) -> void {
+    buffer.power = {event.power, system_clock::now()};
+}
+
+auto Model::recordCadenceData(const CadenceMeasurement &event) -> void {
+    cadenceState.recordMetric(std::pair{event.ccr, event.lcet});
+
+    const auto events = cadenceState.getLastN(2);
+    if (!events.has_value()) {
+        return;
+    }
+    const auto &data = events.value();
+    auto [prevCcr, prevLcet, ccr, lcet] = std::tuple_cat(data[0], data[1]);
+
+    if (lcet == prevLcet) {
+        cadenceState.unrecordMetric();
+        return;
+    }
+
+    const auto cadence = BLE::Math::computeCadence(lcet, prevLcet, ccr, prevCcr);
+    buffer.cadence = {cadence, system_clock::now()};
+}
+
+auto Model::recordSpeedData(const SpeedMeasurement &event) -> void {
+    speedState.recordMetric(std::pair{event.cwr, event.lwet});
+
+    const auto events = speedState.getLastN(2);
+    if (!events.has_value()) {
+        return;
+    }
+
+    const auto &data = events.value();
+    auto [prevCwr, prevLwet, cwr, lwet] = std::tuple_cat(data[0], data[1]);
+
+    if (lwet == prevLwet) {
+        speedState.unrecordMetric();
+        return;
+    }
+
+    const auto speed = BLE::Math::computeSpeed(lwet, prevLwet, cwr, prevCwr);
+    buffer.speed = {speed, system_clock::now()};
+}
+
+//
+// Workout management
+//
 
 auto Model::startWorkout() -> void {
     std::lock_guard guard(mutex);
@@ -139,83 +208,9 @@ auto Model::stopWorkout() -> void {
     spdlog::info("  Workout stopped");
 }
 
-auto Model::recordHeartData(const MeasurementEvent<HrmMeasurement> &event) -> void {
-    std::lock_guard guard(mutex);
-    if (*hrmState.device != *event.device) {
-        return;
-    }
-
-    buffer.heartRate = {event.measurement.hrm, system_clock::now()};
-}
-
-auto Model::recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event) -> void {
-    std::lock_guard guard(mutex);
-    if (*cadenceState.device != *event.device) {
-        return;
-    }
-
-    cadenceState.recordMetric(std::pair{event.measurement.ccr, event.measurement.lcet});
-
-    const auto events = cadenceState.getLastN(2);
-    if (!events.has_value()) {
-        return;
-    }
-    const auto &data = events.value();
-    auto [prevCcr, prevLcet, ccr, lcet] = std::tuple_cat(data[0], data[1]);
-    if (lcet == prevLcet) {
-        cadenceState.unrecordMetric();
-        return;
-    }
-
-    const auto cadence = BLE::Math::computeCadence(lcet, prevLcet, ccr, prevCcr);
-    buffer.cadence = {cadence, system_clock::now()};
-}
-
-auto Model::recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) -> void {
-    std::lock_guard guard(mutex);
-    if (*speedState.device != *event.device) {
-        return;
-    }
-
-    speedState.recordMetric(std::pair{event.measurement.cwr, event.measurement.lwet});
-
-    const auto events = speedState.getLastN(2);
-    if (!events.has_value()) {
-        return;
-    }
-
-    const auto &data = events.value();
-    auto [prevCwr, prevLwet, cwr, lwet] = std::tuple_cat(data[0], data[1]);
-
-    if (lwet == prevLwet) {
-        speedState.unrecordMetric();
-        return;
-    }
-
-    const auto speed = BLE::Math::computeSpeed(lwet, prevLwet, cwr, prevCwr);
-    buffer.speed = {speed, system_clock::now()};
-}
-
-auto Model::recordPowerData(const MeasurementEvent<PowerMeasurement> &event) -> void {
-    std::lock_guard guard(mutex);
-    if (*powerState.device != *event.device) {
-        return;
-    }
-
-    buffer.power = {event.measurement.power, system_clock::now()};
-}
-
-auto Model::recordTrainerData(const MeasurementEvent<GeneralData> &event) -> void {
-    std::lock_guard guard(mutex);
-}
-
-auto Model::recordTrainerData(const MeasurementEvent<GeneralSettings> &event) -> void {
-    std::lock_guard guard(mutex);
-}
-
-auto Model::recordTrainerData(const MeasurementEvent<SpecificTrainerData> &event) -> void {
-    std::lock_guard guard(mutex);
-}
+//
+// Data retrieval
+//
 
 auto Model::tick() -> void {
     std::lock_guard guard(mutex);
@@ -267,23 +262,21 @@ auto Model::publishWorkoutEvent(const WorkoutState status, Channel<WorkoutEvent>
     data.speed = data.speed.transform([distance_unit](const unsigned long x) {
         return x * getSpeedConversionFactor(distance_unit);
     });
+
     data.speed_avg = data.speed_avg.transform([distance_unit](const unsigned long x) {
         return x * getSpeedConversionFactor(distance_unit);
     });
+
     data.speed_min = data.speed_min.transform([distance_unit](const unsigned long x) {
         return x * getSpeedConversionFactor(distance_unit);
     });
+
     data.speed_max = data.speed_max.transform([distance_unit](const unsigned long x) {
         return x * getSpeedConversionFactor(distance_unit);
     });
 
     const auto distance = BLE::Math::computeDistance(data.speed_avg.value_or(0), duration);
-    spdlog::trace("   Speed: {}, avg Speed: {}, distance: {}", data.speed.value_or(0), data.speed_avg.value_or(0),
-                  distance);
-    const auto summary = WorkoutEvent{
-        status, duration, distance, distanceUnit, data, MeasurementAggregate{}, MeasurementAggregate{},
-        MeasurementAggregate{}, MeasurementAggregate{}
-    };
+    const auto summary = WorkoutEvent(status, duration, distance, distanceUnit, data);
 
     channel.publish(summary);
 }

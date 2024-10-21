@@ -1,21 +1,21 @@
 #include "NotificationService.h"
+
+#include <memory>
 #include <spdlog/spdlog.h>
 #include <utility>
 #include "BluetoothConstants.h"
 #include "BleDeviceServices.h"
 
-template<DerivedFromMeasurement T>
-INotificationService<T>::INotificationService(
-    std::shared_ptr<DeviceRegistry> &registry,
-    std::shared_ptr<Model> &model,
+INotificationService::INotificationService(
+    const std::shared_ptr<DeviceRegistry> &registry,
+    const std::shared_ptr<Model> &model,
     const GattService &service
 ): service(service),
    model(model),
    registry(registry) {
 }
 
-template<DerivedFromMeasurement T>
-auto INotificationService<T>::setDevice(const std::shared_ptr<Device> &device) -> void {
+auto INotificationService::setDevice(const std::shared_ptr<Device> &device) -> void {
     spdlog::info("INotificationService::set_device");
 
     const auto client = this->registry->connect(*device);
@@ -31,8 +31,7 @@ auto INotificationService<T>::setDevice(const std::shared_ptr<Device> &device) -
     spdlog::info("  Subscribed to {} service: {}", service.type, result);
 }
 
-template<DerivedFromMeasurement T>
-auto INotificationService<T>::unsetDevice(const std::shared_ptr<Device> &device) -> void {
+auto INotificationService::unsetDevice(const std::shared_ptr<Device> &device) -> void {
     spdlog::info("INotificationService::unset_device");
 
     const auto client = this->registry->connect(*device);
@@ -52,7 +51,7 @@ auto HrmNotificationService::processFeatureAndSetDevices(
     BleClient *client,
     const std::shared_ptr<Device> &device
 ) -> void {
-    model->setHeartRateMonitor(device);
+    model->setDevice(Service::HEART_RATE, device);
 }
 
 auto HrmNotificationService::processMeasurement(
@@ -66,8 +65,7 @@ auto HrmNotificationService::processMeasurement(
         hrm |= static_cast<int>(data[2]) << 8;
     }
 
-    const HrmMeasurement measurement(hrm);
-    model->recordHeartData(MeasurementEvent(device, measurement));
+    model->recordData(MeasurementEvent(device, std::make_shared<HrmMeasurement>(hrm)));
 }
 
 CyclingCadenceAndSpeedNotificationService::CyclingCadenceAndSpeedNotificationService(
@@ -90,11 +88,11 @@ auto CyclingCadenceAndSpeedNotificationService::processFeatureAndSetDevices(
     const auto &data = result.value();
     const auto flag = data[0];
     if (flag & 0b01) {
-        model->setSpeedSensor(device);
+        model->setDevice(Service::SPEED, device);
     }
 
     if (flag & 0b10) {
-        model->setCadenceSensor(device);
+        model->setDevice(Service::CADENCE, device);
     }
 }
 
@@ -115,8 +113,7 @@ auto CyclingCadenceAndSpeedNotificationService::processMeasurement(
                           static_cast<unsigned short>(data[5 + offset]) << 8;
         offset += 6;
 
-        const SpeedMeasurement speed(cwr, lwet);
-        model->recordSpeedData(MeasurementEvent(device, speed));
+        model->recordData(MeasurementEvent(device, std::make_shared<SpeedMeasurement>(cwr, lwet)));
     }
 
     if (flag & 0b10) {
@@ -125,8 +122,7 @@ auto CyclingCadenceAndSpeedNotificationService::processMeasurement(
         const auto lcet = static_cast<unsigned short>(data[2 + offset]) |
                           static_cast<unsigned short>(data[3 + offset]) << 8;
 
-        const CadenceMeasurement cadence(ccr, lcet);
-        model->recordCadenceData(MeasurementEvent(device, cadence));
+        model->recordData(MeasurementEvent(device, std::make_shared<CadenceMeasurement>(ccr, lcet)));
     }
 }
 
@@ -140,7 +136,7 @@ auto PowerNotificationService::processFeatureAndSetDevices(
     BleClient *client,
     const std::shared_ptr<Device> &device
 ) -> void {
-    model->setPowerMeter(device);
+    model->setDevice(Service::POWER, device);
 }
 
 auto PowerNotificationService::processMeasurement(
@@ -149,8 +145,7 @@ auto PowerNotificationService::processMeasurement(
 ) -> void {
     const auto value = static_cast<int>(data[2]) | (static_cast<int>(data[3]) << 8);
 
-    const PowerMeasurement power(value);
-    model->recordPowerData(MeasurementEvent(device, power));
+    model->recordData(MeasurementEvent(device, std::make_shared<PowerMeasurement>(value)));
 }
 
 FecService::FecService(
@@ -163,7 +158,7 @@ auto FecService::processFeatureAndSetDevices(
     BleClient *client,
     const std::shared_ptr<Device> &device
 ) -> void {
-    model->setBikeTrainer(device);
+    model->setDevice(Service::BIKE_TRAINER, device);
 }
 
 auto FecService::processMeasurement(
@@ -183,11 +178,11 @@ auto FecService::processMeasurement(
             double speed = speedVal == 0xFFFF ? 0 : std::round(speedVal * 0.001);
             auto heartRate = message[6] == 0xFF ? 0 : message[6];
 
-            const GeneralData event(
+            const auto event = std::make_shared<GeneralData>(
                 static_cast<int>(elapsedTime), distanceTraveled,
                 static_cast<int>(speed), heartRate, parseFeStateByte(message[7])
             );
-            model->recordTrainerData(MeasurementEvent(device, event));
+            model->recordData(MeasurementEvent(device, event));
         } else if (pageType == 0x11) {
             const auto cycleLength = message[3];
 
@@ -198,13 +193,13 @@ auto FecService::processMeasurement(
 
             const auto resistance = std::round(message[6] * 0.5);
 
-            const GeneralSettings event(
+              const auto event = std::make_shared<GeneralSettings>(
                 cycleLength,
                 static_cast<int>(incline),
                 static_cast<int>(resistance),
                 parseFeStateByte(message[7])
             );
-            model->recordTrainerData(MeasurementEvent(device, event));
+            model->recordData(MeasurementEvent(device, event));
         } else if (pageType == 0x19) {
             auto updateEventCount = message[1];
 
@@ -237,7 +232,7 @@ auto FecService::processMeasurement(
                     break;
             }
 
-            SpecificTrainerData event(
+              const auto event = std::make_shared<SpecificTrainerData>(
                 updateEventCount,
                 instantaneousCadence,
                 instantaneousPower,
@@ -246,7 +241,7 @@ auto FecService::processMeasurement(
                 trainerStatus,
                 parseFeStateByte(message[7])
             );
-            model->recordTrainerData(MeasurementEvent(device, event));
+            model->recordData(MeasurementEvent(device, event));
         } else {
             spdlog::info("Unknown page type: {}", pageType);
         }

@@ -7,44 +7,38 @@
 #include "Service.h"
 #include "Units.h"
 
-struct DeviceDiscovered {
-    std::shared_ptr<Device> device;
+class Event {
+public:
+    virtual ~Event() = default;
 };
 
-struct DeviceSelected {
-    Service service;
-    std::shared_ptr<Device> device;
+enum ConnectionStatus {
+    CONNECTED,
+    DISCONNECTED
+};
 
-    DeviceSelected(Service service, std::shared_ptr<Device> device): service(service), device(device) {
+struct DeviceConnectionEvent final : public Event {
+    std::shared_ptr<Device> device;
+    ConnectionStatus status;
+
+    DeviceConnectionEvent(const std::shared_ptr<Device> &device, const ConnectionStatus status): device(device),
+        status(status) {
     }
 };
 
-struct Aggregate {
-     std::optional<unsigned long> hrm;
-     std::optional<unsigned long> hrm_avg;
-     std::optional<unsigned long> hrm_min;
-     std::optional<unsigned long> hrm_max;
-     std::optional<unsigned long> power;
-     std::optional<unsigned long> power_3s;
-     std::optional<unsigned long> power_avg;
-     std::optional<unsigned long> power_min;
-     std::optional<unsigned long> power_max;
-     std::optional<unsigned long> cadence;
-     std::optional<unsigned long> cadence_avg;
-     std::optional<unsigned long> cadence_min;
-     std::optional<unsigned long> cadence_max;
-     std::optional<unsigned long> speed;
-     std::optional<unsigned long> speed_avg;
-     std::optional<unsigned long> speed_min;
-     std::optional<unsigned long> speed_max;
+struct DeviceDiscovered final : public Event {
+    std::shared_ptr<Device> device;
+
+    explicit DeviceDiscovered(const std::shared_ptr<Device> &device): device(device) {
+    }
 };
 
-struct MeasurementAggregate {
-    unsigned long val;
-    unsigned long avg;
-    unsigned long windowedAvg;
-    unsigned long max;
-    unsigned long min;
+struct DeviceSelected final : public Event {
+    Service service;
+    std::shared_ptr<Device> device;
+
+    DeviceSelected(Service service, const std::shared_ptr<Device> &device): service(service), device(device) {
+    }
 };
 
 enum class WorkoutState {
@@ -53,7 +47,27 @@ enum class WorkoutState {
     FINISHED
 };
 
-struct WorkoutEvent {
+struct Aggregate {
+    std::optional<unsigned long> hrm;
+    std::optional<unsigned long> hrm_avg;
+    std::optional<unsigned long> hrm_min;
+    std::optional<unsigned long> hrm_max;
+    std::optional<unsigned long> power;
+    std::optional<unsigned long> power_3s;
+    std::optional<unsigned long> power_avg;
+    std::optional<unsigned long> power_min;
+    std::optional<unsigned long> power_max;
+    std::optional<unsigned long> cadence;
+    std::optional<unsigned long> cadence_avg;
+    std::optional<unsigned long> cadence_min;
+    std::optional<unsigned long> cadence_max;
+    std::optional<unsigned long> speed;
+    std::optional<unsigned long> speed_avg;
+    std::optional<unsigned long> speed_min;
+    std::optional<unsigned long> speed_max;
+};
+
+struct WorkoutEvent final : public Event {
     WorkoutState state;
 
     long long durationMs;
@@ -61,8 +75,16 @@ struct WorkoutEvent {
     DistanceUnit distanceUnit;
 
     Aggregate data;
-    MeasurementAggregate hrm;
-    MeasurementAggregate cadence;
-    MeasurementAggregate speed;
-    MeasurementAggregate power;
+
+    WorkoutEvent(
+        const WorkoutState state,
+        const long long duration,
+        const unsigned long distance,
+        const DistanceUnit distanceUnit,
+        const Aggregate &data
+    ): state(state),
+       durationMs(duration),
+       distance(distance), distanceUnit(distanceUnit),
+       data(data) {
+    }
 };

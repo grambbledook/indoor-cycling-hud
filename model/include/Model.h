@@ -67,47 +67,41 @@ public:
              storage(std::make_unique<WorkoutDataStorage>()) {
     }
 
+    // Device discovery
+
     auto addDevice(const std::shared_ptr<Device> &device) -> void;
 
     auto getDevices(const GattService *service) -> std::vector<std::shared_ptr<Device> >;
 
-    auto setDevice(const std::shared_ptr<Device> &device) -> void;
-
-    auto setHeartRateMonitor(const std::shared_ptr<Device> &device) -> void;
-
-    auto setCadenceSensor(const std::shared_ptr<Device> &device) -> void;
-
-    auto setSpeedSensor(const std::shared_ptr<Device> &device) -> void;
-
-    auto setPowerMeter(const std::shared_ptr<Device> &device) -> void;
-
-    auto setBikeTrainer(const std::shared_ptr<Device> &device) -> void;
+    // Device modificators
+    auto setDevice(const Service &service, const std::shared_ptr<Device> &device) -> void;
 
     auto setSpeedUnit(DistanceUnit unit) -> void;
 
     auto setWheelSize(WheelSize size) -> void;
 
+    // Data recording
+    auto recordData(const MeasurementEvent &event) -> void;
+
+    // Workout management
     auto startWorkout() -> void;
 
     auto stopWorkout() -> void;
 
-    auto recordHeartData(const MeasurementEvent<HrmMeasurement> &event) -> void;
-
-    auto recordCadenceData(const MeasurementEvent<CadenceMeasurement> &event) -> void;
-
-    auto recordSpeedData(const MeasurementEvent<SpeedMeasurement> &event) -> void;
-
-    auto recordPowerData(const MeasurementEvent<PowerMeasurement> &event) -> void;
-
-    auto recordTrainerData(const MeasurementEvent<GeneralData> &event) -> void;
-
-    auto recordTrainerData(const MeasurementEvent<GeneralSettings> &event) -> void;
-
-    auto recordTrainerData(const MeasurementEvent<SpecificTrainerData> &event) -> void;
-
+    // Data retrieval
     auto tick() -> void;
 
 private:
+    // Device setters
+    auto recordHeartData(const HrmMeasurement &hrm) -> void;
+
+    auto recordCadenceData(const CadenceMeasurement &event) -> void;
+
+    auto recordSpeedData(const SpeedMeasurement &event) -> void;
+
+    auto recordPowerData(const PowerMeasurement &event) -> void;
+
+    // Data propagation
     auto publishWorkoutEvent(WorkoutState status, Channel<WorkoutEvent> &channel) -> void;
 
 public:

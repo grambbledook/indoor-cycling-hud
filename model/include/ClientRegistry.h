@@ -4,13 +4,15 @@
 #include <mutex>
 #include <memory>
 #include "BleClient.h" // Assuming this is the class similar to the Python BleClient
+#include "EventBus.h"
 
 class DeviceRegistry {
     std::unordered_map<std::string, std::shared_ptr<BleClient> > clients;
     std::mutex mutex;
+    std::shared_ptr<EventBus> bus;
 
 public:
-    DeviceRegistry();
+    DeviceRegistry(const std::shared_ptr<EventBus> &bus);
 
     ~DeviceRegistry();
 
