@@ -52,7 +52,7 @@ DeviceWindow::DeviceWindow(
     trainerPanel = new SelectDevicePanel(
         BIKE_TRAINER,
         Constants::Icons::BIKE_TRAINER,
-        Constants::Icons::BIKE_TRAINER,
+        Constants::Icons::BIKE_TRAINER_HOVER,
         handler, this
     );
 
@@ -67,7 +67,6 @@ DeviceWindow::DeviceWindow(
     layout->addWidget(powerPanel, 1, 0, Qt::AlignCenter);
     layout->addWidget(trainerPanel, 1, 1, Qt::AlignCenter);
     layout->addWidget(speedPanel, 1, 2, Qt::AlignCenter);
-
 
     const auto centralWidget = new QWidget(this);
     centralWidget->setObjectName(Constants::Classes::PANEL);
