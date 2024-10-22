@@ -96,6 +96,7 @@ constexpr auto select_workout_duration_sql = R"QUERY(
         measurements;
 )QUERY";
 
+
 class WorkoutDataStorage {
 public:
     WorkoutDataStorage();

@@ -67,7 +67,9 @@ int main(int argc, char **argv) {
     auto deviceDialogController = std::make_shared<ShowDeviceDialogController>(
         qtAdapter, scanner, deviceDialog, appState, history, model);
 
-    auto registry = std::make_shared<DeviceRegistry>();
+
+    auto event_bus = std::make_shared<EventBus>();
+    auto registry = std::make_shared<DeviceRegistry>(event_bus);
     const auto hrm = std::make_shared<HrmNotificationService>(registry, model);
     const auto csc = std::make_shared<CyclingCadenceAndSpeedNotificationService>(registry, model);
     const auto pwr = std::make_shared<PowerNotificationService>(registry, model);

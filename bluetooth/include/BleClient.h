@@ -6,6 +6,8 @@
 #include <memory>
 #include <vector>
 #include <winrt/Windows.Devices.Bluetooth.h>
+
+#include "BleClientEvent.h"
 #include "Data.h"
 
 using namespace winrt;
@@ -17,7 +19,7 @@ using namespace Windows::Storage::Streams;
 
 class BleClient {
 public:
-    explicit BleClient(Device device);
+    explicit BleClient(Device device, const std::function<void(BleClientEvent)> &eventReceiver);
 
     auto connect() -> void;
 
@@ -38,4 +40,5 @@ private:
     Device device;
     std::shared_ptr<BluetoothLEDevice> connection;
     std::unordered_map<UUID, std::any, UUID::Hash> characteristics;
+    std::function<void(BleClientEvent)> eventReceiver;
 };

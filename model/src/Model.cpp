@@ -24,7 +24,7 @@ auto Model::addDevice(const std::shared_ptr<Device> &device) -> void {
         return;
     }
     devices[device->deviceId()] = newDevice;
-    notifications.deviceDiscovered.publish(DeviceDiscovered{newDevice});
+    notifications.deviceDiscovered.publish(DeviceDiscovered(newDevice));
 }
 
 auto Model::getDevices(const GattService *service) -> std::vector<std::shared_ptr<Device> > {
@@ -280,10 +280,7 @@ auto Model::publishWorkoutEvent(const WorkoutState status, Channel<WorkoutEvent>
     const auto distance = BLE::Math::computeDistance(data.speed_avg.value_or(0), duration);
     spdlog::trace("   Speed: {}, avg Speed: {}, distance: {}", data.speed.value_or(0), data.speed_avg.value_or(0),
                   distance);
-    const auto summary = WorkoutEvent{
-        status, duration, distance, distanceUnit, data, MeasurementAggregate{}, MeasurementAggregate{},
-        MeasurementAggregate{}, MeasurementAggregate{}
-    };
+    const auto summary = WorkoutEvent(status, duration, distance, distanceUnit, data);
 
     channel.publish(summary);
 }

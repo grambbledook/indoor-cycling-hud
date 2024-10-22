@@ -19,7 +19,10 @@ using namespace Windows::Foundation;
 using namespace Windows::Foundation::Collections;
 using namespace Windows::Storage::Streams;
 
-BleClient::BleClient(Device device) : device(std::move(device)) {
+BleClient::BleClient(
+    Device device,
+    const std::function<void(BleClientEvent)> &eventReceiver
+) : device(std::move(device)), eventReceiver(eventReceiver) {
 }
 
 auto BleClient::connect() -> void {
@@ -36,6 +39,17 @@ auto BleClient::connect() -> void {
         }
 
         connection = std::make_shared<BluetoothLEDevice>(std::move(connectionResult));
+        connection->ConnectionStatusChanged(
+            [this](BluetoothLEDevice const &sender, IInspectable const &args) {
+                const auto status = sender.ConnectionStatus() == BluetoothConnectionStatus::Connected
+                                        ? BleConnectionStatus::CONNECTED
+                                        : BleConnectionStatus::DISCONNECTED;
+
+                eventReceiver(BleClientEvent(std::make_shared<Device>(device), status));
+            }
+        );
+
+
         spdlog::info("  Device connected successfully.");
 
         fetchCharacteristics();
