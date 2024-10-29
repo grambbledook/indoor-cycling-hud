@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <vector>
+#include <spdlog/spdlog.h>
 
 #include "ScannerService.h"
 
@@ -109,7 +110,7 @@ int main(int argc, char **argv) {
 
     const auto wheelSizeSelectionController = std::make_shared<WheelSizeSelectionController>(model);
     const auto speedUnitController = std::make_shared<SpeedUnitController>(model);
-    const auto deviceWindowController = std::make_shared<UeberWindowController>(
+    const auto deviceWindowController = std::make_shared<DeviceWindowController>(
         deviceWindow, appState, history
     );
     const auto selectWorkoutWindowController = std::make_shared<SelectWorkoutWindowController>(
@@ -121,11 +122,8 @@ int main(int argc, char **argv) {
     const auto workoutSummaryWindowController = std::make_shared<WorkoutSummaryWindowController>(
         workoutSummaryWindow, model, pacer, appState, history
     );
-    const auto deviceDialogController = std::make_shared<ShowDeviceDialogController>(
+    const auto deviceDialogController = std::make_shared<DeviceDialogController>(
         qtAdapter, scanner, deviceDialog, appState, history, model
-    );
-    const auto connectToDeviceController = std::make_shared<ConnectToDeviceController>(
-        hrm, csc, pwr, fec, scanner, appState, history
     );
     const auto switchThemeController = std::make_shared<SwitchThemeController>(
         app, deviceWindow, selectWorkoutWindow, workoutWindow, workoutSummaryWindow, appState, history
@@ -133,7 +131,7 @@ int main(int argc, char **argv) {
     const auto shutdownController = std::make_shared<ShutdownController>(
         hrm, csc, pwr, fec, scanner, registry, appState
     );
-    const auto trayConnectToDeviceController = std::make_shared<TrayConnectToDeviceController>(
+    const auto connectToDeviceController = std::make_shared<ConnectToDeviceController>(
         hrm, csc, pwr, fec, appState
     );
 
@@ -141,7 +139,7 @@ int main(int argc, char **argv) {
         controllerHandler,
         deviceDialogController, connectToDeviceController, deviceWindowController,
         selectWorkoutWindowController, workoutWindowController, workoutSummaryWindowController, switchThemeController,
-        shutdownController, wheelSizeSelectionController, speedUnitController, trayConnectToDeviceController
+        shutdownController, wheelSizeSelectionController, speedUnitController
     );
 
     tray->switchTheme();

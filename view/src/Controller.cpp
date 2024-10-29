@@ -30,7 +30,7 @@ auto ViewController<T, T0>::renderView() -> void {
     this->history->push(view);
 }
 
-auto UeberWindowController::handleRequest(void *) -> void {
+auto DeviceWindowController::showDeviceWindow() -> void {
     if (state->state != ApplicationState::STARTING) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -47,7 +47,7 @@ auto UeberWindowController::handleRequest(void *) -> void {
     state->state = ApplicationState::WAITING_FOR_SENSORS;
 }
 
-auto SelectWorkoutWindowController::handleRequest(void *) -> void {
+auto SelectWorkoutWindowController::showSelectWorkoutWindow() -> void {
     if (state->state != ApplicationState::WAITING_FOR_SENSORS && state->state != ApplicationState::WORKOUT_SUMMARY) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -58,7 +58,7 @@ auto SelectWorkoutWindowController::handleRequest(void *) -> void {
     state->state = ApplicationState::WAITING_FOR_WORKOUT;
 }
 
-auto WorkoutWindowController::handleRequest(void *) -> void {
+auto WorkoutWindowController::showWorkoutWindow() -> void {
     if (state->state != ApplicationState::WAITING_FOR_WORKOUT) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -70,7 +70,7 @@ auto WorkoutWindowController::handleRequest(void *) -> void {
     state->state = ApplicationState::IN_WORKOUT;
 }
 
-auto WorkoutSummaryWindowController::handleRequest(void *) -> void {
+auto WorkoutSummaryWindowController::showWorkoutSummaryWindow() -> void {
     if (state->state != ApplicationState::IN_WORKOUT) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -82,7 +82,7 @@ auto WorkoutSummaryWindowController::handleRequest(void *) -> void {
     state->state = ApplicationState::WORKOUT_SUMMARY;
 }
 
-auto ShowDeviceDialogController::handleRequest(void *) -> void {
+auto DeviceDialogController::showDialog() const -> void {
     if (state->state != ApplicationState::WAITING_FOR_SENSORS) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -104,7 +104,7 @@ auto ShowDeviceDialogController::handleRequest(void *) -> void {
     }
 }
 
-auto ConnectToDeviceController::handleRequest(void *) -> void {
+auto DeviceDialogController::closeDialog() const -> void {
     if (state->state == ApplicationState::EXITING) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -127,36 +127,10 @@ auto ConnectToDeviceController::handleRequest(void *) -> void {
     dialog->close();
     history->pop();
 
-    const auto device = dialog->selectedItem;
-    if (!device) {
-        spdlog::info("  No device selected");
-        return;
-    }
-
     scannerService->stopScan();
-
-    auto setupConnection = [this, device]() {
-        if (device->services.contains(BLE::Services::HRM)) {
-            hrmNotificationService->setDevice(device);
-        }
-
-        if (device->services.contains(BLE::Services::CSC)) {
-            cscNotificationService->setDevice(device);
-        }
-
-        if (device->services.contains(BLE::Services::PWR)) {
-            powerNotificationService->setDevice(device);
-        }
-
-        if (device->services.contains(BLE::Services::FEC_BIKE_TRAINER)) {
-            fecService->setDevice(device);
-        }
-    };
-
-    auto future = QtConcurrent::run(setupConnection);
 }
 
-auto TrayConnectToDeviceController::handleRequest(const std::shared_ptr<Device> &device) -> void {
+auto ConnectToDeviceController::connectToDevice(const std::shared_ptr<Device> &device) const -> void {
     if (state->state == ApplicationState::EXITING) {
         spdlog::info("  Wrong state: {}", state->state);
         return;
@@ -183,7 +157,7 @@ auto TrayConnectToDeviceController::handleRequest(const std::shared_ptr<Device> 
     auto future = QtConcurrent::run(setupConnection);
 }
 
-auto SwitchThemeController::handleRequest(void *) -> void {
+auto SwitchThemeController::switchColorTheme() const -> void {
     state->darkThemeEnabled = !state->darkThemeEnabled;
 
     const auto theme = state->darkThemeEnabled ? StyleSheets::THEME_DARK : StyleSheets::THEME_BRIGHT;
@@ -208,19 +182,19 @@ auto SwitchThemeController::handleRequest(void *) -> void {
     workoutSummaryWindow->update();
 }
 
-auto ShutdownController::handleRequest(void *) -> void {
+auto ShutdownController::shutdown() const -> void {
     state->state = ApplicationState::EXITING;
 
     registry->stop();
     QApplication::quit();
 }
 
-auto WheelSizeSelectionController::handleRequest(WheelSize size) -> void {
+auto WheelSizeSelectionController::setWheelSize(WheelSize size) const -> void {
     model->setWheelSize(size);
     spdlog::info("Wheel size set to: {}", size);
 }
 
-auto SpeedUnitController::handleRequest(DistanceUnit size) -> void {
+void SpeedUnitController::setDistanceUnit(DistanceUnit size) const {
     model->setSpeedUnit(size);
     spdlog::info("Speed unit set to: {}", size);
 }

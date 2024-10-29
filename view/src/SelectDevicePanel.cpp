@@ -63,5 +63,5 @@ auto SelectDevicePanel::deviceSelected(const DeviceSelected &event) -> void {
 }
 
 auto SelectDevicePanel::handleDeviceButtonClick() const -> void {
-    handler->next(Constants::Screens::DEVICE_DIALOG);
+    handler->next(Constants::Screens::DEVICE_DIALOG_SHOW);
 }

@@ -1,6 +1,5 @@
 #pragma once
 #include <mutex>
-#include <spdlog/spdlog.h>
 
 #include "DeviceDialog.h"
 #include "Events.h"
@@ -16,36 +15,17 @@ public:
         const std::shared_ptr<WorkoutWindow> &workoutWindow,
         const std::shared_ptr<WorkoutSummaryWindow> &workoutSummaryWindow,
         const std::shared_ptr<SystemTray> &tray
-    ): deviceWindow(deviceWindow), workoutWindow(workoutWindow), workoutSummaryWindow(workoutSummaryWindow), tray(tray) {
-    }
+    );
 
-    auto setDeviceDialog(const std::shared_ptr<DeviceDialog> &deviceDialog) -> void {
-        std::lock_guard guard(mutex);
-        this->deviceDialog = deviceDialog;
-    }
+    auto setDeviceDialog(const std::shared_ptr<DeviceDialog> &deviceDialog) -> void;
 
-    auto deviceDiscovered(const DeviceDiscovered &data) const -> void {
-        const auto first = new DeviceDiscoveredEvent(data);
-        QCoreApplication::postEvent(deviceDialog.get(), first);
+    auto deviceDiscovered(const DeviceDiscovered &data) const -> void;
 
-        const auto second = new DeviceDiscoveredEvent(data);
-        QCoreApplication::postEvent(tray.get(), second);
-    }
+    auto deviceSelected(const DeviceSelected &data) const -> void;
 
-    auto deviceSelected(const DeviceSelected &data) const -> void {
-        const auto firstEvent = new DeviceSelectedEvent(data);
-        QCoreApplication::postEvent(deviceWindow.get(), firstEvent);
-    }
+    auto workoutData(const WorkoutEvent &data) const -> void;
 
-    auto workoutData(const WorkoutEvent &data) const -> void {
-        const auto firstEvent = new WorkoutEventEvent(data);
-        QCoreApplication::postEvent(workoutWindow.get(), firstEvent);
-    }
-
-    auto workoutSummary(const WorkoutEvent &data) const -> void {
-        const auto event = new WorkoutSummaryEvent(data);
-        QCoreApplication::postEvent(workoutSummaryWindow.get(), event);
-    }
+    auto workoutSummary(const WorkoutEvent &data) const -> void;
 
 private:
     std::mutex mutex;

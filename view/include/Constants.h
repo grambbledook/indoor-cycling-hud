@@ -77,16 +77,17 @@ namespace Constants {
         const std::string SENSORS = "sensors";
         const std::string SELECT_WORKOUT = "select_workout";
         const std::string WORKOUT = "workout";
-        const std::string DEVICE_DIALOG = "device_dialog";
+        const std::string DEVICE_DIALOG_SHOW = "device_dialog_show";
+        const std::string DEVICE_DIALOG_CLOSE = "device_dialog_close";
+
         const std::string WORKOUT_SUMMARY = "workout_summary";
     }
 
     namespace Commands {
-        const auto CONNECT = "CONNECT";
-        const auto SWITCH_THEME = "SWITCH_THEME";
-        const auto SET_WHEEL_SIZE = "SET_WHEEL_SIZE";
-        const auto SET_SPEED_UNIT = "SET_SPEED_UNIT";
-        const auto QUIT = "QUIT";
-        const auto CONNECT_TO_DEVICE = "CONNECT_TO_DEVICE";
+        const std::string SWITCH_THEME = "SWITCH_THEME";
+        const std::string SET_WHEEL_SIZE = "SET_WHEEL_SIZE";
+        const std::string SET_SPEED_UNIT = "SET_SPEED_UNIT";
+        const std::string QUIT = "QUIT";
+        const std::string CONNECT_TO_DEVICE = "CONNECT_TO_DEVICE";
     }
 }

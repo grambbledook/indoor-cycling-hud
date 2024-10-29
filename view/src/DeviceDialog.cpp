@@ -89,9 +89,10 @@ auto DeviceDialog::closeEvent(QCloseEvent *event) -> void {
 
     if (selectedItem) {
         spdlog::info("  DeviceDialog::closeEvent: emitting deviceSelected {}", fmt::ptr(selectedItem));
+        handler->next(Constants::Commands::CONNECT_TO_DEVICE, selectedItem);
+        handler->next(Constants::Screens::DEVICE_DIALOG_CLOSE);
     }
 
-    handler->next(Constants::Commands::CONNECT);
     event->accept();
 }
 

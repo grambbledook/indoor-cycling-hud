@@ -22,8 +22,6 @@ template<typename V>
 class Controller {
 public:
     virtual ~Controller() = default;
-
-    virtual auto handleRequest(V v)-> void = 0;
 };
 
 template<typename T, typename = std::enable_if_t<std::is_base_of_v<QWidget, T> > >
@@ -36,8 +34,6 @@ public:
         const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history)
         : history(history), state(state) {
     }
-
-    auto handleRequest(void * = nullptr) -> void override = 0;
 
 protected:
     std::shared_ptr<AppState> state;
@@ -59,16 +55,16 @@ public:
     std::shared_ptr<T> view;
 };
 
-class UeberWindowController final : public ViewController<DeviceWindow> {
+class DeviceWindowController final : public ViewController<DeviceWindow> {
 public:
-    explicit UeberWindowController(
+    explicit DeviceWindowController(
         const std::shared_ptr<DeviceWindow> &view,
         const std::shared_ptr<AppState> &state,
         const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history)
         : ViewController(view, state, history) {
     }
 
-    auto handleRequest(void * = nullptr) -> void override;
+    auto showDeviceWindow() -> void ;
 };
 
 class SelectWorkoutWindowController final : public ViewController<SelectWorkoutWindow> {
@@ -81,7 +77,7 @@ public:
         : ViewController(view, state, history) {
     }
 
-    auto handleRequest(void * = nullptr) -> void override;
+    auto showSelectWorkoutWindow() -> void ;
 };
 
 class WorkoutWindowController final : public ViewController<WorkoutWindow> {
@@ -96,7 +92,7 @@ public:
         : ViewController(view, state, history), model(model), pacer(pacer) {
     }
 
-    auto handleRequest(void * = nullptr) -> void override;
+    auto showWorkoutWindow() -> void ;
 
 private:
     std::shared_ptr<Model> model;
@@ -115,16 +111,16 @@ public:
         : ViewController(view, state, history), model(model), pacer(pacer) {
     }
 
-    auto handleRequest(void * = nullptr) -> void override;
+    auto showWorkoutSummaryWindow() -> void ;
 
 private:
     std::shared_ptr<Model> model;
     std::shared_ptr<WorkoutPacer> pacer;
 };
 
-class ShowDeviceDialogController final : public WidgetController<DeviceDialog> {
+class DeviceDialogController final : public WidgetController<DeviceDialog> {
 public:
-    explicit ShowDeviceDialogController(
+    explicit DeviceDialogController(
         const std::shared_ptr<QtEventPublisher> &qtAdapter,
         const std::shared_ptr<ScannerService> &scannerService,
         const std::function<std::shared_ptr<DeviceDialog>(std::vector<std::shared_ptr<Device> >, QWidget *)> &
@@ -132,46 +128,22 @@ public:
         const std::shared_ptr<AppState> &state,
         const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history,
         const std::shared_ptr<Model> &model
-    )
-        : WidgetController(state, history), createDialog(createDialog), model(model), scannerService(scannerService),
-          qtAdapter(qtAdapter) {
+    ) : WidgetController(state, history),
+        model(model),
+        scannerService(scannerService),
+        createDialog(createDialog),
+        qtAdapter(qtAdapter) {
     }
 
-    auto handleRequest(void * = nullptr) -> void override;
+    auto showDialog() const -> void;
+
+    auto closeDialog() const -> void;
 
 private:
     std::shared_ptr<Model> model;
     std::shared_ptr<ScannerService> scannerService;
     std::function<std::shared_ptr<DeviceDialog>(std::vector<std::shared_ptr<Device> >, QWidget *)> createDialog;
     std::shared_ptr<QtEventPublisher> qtAdapter;
-};
-
-class ConnectToDeviceController final : public WidgetController<DeviceDialog> {
-public:
-    explicit ConnectToDeviceController(
-        const std::shared_ptr<HrmNotificationService> &hrmNotificationService,
-        const std::shared_ptr<CyclingCadenceAndSpeedNotificationService> &cscNotificationService,
-        const std::shared_ptr<PowerNotificationService> &powerNotificationService,
-        const std::shared_ptr<FecService> &fecService,
-        const std::shared_ptr<ScannerService> &scannerService,
-
-        const std::shared_ptr<AppState> &state,
-        const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history
-    )
-        : WidgetController(state, history), hrmNotificationService(hrmNotificationService),
-          cscNotificationService(cscNotificationService),
-          powerNotificationService(powerNotificationService),
-          fecService(fecService), scannerService(scannerService) {
-    }
-
-    auto handleRequest(void * = nullptr) -> void override;
-
-private:
-    std::shared_ptr<HrmNotificationService> hrmNotificationService;
-    std::shared_ptr<CyclingCadenceAndSpeedNotificationService> cscNotificationService;
-    std::shared_ptr<PowerNotificationService> powerNotificationService;
-    std::shared_ptr<FecService> fecService;
-    std::shared_ptr<ScannerService> scannerService;
 };
 
 class SwitchThemeController final : public WidgetController<QWidget> {
@@ -190,7 +162,7 @@ public:
           workoutSummaryWindow(workoutSummaryWindow) {
     }
 
-    auto handleRequest(void * = nullptr) -> void override;
+    auto switchColorTheme() const -> void ;
 
 private:
     QApplication *app;
@@ -216,7 +188,7 @@ public:
           fecService(fecService), scannerService(scannerService), state(state), registry(registry) {
     }
 
-    auto handleRequest(void * = nullptr) -> void override;
+    auto shutdown() const -> void ;
 
 private:
     std::shared_ptr<HrmNotificationService> hrmNotificationService;
@@ -234,7 +206,7 @@ public:
         : model(model) {
     }
 
-    auto handleRequest(WheelSize size)  -> void override;
+    auto setWheelSize(WheelSize size) const -> void ;
 
 private:
     std::shared_ptr<Model> model;
@@ -246,16 +218,16 @@ public:
         : model(model) {
     }
 
-    auto handleRequest(DistanceUnit size) -> void override;
+    auto setDistanceUnit(DistanceUnit size) const -> void ;
 
 private:
     std::shared_ptr<Model> model;
 };
 
 
-class TrayConnectToDeviceController final : public Controller<const std::shared_ptr<Device> &> {
+class ConnectToDeviceController final : public Controller<const std::shared_ptr<Device> &> {
 public:
-    explicit TrayConnectToDeviceController(
+    explicit ConnectToDeviceController(
         const std::shared_ptr<HrmNotificationService> &hrmNotificationService,
         const std::shared_ptr<CyclingCadenceAndSpeedNotificationService> &cscNotificationService,
         const std::shared_ptr<PowerNotificationService> &powerNotificationService,
@@ -268,7 +240,7 @@ public:
           fecService(fecService), state(state) {
     }
 
-    auto handleRequest(const std::shared_ptr<Device> &device) -> void override;
+    auto connectToDevice(const std::shared_ptr<Device> &device) const -> void ;
 
 private:
     std::shared_ptr<HrmNotificationService> hrmNotificationService;
