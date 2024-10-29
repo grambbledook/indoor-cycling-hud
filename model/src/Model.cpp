@@ -28,7 +28,6 @@ auto Model::addDevice(const std::shared_ptr<Device> &device) -> void {
         return;
     }
     devices[device->deviceId()] = newDevice;
-    // notifications.deviceDiscovered.publish(DeviceDiscovered(newDevice));
     eventBus->publish(DeviceDiscovered(newDevice));
 }
 
@@ -60,7 +59,6 @@ auto Model::setDevice(const Service &service, const std::shared_ptr<Device> &dev
         }
 
         hrmState = {device};
-        // notifications.deviceSelected.publish(DeviceSelected{Service::HEART_RATE, hrmState.device});
         eventBus->publish(DeviceSelected{Service::HEART_RATE, hrmState.device});
     }
 
@@ -69,7 +67,6 @@ auto Model::setDevice(const Service &service, const std::shared_ptr<Device> &dev
             return;
         }
         cadenceState = {device};
-        // notifications.deviceSelected.publish(DeviceSelected{Service::CADENCE, cadenceState.device});
         eventBus->publish(DeviceSelected{Service::CADENCE, cadenceState.device});
     }
 
@@ -78,7 +75,6 @@ auto Model::setDevice(const Service &service, const std::shared_ptr<Device> &dev
             return;
         }
         speedState = {device};
-        // notifications.deviceSelected.publish(DeviceSelected{Service::SPEED, speedState.device});
         eventBus->publish(DeviceSelected{Service::SPEED, speedState.device});
     }
 
@@ -87,7 +83,6 @@ auto Model::setDevice(const Service &service, const std::shared_ptr<Device> &dev
             return;
         }
         powerState = {device};
-        // notifications.deviceSelected.publish(DeviceSelected{Service::POWER, powerState.device});
         eventBus->publish(DeviceSelected{Service::POWER, powerState.device});
     }
 
