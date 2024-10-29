@@ -13,8 +13,7 @@ class SystemTray final : public QSystemTrayIcon {
     Q_OBJECT
 
 public:
-    explicit SystemTray(
-        const std::shared_ptr<ControllerHandler> &handler);
+    explicit SystemTray(const std::shared_ptr<ControllerHandler> &handler);
 
 public slots:
     auto switchTheme() const -> void;

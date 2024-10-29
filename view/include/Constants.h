@@ -90,4 +90,8 @@ namespace Constants {
         const std::string QUIT = "QUIT";
         const std::string CONNECT_TO_DEVICE = "CONNECT_TO_DEVICE";
     }
+
+    namespace States {
+        const std::string DEVICE_STATUS_CHANGED = "DEVICE_STATUS_CHANGED";
+    }
 }

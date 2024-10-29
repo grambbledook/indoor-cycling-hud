@@ -243,6 +243,30 @@ auto Model::tick() -> void {
     publishWorkoutEvent(WorkoutState::IN_PROGRESS);
 }
 
+auto Model::getDeviceServices(const std::shared_ptr<Device> &device) -> std::vector<Service> {
+    std::lock_guard guard(mutex);
+
+    auto services = std::vector<Service>();
+
+    if (hrmState.device && device->deviceId() == hrmState.device->deviceId()) {
+        services.push_back(Service::HEART_RATE);
+    }
+
+    if (cadenceState.device && device->deviceId() == cadenceState.device->deviceId()) {
+        services.push_back(Service::CADENCE);
+    }
+
+    if (speedState.device && device->deviceId() == speedState.device->deviceId()) {
+        services.push_back(Service::SPEED);
+    }
+
+    if (powerState.device && device->deviceId() == powerState.device->deviceId()) {
+        services.push_back(Service::POWER);
+    }
+
+    return services;
+}
+
 auto Model::publishWorkoutEvent(const WorkoutState &status) -> void {
     std::lock_guard guard(mutex);
 

@@ -182,12 +182,6 @@ auto SwitchThemeController::switchColorTheme() const -> void {
     workoutSummaryWindow->update();
 }
 
-auto ShutdownController::shutdown() const -> void {
-    state->state = ApplicationState::EXITING;
-
-    registry->stop();
-    QApplication::quit();
-}
 
 auto WheelSizeSelectionController::setWheelSize(WheelSize size) const -> void {
     model->setWheelSize(size);
@@ -197,4 +191,48 @@ auto WheelSizeSelectionController::setWheelSize(WheelSize size) const -> void {
 void SpeedUnitController::setDistanceUnit(DistanceUnit size) const {
     model->setSpeedUnit(size);
     spdlog::info("Speed unit set to: {}", size);
+}
+
+DeviceReconnectionController::DeviceReconnectionController(
+    const std::shared_ptr<DeviceRegistry> &registry,
+    const std::shared_ptr<Model> &model,
+    const std::shared_ptr<AppState> &state
+): registry(registry), model(model), state(state) {
+}
+
+auto DeviceReconnectionController::reconnect(const std::shared_ptr<Device> device) const -> void {
+    if (state->state == ApplicationState::EXITING) {
+        spdlog::info("App shutdown in progress, ignoring connection loss for device [{}]", device->deviceId());
+        return;
+    }
+
+    const auto services = model->getDeviceServices(device);
+    if (services.empty()) {
+        spdlog::info("  No services found for device: {}", device->deviceId());
+        return;
+    }
+
+    spdlog::info("  Event received. device_id={}, status=DISCONNECTED", device->deviceId());
+}
+
+auto DeviceReconnectionController::connected(const std::shared_ptr<Device> device) const -> void {
+    if (state->state == ApplicationState::EXITING) {
+        spdlog::info("App shutdown in progress, ignoring reconnect for device [{}]", device->deviceId());
+        return;
+    }
+
+    const auto services = model->getDeviceServices(device);
+    if (services.empty()) {
+        spdlog::info("  No services found for device: {}", device->deviceId());
+        return;
+    }
+
+    spdlog::info("  Event received. device_id={}, status=CONNECTED", device->deviceId());
+}
+
+auto ShutdownController::shutdown() const -> void {
+    state->state = ApplicationState::EXITING;
+
+    registry->stop();
+    QApplication::quit();
 }

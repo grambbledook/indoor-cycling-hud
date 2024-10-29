@@ -64,7 +64,7 @@ public:
         : ViewController(view, state, history) {
     }
 
-    auto showDeviceWindow() -> void ;
+    auto showDeviceWindow() -> void;
 };
 
 class SelectWorkoutWindowController final : public ViewController<SelectWorkoutWindow> {
@@ -77,7 +77,7 @@ public:
         : ViewController(view, state, history) {
     }
 
-    auto showSelectWorkoutWindow() -> void ;
+    auto showSelectWorkoutWindow() -> void;
 };
 
 class WorkoutWindowController final : public ViewController<WorkoutWindow> {
@@ -92,7 +92,7 @@ public:
         : ViewController(view, state, history), model(model), pacer(pacer) {
     }
 
-    auto showWorkoutWindow() -> void ;
+    auto showWorkoutWindow() -> void;
 
 private:
     std::shared_ptr<Model> model;
@@ -111,7 +111,7 @@ public:
         : ViewController(view, state, history), model(model), pacer(pacer) {
     }
 
-    auto showWorkoutSummaryWindow() -> void ;
+    auto showWorkoutSummaryWindow() -> void;
 
 private:
     std::shared_ptr<Model> model;
@@ -162,7 +162,7 @@ public:
           workoutSummaryWindow(workoutSummaryWindow) {
     }
 
-    auto switchColorTheme() const -> void ;
+    auto switchColorTheme() const -> void;
 
 private:
     QApplication *app;
@@ -172,41 +172,13 @@ private:
     std::shared_ptr<WorkoutSummaryWindow> workoutSummaryWindow;
 };
 
-class ShutdownController final : public Controller<void *> {
-public:
-    explicit ShutdownController(
-        const std::shared_ptr<HrmNotificationService> &hrmNotificationService,
-        const std::shared_ptr<CyclingCadenceAndSpeedNotificationService> &cscNotificationService,
-        const std::shared_ptr<PowerNotificationService> &powerNotificationService,
-        const std::shared_ptr<FecService> &fecService,
-        const std::shared_ptr<ScannerService> &scannerService,
-        const std::shared_ptr<DeviceRegistry> &registry,
-        const std::shared_ptr<AppState> &state
-    )
-        : hrmNotificationService(hrmNotificationService),
-          cscNotificationService(cscNotificationService), powerNotificationService(powerNotificationService),
-          fecService(fecService), scannerService(scannerService), state(state), registry(registry) {
-    }
-
-    auto shutdown() const -> void ;
-
-private:
-    std::shared_ptr<HrmNotificationService> hrmNotificationService;
-    std::shared_ptr<CyclingCadenceAndSpeedNotificationService> cscNotificationService;
-    std::shared_ptr<PowerNotificationService> powerNotificationService;
-    std::shared_ptr<FecService> fecService;
-    std::shared_ptr<ScannerService> scannerService;
-    std::shared_ptr<AppState> state;
-    std::shared_ptr<DeviceRegistry> registry;
-};
-
 class WheelSizeSelectionController final : public Controller<WheelSize> {
 public:
     explicit WheelSizeSelectionController(const std::shared_ptr<Model> &model)
         : model(model) {
     }
 
-    auto setWheelSize(WheelSize size) const -> void ;
+    auto setWheelSize(WheelSize size) const -> void;
 
 private:
     std::shared_ptr<Model> model;
@@ -218,7 +190,7 @@ public:
         : model(model) {
     }
 
-    auto setDistanceUnit(DistanceUnit size) const -> void ;
+    auto setDistanceUnit(DistanceUnit size) const -> void;
 
 private:
     std::shared_ptr<Model> model;
@@ -240,7 +212,7 @@ public:
           fecService(fecService), state(state) {
     }
 
-    auto connectToDevice(const std::shared_ptr<Device> &device) const -> void ;
+    auto connectToDevice(const std::shared_ptr<Device> &device) const -> void;
 
 private:
     std::shared_ptr<HrmNotificationService> hrmNotificationService;
@@ -248,4 +220,51 @@ private:
     std::shared_ptr<PowerNotificationService> powerNotificationService;
     std::shared_ptr<FecService> fecService;
     std::shared_ptr<AppState> state;
+};
+
+class DeviceReconnectionController final : public Controller<void *> {
+public:
+    explicit DeviceReconnectionController(
+        const std::shared_ptr<DeviceRegistry> &registry,
+        const std::shared_ptr<Model> &model,
+        const std::shared_ptr<AppState> &state
+    );
+
+    auto reconnect(const std::shared_ptr<Device> device) const -> void;
+
+    auto connected(const std::shared_ptr<Device> device) const -> void;
+
+private:
+    const std::shared_ptr<DeviceRegistry> registry;
+    const std::shared_ptr<Model> model;
+    const std::shared_ptr<AppState> state;
+};
+
+
+class ShutdownController final : public Controller<void *> {
+public:
+    explicit ShutdownController(
+        const std::shared_ptr<HrmNotificationService> &hrmNotificationService,
+        const std::shared_ptr<CyclingCadenceAndSpeedNotificationService> &cscNotificationService,
+        const std::shared_ptr<PowerNotificationService> &powerNotificationService,
+        const std::shared_ptr<FecService> &fecService,
+        const std::shared_ptr<ScannerService> &scannerService,
+        const std::shared_ptr<DeviceRegistry> &registry,
+        const std::shared_ptr<AppState> &state
+    )
+        : hrmNotificationService(hrmNotificationService),
+          cscNotificationService(cscNotificationService), powerNotificationService(powerNotificationService),
+          fecService(fecService), scannerService(scannerService), state(state), registry(registry) {
+    }
+
+    auto shutdown() const -> void;
+
+private:
+    std::shared_ptr<HrmNotificationService> hrmNotificationService;
+    std::shared_ptr<CyclingCadenceAndSpeedNotificationService> cscNotificationService;
+    std::shared_ptr<PowerNotificationService> powerNotificationService;
+    std::shared_ptr<FecService> fecService;
+    std::shared_ptr<ScannerService> scannerService;
+    std::shared_ptr<AppState> state;
+    std::shared_ptr<DeviceRegistry> registry;
 };

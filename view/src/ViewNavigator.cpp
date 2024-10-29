@@ -12,13 +12,14 @@ ViewNavigator::ViewNavigator(
     const std::shared_ptr<SwitchThemeController> &switchThemeController,
     const std::shared_ptr<ShutdownController> &shutdownController,
     const std::shared_ptr<WheelSizeSelectionController> &wheelSizeSelectionController,
-    const std::shared_ptr<SpeedUnitController> &speedUnitController
+    const std::shared_ptr<SpeedUnitController> &speedUnitController,
+    const std::shared_ptr<DeviceReconnectionController> &deviceReconnectionController
 ): controllerHandler(controllerHandler), connectToDeviceController(connectToDeviceController),
    deviceDialogController(deviceDialogController), deviceWindowController(deviceWindowController),
    selectWorkoutWindowController(selectWorkoutWindowController), workoutWindowController(workoutWindowController),
    workoutSummaryWindowController(workoutSummaryWindowController), switchThemeController(switchThemeController),
    shutdownController(shutdownController), wheelSizeSelectionController(wheelSizeSelectionController),
-   speedUnitController(speedUnitController) {
+   speedUnitController(speedUnitController), deviceReconnectionController(deviceReconnectionController) {
     auto receiver = [this](const std::string &screen, const std::vector<std::any> &args) {
         this->nextScreen(screen, args);
     };
@@ -77,5 +78,17 @@ auto ViewNavigator::nextScreen(const std::string &command, const std::vector<std
 
         const auto device = std::any_cast<const std::shared_ptr<Device> &>(args[0]);
         connectToDeviceController->connectToDevice(device);
+    }
+
+    if (command == Constants::States::DEVICE_STATUS_CHANGED) {
+        assert(!args.empty() && "device connection event is required");
+
+        const auto event = std::any_cast<const DeviceConnectionEvent *>(args[0]);
+        if (event->status == ConnectionStatus::DISCONNECTED) {
+            deviceReconnectionController->reconnect(event->device);
+        }
+        if (event->status == ConnectionStatus::CONNECTED) {
+            deviceReconnectionController->connected(event->device);
+        }
     }
 }

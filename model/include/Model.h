@@ -60,11 +60,15 @@ public:
                                                                storage(std::make_unique<WorkoutDataStorage>()) {
     }
 
+
     // Device discovery
 
     auto addDevice(const std::shared_ptr<Device> &device) -> void;
 
     auto getDevices(const GattService *service) -> std::vector<std::shared_ptr<Device> >;
+
+    auto getDeviceServices(const std::shared_ptr<Device> &shared) -> std::vector<Service>;
+
 
     // Device modificators
     auto setDevice(const Service &service, const std::shared_ptr<Device> &device) -> void;
@@ -73,18 +77,22 @@ public:
 
     auto setWheelSize(WheelSize size) -> void;
 
+
     // Data recording
     auto recordData(const MeasurementEvent &event) -> void;
+
 
     // Workout management
     auto startWorkout() -> void;
 
     auto stopWorkout() -> void;
 
+
     // Data retrieval
     auto tick() -> void;
 
 private:
+
     // Device setters
     auto recordHeartData(const HrmMeasurement &hrm) -> void;
 
@@ -93,6 +101,7 @@ private:
     auto recordSpeedData(const SpeedMeasurement &event) -> void;
 
     auto recordPowerData(const PowerMeasurement &event) -> void;
+
 
     // Data propagation
     auto publishWorkoutEvent(const WorkoutState &status) -> void;

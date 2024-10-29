@@ -71,33 +71,13 @@ int main(int argc, char **argv) {
         }
         qtAdapter->workoutSummary(*workoutSummary);
     });
-    eventBus->subscribe(EventType::DEVICE_CONNECTION, [](const Event &event) {
-        std::string type;
-        switch (event.type) {
-            case DEVICE_CONNECTION:
-                type = "DEVICE_CONNECTION";
-                break;
-            case DEVICE_DISCOVERED:
-                type = "DEVICE_DISCOVERED";
-                break;
-            case DEVICE_SELECTED:
-                type = "DEVICE_SELECTED";
-                break;
-            case WORKOUT_DATA:
-                type = "WORKOUT_DATA";
-                break;
-            default:
-                std::unreachable();
-        }
+    eventBus->subscribe(EventType::DEVICE_CONNECTION, [controllerHandler](const Event &event) {
+        spdlog::trace("DEVICE_CONNECTION event reveived");
 
-        spdlog::info("RECEIVER FOR EventType::DEVICE_CONNECTION: event published. type={}", type);
         const auto bleConnectionEvent = dynamic_cast<const DeviceConnectionEvent *>(&event);
         assert(bleConnectionEvent != nullptr && "bleConnectionEvent should not be null");
 
-        const auto deviceId = bleConnectionEvent->device->deviceId();
-        const auto status = bleConnectionEvent->status == CONNECTED ? "CONNECTED" : "DISCONNECTED";
-
-        spdlog::info("    Event received. device_id={}, status={}", deviceId, status);
+        controllerHandler->next(Constants::States::DEVICE_STATUS_CHANGED, bleConnectionEvent);
     });
 
     const auto pacer = std::make_shared<WorkoutPacer>(model);
@@ -134,12 +114,15 @@ int main(int argc, char **argv) {
     const auto connectToDeviceController = std::make_shared<ConnectToDeviceController>(
         hrm, csc, pwr, fec, appState
     );
+    const auto deviceReconnectionController = std::make_shared<DeviceReconnectionController>(
+        registry, model, appState
+    );
 
     const auto viewNavigator = std::make_unique<ViewNavigator>(
         controllerHandler,
         deviceDialogController, connectToDeviceController, deviceWindowController,
         selectWorkoutWindowController, workoutWindowController, workoutSummaryWindowController, switchThemeController,
-        shutdownController, wheelSizeSelectionController, speedUnitController
+        shutdownController, wheelSizeSelectionController, speedUnitController, deviceReconnectionController
     );
 
     tray->switchTheme();
