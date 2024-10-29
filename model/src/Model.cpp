@@ -28,7 +28,8 @@ auto Model::addDevice(const std::shared_ptr<Device> &device) -> void {
         return;
     }
     devices[device->deviceId()] = newDevice;
-    notifications.deviceDiscovered.publish(DeviceDiscovered(newDevice));
+    // notifications.deviceDiscovered.publish(DeviceDiscovered(newDevice));
+    eventBus->publish(DeviceDiscovered(newDevice));
 }
 
 auto Model::getDevices(const GattService *service) -> std::vector<std::shared_ptr<Device> > {
@@ -50,7 +51,7 @@ auto Model::getDevices(const GattService *service) -> std::vector<std::shared_pt
 // Device management
 //
 
-auto Model::setDevice( const Service &service, const std::shared_ptr<Device> &device) -> void {
+auto Model::setDevice(const Service &service, const std::shared_ptr<Device> &device) -> void {
     std::lock_guard guard(mutex);
 
     if (service == Service::HEART_RATE) {
@@ -59,7 +60,8 @@ auto Model::setDevice( const Service &service, const std::shared_ptr<Device> &de
         }
 
         hrmState = {device};
-        notifications.deviceSelected.publish(DeviceSelected{Service::HEART_RATE, hrmState.device});
+        // notifications.deviceSelected.publish(DeviceSelected{Service::HEART_RATE, hrmState.device});
+        eventBus->publish(DeviceSelected{Service::HEART_RATE, hrmState.device});
     }
 
     if (service == Service::CADENCE) {
@@ -67,7 +69,8 @@ auto Model::setDevice( const Service &service, const std::shared_ptr<Device> &de
             return;
         }
         cadenceState = {device};
-        notifications.deviceSelected.publish(DeviceSelected{Service::CADENCE, cadenceState.device});
+        // notifications.deviceSelected.publish(DeviceSelected{Service::CADENCE, cadenceState.device});
+        eventBus->publish(DeviceSelected{Service::CADENCE, cadenceState.device});
     }
 
     if (service == Service::SPEED) {
@@ -75,7 +78,8 @@ auto Model::setDevice( const Service &service, const std::shared_ptr<Device> &de
             return;
         }
         speedState = {device};
-        notifications.deviceSelected.publish(DeviceSelected{Service::SPEED, speedState.device});
+        // notifications.deviceSelected.publish(DeviceSelected{Service::SPEED, speedState.device});
+        eventBus->publish(DeviceSelected{Service::SPEED, speedState.device});
     }
 
     if (service == Service::POWER) {
@@ -83,7 +87,8 @@ auto Model::setDevice( const Service &service, const std::shared_ptr<Device> &de
             return;
         }
         powerState = {device};
-        notifications.deviceSelected.publish(DeviceSelected{Service::POWER, powerState.device});
+        // notifications.deviceSelected.publish(DeviceSelected{Service::POWER, powerState.device});
+        eventBus->publish(DeviceSelected{Service::POWER, powerState.device});
     }
 
     if (service == Service::BIKE_TRAINER) {
@@ -194,7 +199,7 @@ auto Model::startWorkout() -> void {
     storage->newWorkout();
     storage->startWorkout();
 
-    publishWorkoutEvent(WorkoutState::STARTED, notifications.summary);
+    publishWorkoutEvent(WorkoutState::STARTED);
     spdlog::info("  Workput started");
 }
 
@@ -204,7 +209,7 @@ auto Model::stopWorkout() -> void {
     spdlog::info("Stopping workout");
     storage->endWorkout();
 
-    publishWorkoutEvent(WorkoutState::FINISHED, notifications.summary);
+    publishWorkoutEvent(WorkoutState::FINISHED);
     spdlog::info("  Workout stopped");
 }
 
@@ -240,10 +245,10 @@ auto Model::tick() -> void {
     const auto timestamp = duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
     storage->aggregate(timestamp, hrm, power, cadence, totalCrankRevs, speed, totalWheelRevs);
 
-    publishWorkoutEvent(WorkoutState::IN_PROGRESS, notifications.measurements);
+    publishWorkoutEvent(WorkoutState::IN_PROGRESS);
 }
 
-auto Model::publishWorkoutEvent(const WorkoutState status, Channel<WorkoutEvent> &channel) -> void {
+auto Model::publishWorkoutEvent(const WorkoutState &status) -> void {
     std::lock_guard guard(mutex);
 
     const auto duration = status == WorkoutState::IN_PROGRESS
@@ -278,5 +283,5 @@ auto Model::publishWorkoutEvent(const WorkoutState status, Channel<WorkoutEvent>
     const auto distance = BLE::Math::computeDistance(data.speed_avg.value_or(0), duration);
     const auto summary = WorkoutEvent(status, duration, distance, distanceUnit, data);
 
-    channel.publish(summary);
+    eventBus->publish(summary);
 }

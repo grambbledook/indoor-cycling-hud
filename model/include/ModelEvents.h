@@ -1,15 +1,27 @@
 #pragma once
 
 #include <algorithm>
-#include <iostream>
 
 #include "Data.h"
 #include "Service.h"
 #include "Units.h"
 
+enum EventType {
+    DEVICE_CONNECTION,
+    DEVICE_DISCOVERED,
+    DEVICE_SELECTED,
+    WORKOUT_DATA
+
+};
+
 class Event {
 public:
+    explicit Event(const EventType type): type(type) {
+    }
+
     virtual ~Event() = default;
+
+    EventType type;
 };
 
 enum ConnectionStatus {
@@ -17,27 +29,32 @@ enum ConnectionStatus {
     DISCONNECTED
 };
 
-struct DeviceConnectionEvent final : public Event {
+struct DeviceConnectionEvent final : Event {
     std::shared_ptr<Device> device;
     ConnectionStatus status;
 
-    DeviceConnectionEvent(const std::shared_ptr<Device> &device, const ConnectionStatus status): device(device),
-        status(status) {
+    DeviceConnectionEvent(
+        const std::shared_ptr<Device> &device,
+        const ConnectionStatus status
+    ): Event(DEVICE_CONNECTION), device(device), status(status) {
     }
 };
 
-struct DeviceDiscovered final : public Event {
+struct DeviceDiscovered final : Event {
     std::shared_ptr<Device> device;
 
-    explicit DeviceDiscovered(const std::shared_ptr<Device> &device): device(device) {
+    explicit DeviceDiscovered(const std::shared_ptr<Device> &device): Event(DEVICE_DISCOVERED), device(device) {
     }
 };
 
-struct DeviceSelected final : public Event {
+struct DeviceSelected final : Event {
     Service service;
     std::shared_ptr<Device> device;
 
-    DeviceSelected(Service service, const std::shared_ptr<Device> &device): service(service), device(device) {
+    DeviceSelected(
+        const Service &service,
+        const std::shared_ptr<Device> &device
+    ): Event(DEVICE_SELECTED), service(service), device(device) {
     }
 };
 
@@ -82,7 +99,8 @@ struct WorkoutEvent final : public Event {
         const unsigned long distance,
         const DistanceUnit distanceUnit,
         const Aggregate &data
-    ): state(state),
+    ): Event(WORKOUT_DATA),
+       state(state),
        durationMs(duration),
        distance(distance), distanceUnit(distanceUnit),
        data(data) {

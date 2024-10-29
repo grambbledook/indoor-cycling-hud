@@ -4,8 +4,9 @@
 
 #ifndef MESSAGEBUS_H
 #define MESSAGEBUS_H
-#include "ModelEvents.h"
+#include <mutex>
 
+#include "ModelEvents.h"
 
 class EventBus {
 public:
@@ -14,6 +15,12 @@ public:
     ~EventBus() = default;
 
     auto publish(const Event &event) -> void;
+
+    auto subscribe(const EventType type, const std::function<void(const Event &)> &receiver) -> void;
+
+private:
+    std::mutex mutex;
+    std::unordered_map<EventType, std::vector<std::function<void(const Event &)>> > subscribers;
 };
 
 

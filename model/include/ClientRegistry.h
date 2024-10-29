@@ -9,10 +9,10 @@
 class DeviceRegistry {
     std::unordered_map<std::string, std::shared_ptr<BleClient> > clients;
     std::mutex mutex;
-    std::shared_ptr<EventBus> bus;
+    std::shared_ptr<EventBus> eventBus;
 
 public:
-    DeviceRegistry(const std::shared_ptr<EventBus> &bus);
+    explicit DeviceRegistry(const std::shared_ptr<EventBus> &eventBus);
 
     ~DeviceRegistry();
 

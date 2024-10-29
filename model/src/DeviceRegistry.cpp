@@ -6,7 +6,7 @@
 #include <memory>
 #include <spdlog/spdlog.h>
 
-DeviceRegistry::DeviceRegistry(const std::shared_ptr<EventBus> &bus) : bus(bus) {
+DeviceRegistry::DeviceRegistry(const std::shared_ptr<EventBus> &eventBus) : eventBus(eventBus) {
 }
 
 DeviceRegistry::~DeviceRegistry() {
@@ -23,10 +23,9 @@ auto DeviceRegistry::connect(const Device &device) -> std::shared_ptr<BleClient>
                                 ? ConnectionStatus::CONNECTED
                                 : ConnectionStatus::DISCONNECTED;
 
-        const auto device_connection_event = DeviceConnectionEvent{event.device, status};
-        bus->publish(device_connection_event);
+        const auto deviceConnectionEvent = DeviceConnectionEvent{event.device, status};
+        eventBus->publish(deviceConnectionEvent);
     };
-
 
     if (!clients.contains(device.deviceId())) {
         spdlog::info("    Creating new client for device: {}", device.deviceId());

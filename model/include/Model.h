@@ -2,22 +2,14 @@
 #include <expected>
 #include <mutex>
 
-#include "Channel.h"
 #include "ModelEvents.h"
 #include "BleDeviceEvents.h"
+#include "EventBus.h"
 #include "Units.h"
 #include "WheelSizes.h"
 #include "WorkoutDataStorage.h"
 
 using std::chrono::system_clock;
-
-class Notifications {
-public:
-    Channel<DeviceDiscovered> deviceDiscovered;
-    Channel<DeviceSelected> deviceSelected;
-    Channel<WorkoutEvent> measurements;
-    Channel<WorkoutEvent> summary;
-};
 
 template<typename A>
 struct State {
@@ -62,9 +54,10 @@ struct MeasurementsBuffer {
 
 class Model {
 public:
-    Model(): distanceUnit(DistanceUnit::METERS),
-             wheelSize(WheelSize::ROAD_700x35C),
-             storage(std::make_unique<WorkoutDataStorage>()) {
+    explicit Model(const std::shared_ptr<EventBus> &eventBus): distanceUnit(DistanceUnit::METERS),
+                                                               eventBus(eventBus),
+                                                               wheelSize(WheelSize::ROAD_700x35C),
+                                                               storage(std::make_unique<WorkoutDataStorage>()) {
     }
 
     // Device discovery
@@ -102,12 +95,10 @@ private:
     auto recordPowerData(const PowerMeasurement &event) -> void;
 
     // Data propagation
-    auto publishWorkoutEvent(WorkoutState status, Channel<WorkoutEvent> &channel) -> void;
-
-public:
-    Notifications notifications;
+    auto publishWorkoutEvent(const WorkoutState &status) -> void;
 
 private:
+    std::shared_ptr<EventBus> eventBus;
     std::unordered_map<std::string, std::shared_ptr<Device> > devices;
     std::recursive_mutex mutex;
 

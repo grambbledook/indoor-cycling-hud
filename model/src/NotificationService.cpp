@@ -42,8 +42,8 @@ auto INotificationService::unsetDevice(const std::shared_ptr<Device> &device) ->
 }
 
 HrmNotificationService::HrmNotificationService(
-    std::shared_ptr<DeviceRegistry> &registry,
-    std::shared_ptr<Model> &model
+    const std::shared_ptr<DeviceRegistry> &registry,
+    const std::shared_ptr<Model> &model
 ): INotificationService(registry, model, BLE::Services::HRM) {
 }
 
@@ -69,8 +69,8 @@ auto HrmNotificationService::processMeasurement(
 }
 
 CyclingCadenceAndSpeedNotificationService::CyclingCadenceAndSpeedNotificationService(
-    std::shared_ptr<DeviceRegistry> &registry,
-    std::shared_ptr<Model> &model
+    const std::shared_ptr<DeviceRegistry> &registry,
+    const std::shared_ptr<Model> &model
 ): INotificationService(registry, model, BLE::Services::CSC) {
 }
 
@@ -127,8 +127,8 @@ auto CyclingCadenceAndSpeedNotificationService::processMeasurement(
 }
 
 PowerNotificationService::PowerNotificationService(
-    std::shared_ptr<DeviceRegistry> &registry,
-    std::shared_ptr<Model> &model
+    const std::shared_ptr<DeviceRegistry> &registry,
+    const std::shared_ptr<Model> &model
 ): INotificationService(registry, model, BLE::Services::PWR) {
 }
 
@@ -149,8 +149,8 @@ auto PowerNotificationService::processMeasurement(
 }
 
 FecService::FecService(
-    std::shared_ptr<DeviceRegistry> &registry,
-    std::shared_ptr<Model> &model
+    const std::shared_ptr<DeviceRegistry> &registry,
+    const std::shared_ptr<Model> &model
 ): INotificationService(registry, model, BLE::Services::FEC_BIKE_TRAINER) {
 }
 
@@ -193,7 +193,7 @@ auto FecService::processMeasurement(
 
             const auto resistance = std::round(message[6] * 0.5);
 
-              const auto event = std::make_shared<GeneralSettings>(
+            const auto event = std::make_shared<GeneralSettings>(
                 cycleLength,
                 static_cast<int>(incline),
                 static_cast<int>(resistance),
@@ -232,7 +232,7 @@ auto FecService::processMeasurement(
                     break;
             }
 
-              const auto event = std::make_shared<SpecificTrainerData>(
+            const auto event = std::make_shared<SpecificTrainerData>(
                 updateEventCount,
                 instantaneousCadence,
                 instantaneousPower,

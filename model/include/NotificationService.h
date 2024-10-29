@@ -33,8 +33,8 @@ public:
 class HrmNotificationService final : public INotificationService {
 public:
     explicit HrmNotificationService(
-        std::shared_ptr<DeviceRegistry> &registry,
-        std::shared_ptr<Model> &model
+        const std::shared_ptr<DeviceRegistry> &registry,
+        const std::shared_ptr<Model> &model
     );
 
     ~HrmNotificationService() override = default;
@@ -47,8 +47,8 @@ public:
 class CyclingCadenceAndSpeedNotificationService final : public INotificationService {
 public:
     explicit CyclingCadenceAndSpeedNotificationService(
-        std::shared_ptr<DeviceRegistry> &registry,
-        std::shared_ptr<Model> &model
+        const std::shared_ptr<DeviceRegistry> &registry,
+        const std::shared_ptr<Model> &model
     );
 
     ~CyclingCadenceAndSpeedNotificationService() override = default;
@@ -62,8 +62,8 @@ public:
 class PowerNotificationService final : public INotificationService {
 public:
     explicit PowerNotificationService(
-        std::shared_ptr<DeviceRegistry> &registry,
-        std::shared_ptr<Model> &model
+        const std::shared_ptr<DeviceRegistry> &registry,
+        const std::shared_ptr<Model> &model
     );
 
     ~PowerNotificationService() override = default;
@@ -76,8 +76,8 @@ public:
 class FecService final : public INotificationService {
 public:
     explicit FecService(
-        std::shared_ptr<DeviceRegistry> &registry,
-        std::shared_ptr<Model> &model
+        const std::shared_ptr<DeviceRegistry> &registry,
+        const std::shared_ptr<Model> &model
     );
 
     ~FecService() override = default;
