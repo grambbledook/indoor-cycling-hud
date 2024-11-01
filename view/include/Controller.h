@@ -14,6 +14,7 @@
 #include "ScannerService.h"
 #include "SelectWorkoutWindow.h"
 #include "DeviceWindow.h"
+#include "Reconnector.h"
 #include "WorkoutPacer.h"
 #include "WorkoutSummaryWindow.h"
 #include "WorkoutWindow.h"
@@ -225,8 +226,7 @@ private:
 class DeviceReconnectionController final : public Controller<void *> {
 public:
     explicit DeviceReconnectionController(
-        const std::shared_ptr<DeviceRegistry> &registry,
-        const std::shared_ptr<Model> &model,
+        const std::shared_ptr<Reconnector> &reconnector,
         const std::shared_ptr<AppState> &state
     );
 
@@ -235,8 +235,7 @@ public:
     auto connected(const std::shared_ptr<Device> device) const -> void;
 
 private:
-    const std::shared_ptr<DeviceRegistry> registry;
-    const std::shared_ptr<Model> model;
+    const std::shared_ptr<Reconnector> reconnector;
     const std::shared_ptr<AppState> state;
 };
 

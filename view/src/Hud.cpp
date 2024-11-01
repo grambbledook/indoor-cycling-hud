@@ -80,13 +80,15 @@ int main(int argc, char **argv) {
         controllerHandler->next(Constants::States::DEVICE_STATUS_CHANGED, bleConnectionEvent);
     });
 
-    const auto pacer = std::make_shared<WorkoutPacer>(model);
+
     const auto registry = std::make_shared<DeviceRegistry>(eventBus);
-    const auto scanner = std::make_shared<ScannerService>(model, Scanner(BLE::Services::SUPPORTED_SERVICES_MAP));
     const auto hrm = std::make_shared<HrmNotificationService>(registry, model);
     const auto csc = std::make_shared<CyclingCadenceAndSpeedNotificationService>(registry, model);
     const auto pwr = std::make_shared<PowerNotificationService>(registry, model);
     const auto fec = std::make_shared<FecService>(registry, model);
+    const auto reconnector = std::make_shared<Reconnector>(model, hrm, csc, pwr);
+    const auto pacer = std::make_shared<WorkoutPacer>(model, reconnector);
+    const auto scanner = std::make_shared<ScannerService>(model, Scanner(BLE::Services::SUPPORTED_SERVICES_MAP));
 
     const auto wheelSizeSelectionController = std::make_shared<WheelSizeSelectionController>(model);
     const auto speedUnitController = std::make_shared<SpeedUnitController>(model);
@@ -115,7 +117,7 @@ int main(int argc, char **argv) {
         hrm, csc, pwr, fec, appState
     );
     const auto deviceReconnectionController = std::make_shared<DeviceReconnectionController>(
-        registry, model, appState
+        reconnector, appState
     );
 
     const auto viewNavigator = std::make_unique<ViewNavigator>(

@@ -6,6 +6,7 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "BleDeviceServices.h"
+#include "Reconnector.h"
 #include "StyleSheets.h"
 
 
@@ -194,10 +195,9 @@ void SpeedUnitController::setDistanceUnit(DistanceUnit size) const {
 }
 
 DeviceReconnectionController::DeviceReconnectionController(
-    const std::shared_ptr<DeviceRegistry> &registry,
-    const std::shared_ptr<Model> &model,
+    const std::shared_ptr<Reconnector> &reconnector,
     const std::shared_ptr<AppState> &state
-): registry(registry), model(model), state(state) {
+): reconnector(reconnector), state(state) {
 }
 
 auto DeviceReconnectionController::reconnect(const std::shared_ptr<Device> device) const -> void {
@@ -206,13 +206,7 @@ auto DeviceReconnectionController::reconnect(const std::shared_ptr<Device> devic
         return;
     }
 
-    const auto services = model->getDeviceServices(device);
-    if (services.empty()) {
-        spdlog::info("  No services found for device: {}", device->deviceId());
-        return;
-    }
-
-    spdlog::info("  Event received. device_id={}, status=DISCONNECTED", device->deviceId());
+    reconnector->registerDevice(device);
 }
 
 auto DeviceReconnectionController::connected(const std::shared_ptr<Device> device) const -> void {
@@ -221,13 +215,7 @@ auto DeviceReconnectionController::connected(const std::shared_ptr<Device> devic
         return;
     }
 
-    const auto services = model->getDeviceServices(device);
-    if (services.empty()) {
-        spdlog::info("  No services found for device: {}", device->deviceId());
-        return;
-    }
-
-    spdlog::info("  Event received. device_id={}, status=CONNECTED", device->deviceId());
+    reconnector->handleReconnect(device);
 }
 
 auto ShutdownController::shutdown() const -> void {

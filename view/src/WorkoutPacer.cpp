@@ -1,8 +1,12 @@
 #include "WorkoutPacer.h"
 
+#include <qtconcurrentrun.h>
 #include <spdlog/spdlog.h>
 
-WorkoutPacer::WorkoutPacer(const std::shared_ptr<Model> &model): model(model) {
+WorkoutPacer::WorkoutPacer(
+    const std::shared_ptr<Model> &model,
+    const std::shared_ptr<Reconnector> &reconnector
+): model(model), reconnector(reconnector) {
     connect(&timer, &QTimer::timeout, this, &WorkoutPacer::tick);
 }
 
@@ -16,4 +20,9 @@ auto WorkoutPacer::stop() -> void {
 
 auto WorkoutPacer::tick() const -> void {
     model->tick();
+
+    auto reconnect = [this]() {
+        reconnector->tok();
+    };
+    QtConcurrent::run(reconnect);
 }

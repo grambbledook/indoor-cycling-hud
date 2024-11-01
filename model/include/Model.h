@@ -67,7 +67,7 @@ public:
 
     auto getDevices(const GattService *service) -> std::vector<std::shared_ptr<Device> >;
 
-    auto getDeviceServices(const std::shared_ptr<Device> &shared) -> std::vector<Service>;
+    auto getDeviceServices(const std::string &deviceId) -> std::vector<Service>;
 
 
     // Device modificators

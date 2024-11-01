@@ -10,7 +10,7 @@
 struct Address {
     const std::string value;
 
-    auto operator==(const Address &other) const  {
+    auto operator==(const Address &other) const {
         return value == other.value;
     }
 };
@@ -69,7 +69,7 @@ struct Device {
         return Device(name, address, std::move(combined));
     }
 
-    [[nodiscard]] auto deviceId() const {
+    [[nodiscard]] auto deviceId() const -> std::string {
         return name.value + ":" + address.value;
     }
 };

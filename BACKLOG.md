@@ -1,5 +1,5 @@
 ### Core Features Missing
- - [ ] Handle device disconnection automatically
+ - [x] Handle device disconnection automatically
  - [ ] Externalise app configuration
  - [ ] Store latest device configuration on exit
  - [ ] Reconnect to the last connected devices on startup
