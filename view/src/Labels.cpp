@@ -13,28 +13,7 @@ const LabelSize LabelSize::SMALL = LabelSize("small");
 const LabelSize LabelSize::MEDIUM = LabelSize("medium");
 const LabelSize LabelSize::LARGE = LabelSize("large");
 
-ClickableLabel::ClickableLabel(
-    const std::string &normal_icon_path,
-    const std::string &highlighted_icon_path,
-    QWidget *parent
-) : QLabel(parent), normal(pixmap(normal_icon_path)), highlighted(pixmap(highlighted_icon_path)) {
-    setPixmap(*normal);
-    setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
-}
-
-auto ClickableLabel::enterEvent(QEnterEvent *event) -> void {
-    setPixmap(*highlighted);
-}
-
-auto ClickableLabel::leaveEvent(QEvent *event) -> void {
-    setPixmap(*normal);
-}
-
-auto ClickableLabel::mousePressEvent(QMouseEvent *event) -> void {
-    emit clicked();
-}
-
-auto ClickableLabel::pixmap(const std::string &path) -> std::shared_ptr<QPixmap> {
+auto readPixmap(const std::string &path, const LabelSize &size) -> std::shared_ptr<QPixmap> {
     const auto exeDir = QCoreApplication::applicationDirPath();
     const auto absolutePath = QDir(exeDir).absoluteFilePath(QString::fromStdString(path));
 
@@ -60,8 +39,38 @@ auto ClickableLabel::pixmap(const std::string &path) -> std::shared_ptr<QPixmap>
             image.setPixel(x, y, color.rgba());
         }
     }
-    return std::make_shared<QPixmap>(QPixmap::fromImage(image));
+    auto pixmap2 = QPixmap::fromImage(image);
+
+    const auto x = pixmap2.width();
+    const auto y = pixmap2.height();
+    const auto scale = size == LabelSize::SMALL ? 0.5 : size == LabelSize::MEDIUM ? 1.0 : 1.5;
+
+    auto scaled = pixmap2.scaled(x * scale, y * scale, Qt::KeepAspectRatio);
+    return std::make_shared<QPixmap>(scaled);
 }
+
+ClickableLabel::ClickableLabel(
+    const std::string &normal_icon_path,
+    const std::string &highlighted_icon_path,
+    const LabelSize &size,
+    QWidget *parent
+) : QLabel(parent), normal(readPixmap(normal_icon_path, size)), highlighted(readPixmap(highlighted_icon_path, size)) {
+    setPixmap(*normal);
+    setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
+}
+
+auto ClickableLabel::enterEvent(QEnterEvent *event) -> void {
+    setPixmap(*highlighted);
+}
+
+auto ClickableLabel::leaveEvent(QEvent *event) -> void {
+    setPixmap(*normal);
+}
+
+auto ClickableLabel::mousePressEvent(QMouseEvent *event) -> void {
+    emit clicked();
+}
+
 
 TextLabel::TextLabel(
     std::string text,

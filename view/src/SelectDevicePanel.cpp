@@ -23,13 +23,14 @@ SelectDevicePanel::SelectDevicePanel(
     const std::string &normal_icon_path,
     const std::string &highlighted_icon_path,
     const std::shared_ptr<ControllerHandler> &handler,
+    const LabelSize &size,
     QWidget *parent
 ) : QMainWindow(parent), service(service), handler(handler) {
-    selectIcon = new ClickableLabel(normal_icon_path, highlighted_icon_path, this);
+    selectIcon = new ClickableLabel(normal_icon_path, highlighted_icon_path, size, this);
     selectIcon->setToolTip("No device selected");
     connect(selectIcon, &ClickableLabel::clicked, this, &SelectDevicePanel::handleDeviceButtonClick);
 
-    sensorNameLabel = new ValueLabel("--/--", LabelSize::MEDIUM, this);
+    sensorNameLabel = new ValueLabel("--/--", size, this);
     sensorNameLabel->setToolTip("No device selected");
 
     const auto spacer = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);

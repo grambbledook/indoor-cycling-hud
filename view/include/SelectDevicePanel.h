@@ -18,6 +18,7 @@ public:
         const std::string &normal_icon_path,
         const std::string &highlighted_icon_path,
         const std::shared_ptr<ControllerHandler> &handler,
+        const LabelSize &size,
         QWidget *parent = nullptr
     );
 

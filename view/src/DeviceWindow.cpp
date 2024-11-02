@@ -25,48 +25,49 @@ DeviceWindow::DeviceWindow(
         HEART_RATE,
         Constants::Icons::HEART_RATE_MONITOR,
         Constants::Icons::HEART_RATE_MONITOR_HOVER,
-        handler, this
+        handler, LabelSize::SMALL, this
     );
 
     cadencePanel = new SelectDevicePanel(
         CADENCE,
         Constants::Icons::CADENCE_SENSOR,
         Constants::Icons::CADENCE_SENSOR_HOVER,
-        handler, this
+        handler, LabelSize::SMALL, this
     );
 
     speedPanel = new SelectDevicePanel(
         SPEED,
         Constants::Icons::SPEED_SENSOR,
         Constants::Icons::SPEED_SENSOR_HOVER,
-        handler, this
+        handler, LabelSize::SMALL, this
     );
 
     powerPanel = new SelectDevicePanel(
         POWER,
         Constants::Icons::POWER_SENSOR,
         Constants::Icons::POWER_SENSOR_HOVER,
-        handler, this
+        handler, LabelSize::SMALL, this
     );
 
     trainerPanel = new SelectDevicePanel(
         BIKE_TRAINER,
         Constants::Icons::BIKE_TRAINER,
         Constants::Icons::BIKE_TRAINER_HOVER,
-        handler, this
+        handler, LabelSize::MEDIUM, this
     );
 
     const auto nextLabel = new ButtonLabel(Constants::Buttons::NEXT, true, this);
     connect(nextLabel, &ButtonLabel::clicked, this, &DeviceWindow::next);
 
     auto *layout = new QGridLayout(this);
-    layout->addWidget(heartRateMonitorPanel, 0, 0, Qt::AlignCenter);
-    layout->addWidget(nextLabel, 0, 1, Qt::AlignCenter);
-    layout->addWidget(cadencePanel, 0, 2, Qt::AlignCenter);
+    layout->addWidget(trainerPanel, 0, 1, 1, 2, Qt::AlignCenter);
 
-    layout->addWidget(powerPanel, 1, 0, Qt::AlignCenter);
-    layout->addWidget(trainerPanel, 1, 1, Qt::AlignCenter);
-    layout->addWidget(speedPanel, 1, 2, Qt::AlignCenter);
+    layout->addWidget(heartRateMonitorPanel, 1, 0, Qt::AlignCenter);
+    layout->addWidget(speedPanel, 1, 1, Qt::AlignCenter);
+    layout->addWidget(cadencePanel, 1, 2, Qt::AlignCenter);
+    layout->addWidget(powerPanel, 1, 3, Qt::AlignCenter);
+
+    layout->addWidget(nextLabel, 2, 1, 1, 2, Qt::AlignCenter);
 
     const auto centralWidget = new QWidget(this);
     centralWidget->setObjectName(Constants::Classes::PANEL);

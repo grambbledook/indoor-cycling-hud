@@ -12,6 +12,10 @@ public:
 
     [[nodiscard]] std::string asString() const { return value; }
 
+    auto operator==(const LabelSize &other) const -> bool {
+        return value == other.value;
+    }
+
 private:
     explicit LabelSize(std::string value) : value(std::move(value)) {
     }
@@ -43,6 +47,7 @@ public:
     explicit ButtonLabel(std::string text, bool borders = true, QWidget *parent = nullptr);
 
     void mousePressEvent(QMouseEvent *event) override;
+
 signals:
     void clicked();
 };
@@ -53,7 +58,8 @@ class ClickableLabel final : public QLabel {
 public:
     explicit ClickableLabel(
         const std::string &normal_icon_path,
-        const std::string &highlighted_icon_path = "nullptr",
+        const std::string &highlighted_icon_path,
+        const LabelSize &size,
         QWidget *parent = nullptr
     );
 
@@ -67,7 +73,7 @@ signals:
     void clicked();
 
 private:
-    static std::shared_ptr<QPixmap> pixmap(const std::string &path);
+    // static std::shared_ptr<QPixmap> pixmap(const std::string &path);
 
     std::shared_ptr<QPixmap> normal;
     std::shared_ptr<QPixmap> highlighted;
