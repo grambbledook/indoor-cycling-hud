@@ -11,7 +11,7 @@ videos.
 
 This is a hobby project and my first GUI app. It is not guaranteed to be accurate or reliable. Use at your own risk.
 
-## App Overview
+## App Showcase
 
 |            Menu             |         Workout         |
 :---------------------------:|:-----------------------:
