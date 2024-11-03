@@ -52,7 +52,7 @@ auto SelectDevicePanel::deviceSelected(const DeviceSelected &event) -> void {
         return;
     }
 
-    const auto name = QString::fromStdString(event.device->name.value.substr(0, 10));
+    const auto name = QString::fromStdString(event.device->name.value.substr(0, 10)).trimmed();
     if (selectIcon) {
         selectIcon->setToolTip(name);
     }

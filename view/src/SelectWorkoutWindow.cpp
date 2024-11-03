@@ -18,9 +18,13 @@ SelectWorkoutWindow::SelectWorkoutWindow(
     QWidget *parent
 ): AppWindow(handler, parent) {
     const auto listWidget = new QListWidget(this);
-    listWidget->addItem("Basic workout");
+    const auto basicWorkout = new QListWidgetItem("Basic workout", listWidget);
+    basicWorkout->setSelected(true);
 
-    const auto nextLabel = new ButtonLabel(Constants::Buttons::START, true, this);
+    listWidget->addItem(basicWorkout);
+
+
+    const auto nextLabel = new ButtonLabel(Constants::Buttons::NEXT, true, this);
     connect(nextLabel, &ButtonLabel::clicked, this, &SelectWorkoutWindow::next);
 
     auto *layout = new QGridLayout(this);
@@ -35,5 +39,5 @@ SelectWorkoutWindow::SelectWorkoutWindow(
 }
 
 auto SelectWorkoutWindow::next()  -> void {
-    controllerHandler->next(Constants::Screens::WORKOUT);
+    controllerHandler->next(Constants::Screens::SENSORS);
 }

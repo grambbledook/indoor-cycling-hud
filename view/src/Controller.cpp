@@ -32,10 +32,7 @@ auto ViewController<T, T0>::renderView() -> void {
 }
 
 auto DeviceWindowController::showDeviceWindow() -> void {
-    if (state->state != ApplicationState::STARTING) {
-        spdlog::info("  Wrong state: {}", state->state);
-        return;
-    }
+    state->transitionTo(ApplicationState::WAITING_FOR_SENSORS);
 
     if (not history->empty()) {
         const auto previous = history->top();
@@ -45,49 +42,32 @@ auto DeviceWindowController::showDeviceWindow() -> void {
 
     renderView();
     history->push(view);
-    state->state = ApplicationState::WAITING_FOR_SENSORS;
 }
 
 auto SelectWorkoutWindowController::showSelectWorkoutWindow() -> void {
-    if (state->state != ApplicationState::WAITING_FOR_SENSORS && state->state != ApplicationState::WORKOUT_SUMMARY) {
-        spdlog::info("  Wrong state: {}", state->state);
-        return;
-    }
+    state->transitionTo(ApplicationState::WAITING_FOR_WORKOUT);
 
     renderView();
     history->push(view);
-    state->state = ApplicationState::WAITING_FOR_WORKOUT;
 }
 
 auto WorkoutWindowController::showWorkoutWindow() -> void {
-    if (state->state != ApplicationState::WAITING_FOR_WORKOUT) {
-        spdlog::info("  Wrong state: {}", state->state);
-        return;
-    }
+    state->transitionTo(ApplicationState::IN_WORKOUT);
 
     model->startWorkout();
     pacer->start();
     renderView();
-    state->state = ApplicationState::IN_WORKOUT;
 }
 
 auto WorkoutSummaryWindowController::showWorkoutSummaryWindow() -> void {
-    if (state->state != ApplicationState::IN_WORKOUT) {
-        spdlog::info("  Wrong state: {}", state->state);
-        return;
-    }
+    state->transitionTo(ApplicationState::WORKOUT_SUMMARY);
 
     model->stopWorkout();
     pacer->stop();
     renderView();
-    state->state = ApplicationState::WORKOUT_SUMMARY;
 }
 
 auto DeviceDialogController::showDialog() const -> void {
-    if (state->state != ApplicationState::WAITING_FOR_SENSORS) {
-        spdlog::info("  Wrong state: {}", state->state);
-        return;
-    }
 
     if (!history->empty()) {
         const auto previous = history->top();
@@ -106,11 +86,6 @@ auto DeviceDialogController::showDialog() const -> void {
 }
 
 auto DeviceDialogController::closeDialog() const -> void {
-    if (state->state == ApplicationState::EXITING) {
-        spdlog::info("  Wrong state: {}", state->state);
-        return;
-    }
-
     if (history->empty()) {
         spdlog::info("  History stack is empty");
         return;
@@ -219,7 +194,7 @@ auto DeviceReconnectionController::connected(const std::shared_ptr<Device> devic
 }
 
 auto ShutdownController::shutdown() const -> void {
-    state->state = ApplicationState::EXITING;
+    state->transitionTo(ApplicationState::EXITING);
 
     registry->stop();
     QApplication::quit();

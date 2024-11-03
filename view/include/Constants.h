@@ -22,9 +22,10 @@ namespace Constants {
     namespace Buttons {
         const std::string BACK = "Back";
         const std::string FINISH = "Finish";
+        const std::string START = "Start";
         const std::string NEXT = "Next";
         const std::string OK = "Ok";
-        const std::string START = "New Workout";
+        const std::string AGAIN = "New Workout";
         const std::string EXIT = "Exit";
 
         const std::string LEFT = "<";

@@ -56,8 +56,8 @@ DeviceWindow::DeviceWindow(
         handler, LabelSize::MEDIUM, this
     );
 
-    const auto nextLabel = new ButtonLabel(Constants::Buttons::NEXT, true, this);
-    connect(nextLabel, &ButtonLabel::clicked, this, &DeviceWindow::next);
+    const auto startLabel = new ButtonLabel(Constants::Buttons::START, true, this);
+    connect(startLabel, &ButtonLabel::clicked, this, &DeviceWindow::next);
 
     auto *layout = new QGridLayout(this);
     layout->addWidget(trainerPanel, 0, 1, 1, 2, Qt::AlignCenter);
@@ -67,7 +67,7 @@ DeviceWindow::DeviceWindow(
     layout->addWidget(cadencePanel, 1, 2, Qt::AlignCenter);
     layout->addWidget(powerPanel, 1, 3, Qt::AlignCenter);
 
-    layout->addWidget(nextLabel, 2, 1, 1, 2, Qt::AlignCenter);
+    layout->addWidget(startLabel, 2, 1, 1, 2, Qt::AlignCenter);
 
     const auto centralWidget = new QWidget(this);
     centralWidget->setObjectName(Constants::Classes::PANEL);
@@ -103,5 +103,5 @@ auto DeviceWindow::back() -> void {
 }
 
 auto DeviceWindow::next() -> void {
-    controllerHandler->next(Constants::Screens::SELECT_WORKOUT);
+    controllerHandler->next(Constants::Screens::WORKOUT);
 }

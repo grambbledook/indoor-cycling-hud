@@ -24,15 +24,15 @@ WorkoutSummaryWindow::WorkoutSummaryWindow(
     });
 
     summaryPanel = new WorkoutSummaryPanel(this);
-    const auto startLabel = new ButtonLabel(Constants::Buttons::START, true, this);
-    connect(startLabel, &ButtonLabel::clicked, this, &WorkoutSummaryWindow::back);
+    const auto againLabel = new ButtonLabel(Constants::Buttons::AGAIN, true, this);
+    connect(againLabel, &ButtonLabel::clicked, this, &WorkoutSummaryWindow::back);
 
     const auto exitLabel = new ButtonLabel(Constants::Buttons::EXIT, true, this);
     connect(exitLabel, &ButtonLabel::clicked, this, &WorkoutSummaryWindow::next);
 
     auto *layout = new QGridLayout(this);
     layout->addWidget(summaryPanel, 0, 0, 1, 2, Qt::AlignCenter);
-    layout->addWidget(startLabel, 1, 0, Qt::AlignRight);
+    layout->addWidget(againLabel, 1, 0, Qt::AlignRight);
     layout->addWidget(exitLabel, 1, 1, Qt::AlignRight);
     layout->setColumnStretch(1, 1);
 

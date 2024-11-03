@@ -130,7 +130,7 @@ int main(int argc, char **argv) {
     tray->switchTheme();
     tray->show();
 
-    viewNavigator->nextScreen(Constants::Screens::SENSORS);
+    viewNavigator->nextScreen(Constants::Screens::SELECT_WORKOUT);
 
     return app->exec();
 }
