@@ -73,3 +73,11 @@ struct Device {
         return name.value + ":" + address.value;
     }
 };
+
+inline auto fromDeviceId(const std::string &deviceId) -> std::shared_ptr<Device> {
+    const auto separator = deviceId.find(':');
+    const auto name = deviceId.substr(0, separator);
+    const auto address = deviceId.substr(separator + 1);
+
+    return std::make_shared<Device>(Device{Name{name}, Address{address}, {}});
+}

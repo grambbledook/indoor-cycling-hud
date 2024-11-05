@@ -11,6 +11,7 @@ class ViewNavigator final : public QObject {
 public:
     explicit ViewNavigator(
         const std::shared_ptr<ControllerHandler> &controllerHandler,
+        const std::shared_ptr<StartupController> &startupController,
         const std::shared_ptr<DeviceDialogController> &deviceDialogController,
         const std::shared_ptr<ConnectToDeviceController> &connectToDeviceController,
         const std::shared_ptr<DeviceWindowController> &deviceWindowController,
@@ -28,6 +29,7 @@ public slots:
     auto nextScreen(const std::string &command, const std::vector<std::any> &args = {}) const -> void;
 
 private:
+    std::shared_ptr<StartupController> startupController;
     std::shared_ptr<ControllerHandler> controllerHandler;
     std::shared_ptr<ConnectToDeviceController> connectToDeviceController;
     std::shared_ptr<DeviceDialogController> deviceDialogController;

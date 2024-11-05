@@ -23,6 +23,9 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 find_package(Qt6 REQUIRED COMPONENTS Concurrent)
 
+#--------------------Include yaml-------------------------
+find_package(yaml-cpp CONFIG REQUIRED)
+
 #--------------------Include spdlog-----------------------
 find_package(spdlog CONFIG REQUIRED)
 
@@ -81,6 +84,7 @@ target_include_directories(Model PUBLIC ${MODEL_DIR})
 target_link_libraries(HUD PRIVATE Qt6::Widgets Qt6::Core Qt6::Concurrent)
 target_link_libraries(HUD PRIVATE Bluetooth Model)
 target_link_libraries(HUD PRIVATE spdlog::spdlog)
+target_link_libraries(HUD PRIVATE yaml-cpp::yaml-cpp)
 
 #--------------------Copy Assets-----------------------------
 add_custom_command(TARGET HUD POST_BUILD

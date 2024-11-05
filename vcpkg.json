@@ -3,6 +3,7 @@
     "gtest",
     "spdlog",
     "sqlite3",
+    "yaml-cpp",
     {
       "name": "qtbase",
       "default-features": false,

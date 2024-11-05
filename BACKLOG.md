@@ -1,15 +1,18 @@
 ### Core Features Missing
  - [x] Handle device disconnection automatically
+ - [x] Reconnect to the last connected devices on startup
  - [ ] Externalise app configuration
  - [ ] Store latest device configuration on exit
- - [ ] Reconnect to the last connected devices on startup
 
 ### Great to have features
  - [x] Wide tables for data
  - [ ] Support for ERG mode
+      - [ ] Add New workout type for ERG 
+      - [ ] Dedicated target power window in EGR mode
+      - [ ] EGR event handler transforming target power to resistance based on current cadence
  - [ ] Support for Structured workouts
  - [ ] Support for Linux and MacOS
- - [ ] Including QT into release artifact makes it 45MB. Can I achieve lesser size with a smaller GUI library?
+ - [ ] Use monospace fonts to compute window sizes
 
 ### Code quality
  - [ ] Linter checks

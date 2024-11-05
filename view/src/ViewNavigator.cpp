@@ -3,6 +3,7 @@
 
 ViewNavigator::ViewNavigator(
     const std::shared_ptr<ControllerHandler> &controllerHandler,
+    const std::shared_ptr<StartupController> &startupController,
     const std::shared_ptr<DeviceDialogController> &deviceDialogController,
     const std::shared_ptr<ConnectToDeviceController> &connectToDeviceController,
     const std::shared_ptr<DeviceWindowController> &deviceWindowController,
@@ -14,7 +15,8 @@ ViewNavigator::ViewNavigator(
     const std::shared_ptr<WheelSizeSelectionController> &wheelSizeSelectionController,
     const std::shared_ptr<SpeedUnitController> &speedUnitController,
     const std::shared_ptr<DeviceReconnectionController> &deviceReconnectionController
-): controllerHandler(controllerHandler), connectToDeviceController(connectToDeviceController),
+): startupController(startupController), controllerHandler(controllerHandler),
+   connectToDeviceController(connectToDeviceController),
    deviceDialogController(deviceDialogController), deviceWindowController(deviceWindowController),
    selectWorkoutWindowController(selectWorkoutWindowController), workoutWindowController(workoutWindowController),
    workoutSummaryWindowController(workoutSummaryWindowController), switchThemeController(switchThemeController),
@@ -27,6 +29,10 @@ ViewNavigator::ViewNavigator(
 }
 
 auto ViewNavigator::nextScreen(const std::string &command, const std::vector<std::any> &args) const -> void {
+    if (command == Constants::Screens::STARTUP) {
+        startupController->start();
+    }
+
     if (command == Constants::Screens::SENSORS) {
         deviceWindowController->showDeviceWindow();
     }

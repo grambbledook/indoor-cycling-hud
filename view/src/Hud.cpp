@@ -86,31 +86,34 @@ int main(int argc, char **argv) {
     const auto csc = std::make_shared<CyclingCadenceAndSpeedNotificationService>(registry, model);
     const auto pwr = std::make_shared<PowerNotificationService>(registry, model);
     const auto fec = std::make_shared<FecService>(registry, model);
+    const auto settingsManager = std::make_shared<SettingsManager>(model, hrm, csc, pwr);
     const auto reconnector = std::make_shared<Reconnector>(model, hrm, csc, pwr);
     const auto pacer = std::make_shared<WorkoutPacer>(model, reconnector);
     const auto scanner = std::make_shared<ScannerService>(model, Scanner(BLE::Services::SUPPORTED_SERVICES_MAP));
 
+    const auto startupController = std::make_shared<StartupController>(settingsManager, controllerHandler, appState);
     const auto wheelSizeSelectionController = std::make_shared<WheelSizeSelectionController>(model);
     const auto speedUnitController = std::make_shared<SpeedUnitController>(model);
     const auto deviceWindowController = std::make_shared<DeviceWindowController>(
         deviceWindow, appState, history
     );
     const auto selectWorkoutWindowController = std::make_shared<SelectWorkoutWindowController>(
-        selectWorkoutWindow, appState, history
+        scanner, selectWorkoutWindow, appState, history
     );
     const auto workoutWindowController = std::make_shared<WorkoutWindowController>(
-        workoutWindow, model, pacer, appState, history
+        scanner, workoutWindow, model, pacer, appState, history
     );
     const auto workoutSummaryWindowController = std::make_shared<WorkoutSummaryWindowController>(
         workoutSummaryWindow, model, pacer, appState, history
     );
     const auto deviceDialogController = std::make_shared<DeviceDialogController>(
-        qtAdapter, scanner, deviceDialog, appState, history, model
+        qtAdapter, deviceDialog, appState, history, model
     );
     const auto switchThemeController = std::make_shared<SwitchThemeController>(
         app, deviceWindow, selectWorkoutWindow, workoutWindow, workoutSummaryWindow, appState, history
     );
     const auto shutdownController = std::make_shared<ShutdownController>(
+        settingsManager,
         hrm, csc, pwr, fec, scanner, registry, appState
     );
     const auto connectToDeviceController = std::make_shared<ConnectToDeviceController>(
@@ -121,7 +124,7 @@ int main(int argc, char **argv) {
     );
 
     const auto viewNavigator = std::make_unique<ViewNavigator>(
-        controllerHandler,
+        controllerHandler, startupController,
         deviceDialogController, connectToDeviceController, deviceWindowController,
         selectWorkoutWindowController, workoutWindowController, workoutSummaryWindowController, switchThemeController,
         shutdownController, wheelSizeSelectionController, speedUnitController, deviceReconnectionController
@@ -130,7 +133,7 @@ int main(int argc, char **argv) {
     tray->switchTheme();
     tray->show();
 
-    viewNavigator->nextScreen(Constants::Screens::SELECT_WORKOUT);
+    viewNavigator->nextScreen(Constants::Screens::STARTUP);
 
     return app->exec();
 }

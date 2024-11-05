@@ -156,7 +156,7 @@ auto BleClient::read(const UUID &characteristicUuid) const -> std::expected<std:
         return std::unexpected(nullptr);
     }
 
-    if (not characteristics.contains(characteristicUuid)) {
+    if (!characteristics.contains(characteristicUuid)) {
         spdlog::info("  Service or characteristic {} not found.", characteristicUuid.value);
         return std::unexpected(nullptr);
     }

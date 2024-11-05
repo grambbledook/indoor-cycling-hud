@@ -267,6 +267,22 @@ auto Model::getDeviceServices(const std::string &deviceId) -> std::vector<Servic
     return services;
 }
 
+auto Model::getHrmDevice() const -> std::shared_ptr<Device> {
+    return hrmState.device;
+}
+
+auto Model::getCadenceDevice() const -> std::shared_ptr<Device> {
+    return cadenceState.device;
+}
+
+auto Model::getSpeedDevice() const -> std::shared_ptr<Device> {
+    return speedState.device;
+}
+
+auto Model::getPowerDevice() const -> std::shared_ptr<Device> {
+    return powerState.device;
+}
+
 auto Model::publishWorkoutEvent(const WorkoutState &status) -> void {
     std::lock_guard guard(mutex);
 

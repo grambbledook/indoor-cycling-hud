@@ -15,6 +15,7 @@
 #include "SelectWorkoutWindow.h"
 #include "DeviceWindow.h"
 #include "Reconnector.h"
+#include "SettingsManager.h"
 #include "WorkoutPacer.h"
 #include "WorkoutSummaryWindow.h"
 #include "WorkoutWindow.h"
@@ -56,6 +57,25 @@ public:
     std::shared_ptr<T> view;
 };
 
+class StartupController final : public Controller<void *> {
+public:
+    explicit StartupController(
+        const std::shared_ptr<SettingsManager> &initializer,
+        const std::shared_ptr<ControllerHandler> &handler,
+        const std::shared_ptr<AppState> &state
+    )
+        : initializer(initializer), handler(handler), state(state) {
+    }
+
+    auto start() const -> void;
+
+private:
+    std::shared_ptr<SettingsManager> initializer;
+    std::shared_ptr<ControllerHandler> handler;
+    std::shared_ptr<AppState> state;
+};
+
+
 class DeviceWindowController final : public ViewController<DeviceWindow> {
 public:
     explicit DeviceWindowController(
@@ -71,32 +91,38 @@ public:
 class SelectWorkoutWindowController final : public ViewController<SelectWorkoutWindow> {
 public:
     explicit SelectWorkoutWindowController(
+        const std::shared_ptr<ScannerService> &scannerService,
         const std::shared_ptr<SelectWorkoutWindow> &view,
         const std::shared_ptr<AppState> &state,
         const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history
     )
-        : ViewController(view, state, history) {
+        : ViewController(view, state, history), scannerService(scannerService) {
     }
 
     auto showSelectWorkoutWindow() -> void;
+
+private:
+    std::shared_ptr<ScannerService> scannerService;
 };
 
 class WorkoutWindowController final : public ViewController<WorkoutWindow> {
 public:
     explicit WorkoutWindowController(
+        const std::shared_ptr<ScannerService> &scannerService,
         const std::shared_ptr<WorkoutWindow> &view,
         const std::shared_ptr<Model> &model,
         const std::shared_ptr<WorkoutPacer> &pacer,
         const std::shared_ptr<AppState> &state,
         const std::shared_ptr<std::stack<std::shared_ptr<QWidget> > > &history
     )
-        : ViewController(view, state, history), model(model), pacer(pacer) {
+        : ViewController(view, state, history), model(model), scannerService(scannerService), pacer(pacer) {
     }
 
     auto showWorkoutWindow() -> void;
 
 private:
     std::shared_ptr<Model> model;
+    std::shared_ptr<ScannerService> scannerService;
     std::shared_ptr<WorkoutPacer> pacer;
 };
 
@@ -123,7 +149,6 @@ class DeviceDialogController final : public WidgetController<DeviceDialog> {
 public:
     explicit DeviceDialogController(
         const std::shared_ptr<QtEventPublisher> &qtAdapter,
-        const std::shared_ptr<ScannerService> &scannerService,
         const std::function<std::shared_ptr<DeviceDialog>(std::vector<std::shared_ptr<Device> >, QWidget *)> &
         createDialog,
         const std::shared_ptr<AppState> &state,
@@ -131,7 +156,6 @@ public:
         const std::shared_ptr<Model> &model
     ) : WidgetController(state, history),
         model(model),
-        scannerService(scannerService),
         createDialog(createDialog),
         qtAdapter(qtAdapter) {
     }
@@ -142,7 +166,7 @@ public:
 
 private:
     std::shared_ptr<Model> model;
-    std::shared_ptr<ScannerService> scannerService;
+
     std::function<std::shared_ptr<DeviceDialog>(std::vector<std::shared_ptr<Device> >, QWidget *)> createDialog;
     std::shared_ptr<QtEventPublisher> qtAdapter;
 };
@@ -243,6 +267,7 @@ private:
 class ShutdownController final : public Controller<void *> {
 public:
     explicit ShutdownController(
+        const std::shared_ptr<SettingsManager> &initializer,
         const std::shared_ptr<HrmNotificationService> &hrmNotificationService,
         const std::shared_ptr<CyclingCadenceAndSpeedNotificationService> &cscNotificationService,
         const std::shared_ptr<PowerNotificationService> &powerNotificationService,
@@ -251,7 +276,7 @@ public:
         const std::shared_ptr<DeviceRegistry> &registry,
         const std::shared_ptr<AppState> &state
     )
-        : hrmNotificationService(hrmNotificationService),
+        : initializer(initializer), hrmNotificationService(hrmNotificationService),
           cscNotificationService(cscNotificationService), powerNotificationService(powerNotificationService),
           fecService(fecService), scannerService(scannerService), state(state), registry(registry) {
     }
@@ -259,6 +284,7 @@ public:
     auto shutdown() const -> void;
 
 private:
+    std::shared_ptr<SettingsManager> initializer;
     std::shared_ptr<HrmNotificationService> hrmNotificationService;
     std::shared_ptr<CyclingCadenceAndSpeedNotificationService> cscNotificationService;
     std::shared_ptr<PowerNotificationService> powerNotificationService;

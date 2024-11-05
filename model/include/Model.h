@@ -69,6 +69,14 @@ public:
 
     auto getDeviceServices(const std::string &deviceId) -> std::vector<Service>;
 
+    [[nodiscard]] auto getHrmDevice() const -> std::shared_ptr<Device>;
+
+    [[nodiscard]] auto getCadenceDevice() const -> std::shared_ptr<Device>;
+
+    [[nodiscard]] auto getSpeedDevice()  const-> std::shared_ptr<Device>;
+
+    [[nodiscard]] auto getPowerDevice() const -> std::shared_ptr<Device>;
+
 
     // Device modificators
     auto setDevice(const Service &service, const std::shared_ptr<Device> &device) -> void;
@@ -90,6 +98,7 @@ public:
 
     // Data retrieval
     auto tick() -> void;
+
 
 private:
 

@@ -6,6 +6,7 @@
 #include <QtConcurrent/QtConcurrent>
 
 #include "BleDeviceServices.h"
+#include "Constants.h"
 #include "Reconnector.h"
 #include "StyleSheets.h"
 
@@ -31,6 +32,14 @@ auto ViewController<T, T0>::renderView() -> void {
     this->history->push(view);
 }
 
+auto StartupController::start() const -> void {
+    QtConcurrent::run([this]() {
+        initializer->initialise();
+    });
+
+    handler->next(Constants::Screens::SELECT_WORKOUT);
+}
+
 auto DeviceWindowController::showDeviceWindow() -> void {
     state->transitionTo(ApplicationState::WAITING_FOR_SENSORS);
 
@@ -48,12 +57,14 @@ auto SelectWorkoutWindowController::showSelectWorkoutWindow() -> void {
     state->transitionTo(ApplicationState::WAITING_FOR_WORKOUT);
 
     renderView();
+    scannerService->startScan();
     history->push(view);
 }
 
 auto WorkoutWindowController::showWorkoutWindow() -> void {
     state->transitionTo(ApplicationState::IN_WORKOUT);
 
+    scannerService->stopScan();
     model->startWorkout();
     pacer->start();
     renderView();
@@ -80,7 +91,6 @@ auto DeviceDialogController::showDialog() const -> void {
         dialog->show();
         dialog->setFocus();
 
-        scannerService->startScan();
         history->push(dialog);
     }
 }
@@ -102,8 +112,6 @@ auto DeviceDialogController::closeDialog() const -> void {
 
     dialog->close();
     history->pop();
-
-    scannerService->stopScan();
 }
 
 auto ConnectToDeviceController::connectToDevice(const std::shared_ptr<Device> &device) const -> void {
@@ -196,6 +204,7 @@ auto DeviceReconnectionController::connected(const std::shared_ptr<Device> devic
 auto ShutdownController::shutdown() const -> void {
     state->transitionTo(ApplicationState::EXITING);
 
+    initializer->store();
     registry->stop();
     QApplication::quit();
 }
