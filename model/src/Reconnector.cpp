@@ -7,6 +7,7 @@
 #include <future>
 #include <spdlog/spdlog.h>
 
+using namespace std::chrono;
 
 Reconnector::Reconnector(
     const std::shared_ptr<Model> &model,
@@ -36,9 +37,9 @@ auto Reconnector::registerDevice(const std::shared_ptr<Device> &device) -> void 
         return;
     }
 
-    const auto now = system_clock::now();
+    const auto now = system_clock::now().time_since_epoch();
     devices[deviceId] = device;
-    reconnects[deviceId] = now.time_since_epoch().count();
+    reconnects[deviceId] = duration_cast<milliseconds>(now).count();
 }
 
 auto Reconnector::hasSomething() -> bool {
@@ -54,7 +55,8 @@ auto Reconnector::tok() -> void {
         return;
     }
 
-    const auto now = system_clock::now().time_since_epoch().count();
+    const auto systemTime = system_clock::now().time_since_epoch();
+    const auto now = duration_cast<milliseconds>(systemTime).count();
     for (const auto &[deviceId, timestamp]: reconnects) {
         if (now - timestamp < RECONNECTION_DELAY_MS) {
             spdlog::info("Reconnection for device_id={} has already been recently attempted", deviceId);
@@ -95,7 +97,7 @@ auto Reconnector::handleReconnect(const std::shared_ptr<Device> &device) -> void
     const auto deviceId = device->deviceId();
     spdlog::info("Received connection signal for device_id={}", deviceId);
 
-    if (devices.contains(deviceId)) {
+    if (!devices.contains(deviceId)) {
         spdlog::info("  device_id={} not registered, skipping", deviceId);
         return;
     }

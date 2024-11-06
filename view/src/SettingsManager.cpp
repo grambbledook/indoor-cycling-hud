@@ -9,13 +9,14 @@ auto SettingsManager::initialise() const -> void {
 
     const auto [services, workout] = loadWorkoutSettings();
 
+    auto devices = std::unordered_map<std::string, std::shared_ptr<Device> >();
     if (services.hrm) {
         spdlog::info("  Connecting to HRM device: {}", services.hrm.value());
         const auto hrm = fromDeviceId(services.hrm.value());
         model->addDevice(hrm);
         model->setDevice(Service::HEART_RATE, hrm);
-        eventbus->publish(DeviceConnectionEvent(hrm, ConnectionStatus::DISCONNECTED));
-        // hrmNotificationService->setDevice(hrm);
+
+        devices[hrm->deviceId()] = hrm;
     }
 
     if (services.power) {
@@ -23,8 +24,8 @@ auto SettingsManager::initialise() const -> void {
         const auto pwr = fromDeviceId(services.power.value());
         model->addDevice(pwr);
         model->setDevice(Service::POWER, pwr);
-        eventbus->publish(DeviceConnectionEvent(pwr, ConnectionStatus::DISCONNECTED));
-        // powerNotificationService->setDevice(pwr);
+
+        devices[pwr->deviceId()] = pwr;
     }
 
     if (services.cadence) {
@@ -32,8 +33,8 @@ auto SettingsManager::initialise() const -> void {
         const auto cad = fromDeviceId(services.cadence.value());
         model->addDevice(cad);
         model->setDevice(Service::CADENCE, cad);
-        eventbus->publish(DeviceConnectionEvent(cad, ConnectionStatus::DISCONNECTED));
-        // cscNotificationService->setDevice(cad);
+
+        devices[cad->deviceId()] = cad;
     }
 
     if (services.speed) {
@@ -41,8 +42,12 @@ auto SettingsManager::initialise() const -> void {
         const auto spd = fromDeviceId(services.speed.value());
         model->addDevice(spd);
         model->setDevice(Service::SPEED, spd);
-        eventbus->publish(DeviceConnectionEvent(spd, ConnectionStatus::DISCONNECTED));
-        // cscNotificationService->setDevice(spd);
+
+        devices[spd->deviceId()] = spd;
+    }
+
+    for (const auto &[deviceId, device]: devices) {
+        eventbus->publish(DeviceConnectionEvent(device, DISCONNECTED));
     }
 }
 

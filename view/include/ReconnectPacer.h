@@ -3,7 +3,6 @@
 #include <memory>
 #include <qtimer.h>
 
-#include "Model.h"
 #include "Reconnector.h"
 
 

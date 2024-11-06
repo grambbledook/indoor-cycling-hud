@@ -36,7 +36,7 @@ auto StartupController::start() const -> void {
     QtConcurrent::run([this]() {
         initializer->initialise();
     });
-
+    pacer->start();
     handler->next(Constants::Screens::SELECT_WORKOUT);
 }
 
@@ -176,12 +176,6 @@ void SpeedUnitController::setDistanceUnit(DistanceUnit size) const {
     spdlog::info("Speed unit set to: {}", size);
 }
 
-DeviceReconnectionController::DeviceReconnectionController(
-    const std::shared_ptr<Reconnector> &reconnector,
-    const std::shared_ptr<ReconnectPacer> &pacer,
-    const std::shared_ptr<AppState> &state
-): reconnector(reconnector), pacer(pacer), state(state) {
-}
 
 auto DeviceReconnectionController::reconnect(const std::shared_ptr<Device> &device) const -> void {
     if (state->state == ApplicationState::EXITING) {
@@ -190,9 +184,6 @@ auto DeviceReconnectionController::reconnect(const std::shared_ptr<Device> &devi
     }
 
     reconnector->registerDevice(device);
-    if (reconnector->hasSomething()) {
-        pacer->start();
-    }
 }
 
 auto DeviceReconnectionController::connected(const std::shared_ptr<Device> &device) const -> void {
@@ -202,11 +193,6 @@ auto DeviceReconnectionController::connected(const std::shared_ptr<Device> &devi
     }
 
     reconnector->handleReconnect(device);
-    if (!reconnector->hasSomething()) {
-        pacer->stop();
-    } else {
-        pacer->start();
-    }
 }
 
 auto ShutdownController::shutdown() const -> void {

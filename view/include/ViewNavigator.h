@@ -25,6 +25,8 @@ public:
         const std::shared_ptr<DeviceReconnectionController> &deviceReconnectionController
     );
 
+    auto start() const -> void;
+
 public slots:
     auto nextScreen(const std::string &command, const std::vector<std::any> &args = {}) const -> void;
 

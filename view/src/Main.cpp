@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QtConcurrent>
 #include <vector>
 #include <spdlog/spdlog.h>
 
@@ -13,6 +14,7 @@
 
 #include "BleDeviceServices.h"
 #include "DeviceWindow.h"
+#include "Hud.h"
 
 using namespace winrt;
 
@@ -99,7 +101,9 @@ int main(int argc, char **argv) {
     const auto reconnectPacer = std::make_shared<ReconnectPacer>(reconnector);
     const auto scanner = std::make_shared<ScannerService>(model, Scanner(BLE::Services::SUPPORTED_SERVICES_MAP));
 
-    const auto startupController = std::make_shared<StartupController>(settingsManager, controllerHandler, appState);
+    const auto startupController = std::make_shared<StartupController>(
+        settingsManager, reconnectPacer, controllerHandler, appState
+    );
     const auto wheelSizeSelectionController = std::make_shared<WheelSizeSelectionController>(model);
     const auto speedUnitController = std::make_shared<SpeedUnitController>(model);
     const auto deviceWindowController = std::make_shared<DeviceWindowController>(
@@ -128,10 +132,10 @@ int main(int argc, char **argv) {
         hrm, csc, pwr, fec, appState
     );
     const auto deviceReconnectionController = std::make_shared<DeviceReconnectionController>(
-        reconnector, reconnectPacer, appState
+        reconnector, appState
     );
 
-    const auto viewNavigator = std::make_unique<ViewNavigator>(
+    const auto viewNavigator = std::make_shared<ViewNavigator>(
         controllerHandler, startupController,
         deviceDialogController, connectToDeviceController, deviceWindowController,
         selectWorkoutWindowController, workoutWindowController, workoutSummaryWindowController, switchThemeController,

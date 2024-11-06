@@ -28,6 +28,10 @@ ViewNavigator::ViewNavigator(
     controllerHandler->subscribe(receiver);
 }
 
+auto ViewNavigator::start() const -> void {
+    nextScreen(Constants::Screens::STARTUP);
+}
+
 auto ViewNavigator::nextScreen(const std::string &command, const std::vector<std::any> &args) const -> void {
     if (command == Constants::Screens::STARTUP) {
         startupController->start();

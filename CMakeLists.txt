@@ -70,8 +70,7 @@ qt_standard_project_setup()
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
         $<$<CONFIG:RELWITHDEBINFO>:QT_MESSAGELOGCONTEXT>)
 
-qt_add_executable(HUD ${SOURCES}
-        view/include/Hud.h)
+qt_add_executable(HUD ${SOURCES})
 
 target_include_directories(HUD PRIVATE ${INCLUDE_DIR})
 target_include_directories(HUD PRIVATE ${SOURCE_DIR})

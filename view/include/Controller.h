@@ -62,16 +62,18 @@ class StartupController final : public Controller<void *> {
 public:
     explicit StartupController(
         const std::shared_ptr<SettingsManager> &initializer,
+        const std::shared_ptr<ReconnectPacer> &pacer,
         const std::shared_ptr<ControllerHandler> &handler,
         const std::shared_ptr<AppState> &state
     )
-        : initializer(initializer), handler(handler), state(state) {
+        : initializer(initializer), pacer(pacer), handler(handler), state(state) {
     }
 
     auto start() const -> void;
 
 private:
     std::shared_ptr<SettingsManager> initializer;
+    std::shared_ptr<ReconnectPacer> pacer;
     std::shared_ptr<ControllerHandler> handler;
     std::shared_ptr<AppState> state;
 };
@@ -252,9 +254,9 @@ class DeviceReconnectionController final : public Controller<void *> {
 public:
     explicit DeviceReconnectionController(
         const std::shared_ptr<Reconnector> &reconnector,
-        const std::shared_ptr<ReconnectPacer> &pacer,
         const std::shared_ptr<AppState> &state
-    );
+    ): reconnector(reconnector), state(state) {
+    }
 
     auto reconnect(const std::shared_ptr<Device> &device) const -> void;
 
@@ -262,7 +264,6 @@ public:
 
 private:
     const std::shared_ptr<Reconnector> reconnector;
-    const std::shared_ptr<ReconnectPacer> pacer;
     const std::shared_ptr<AppState> state;
 };
 

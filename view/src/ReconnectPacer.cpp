@@ -10,17 +10,14 @@ ReconnectPacer::ReconnectPacer(
 }
 
 auto ReconnectPacer::start() -> void {
-    timer.start(500);
-    spdlog::info("ReconnectPacer started");
+    timer.start(1500);
 }
 
 auto ReconnectPacer::stop() -> void {
     timer.stop();
-    spdlog::info("ReconnectPacer stopped");
 }
 
 auto ReconnectPacer::tick() const -> void {
-    spdlog::info("ReconnectPacer tick");
     auto reconnect = [this]() {
         reconnector->tok();
     };
