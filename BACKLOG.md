@@ -1,8 +1,8 @@
 ### Core Features Missing
  - [x] Handle device disconnection automatically
+ - [x] Store latest device configuration on exit
  - [x] Reconnect to the last connected devices on startup
  - [ ] Externalise app configuration
- - [ ] Store latest device configuration on exit
 
 ### Great to have features
  - [x] Wide tables for data
@@ -16,6 +16,6 @@
 
 ### Code quality
  - [ ] Linter checks
- - [ ] App state transition tests
+ - [ ] App state management in model layer and state transition tests
  - [ ] Device change and reconnection tests
  - [ ] GUI Tests with mocked devices
