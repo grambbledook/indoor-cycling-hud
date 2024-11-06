@@ -25,7 +25,7 @@ SelectDevicePanel::SelectDevicePanel(
     const std::shared_ptr<ControllerHandler> &handler,
     const LabelSize &size,
     QWidget *parent
-) : QMainWindow(parent), service(service), handler(handler) {
+) : QMainWindow(parent), service(service), handler(handler), size(size) {
     selectIcon = new ClickableLabel(normal_icon_path, highlighted_icon_path, size, this);
     selectIcon->setToolTip("No device selected");
     connect(selectIcon, &ClickableLabel::clicked, this, &SelectDevicePanel::handleDeviceButtonClick);
@@ -48,10 +48,6 @@ SelectDevicePanel::SelectDevicePanel(
 }
 
 auto SelectDevicePanel::deviceSelected(const DeviceSelected &event) -> void {
-    if (event.service != this->service.service) {
-        return;
-    }
-
     const auto name = QString::fromStdString(event.device->name.value.substr(0, 10)).trimmed();
     if (selectIcon) {
         selectIcon->setToolTip(name);
@@ -61,6 +57,11 @@ auto SelectDevicePanel::deviceSelected(const DeviceSelected &event) -> void {
     }
     setToolTip(name);
     sensorNameLabel->setText(name);
+    sensorNameLabel->dimmed();
+}
+
+auto SelectDevicePanel::subscribedToService(const SubscribedToService &event) const -> void {
+    sensorNameLabel->bright();
 }
 
 auto SelectDevicePanel::handleDeviceButtonClick() const -> void {

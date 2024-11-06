@@ -14,6 +14,11 @@ inline QEvent::Type getDeviceSelectedType() {
     return DeviceSelectedType;
 }
 
+inline QEvent::Type getSubscribedToServiceType() {
+    static const auto SubscribedToServiceType = static_cast<QEvent::Type>(QEvent::registerEventType());
+    return SubscribedToServiceType;
+}
+
 inline QEvent::Type getWorkoutEventType() {
     static const auto WorkoutEventType = static_cast<QEvent::Type>(QEvent::registerEventType());
     return WorkoutEventType;
@@ -46,6 +51,18 @@ public:
 
 private:
     DeviceSelected event;
+};
+
+class SubscribedToServiceEvent final : public QEvent {
+public:
+    explicit SubscribedToServiceEvent(const SubscribedToService &event)
+        : QEvent(getSubscribedToServiceType()), event(event) {
+    }
+
+    [[nodiscard]] auto getEvent() const -> SubscribedToService { return event; }
+
+private:
+    SubscribedToService event;
 };
 
 class WorkoutEventEvent final : public QEvent {

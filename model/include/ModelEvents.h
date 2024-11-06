@@ -10,8 +10,8 @@ enum EventType {
     DEVICE_CONNECTION,
     DEVICE_DISCOVERED,
     DEVICE_SELECTED,
+    SUBSCRIBED_TO_SERVICE,
     WORKOUT_DATA
-
 };
 
 class Event {
@@ -55,6 +55,17 @@ struct DeviceSelected final : Event {
         const Service &service,
         const std::shared_ptr<Device> &device
     ): Event(DEVICE_SELECTED), service(service), device(device) {
+    }
+};
+
+struct SubscribedToService final : Event {
+    Service service;
+    std::shared_ptr<Device> device;
+
+    explicit SubscribedToService(
+        const Service &service,
+        const std::shared_ptr<Device> &device
+    ): Event(SUBSCRIBED_TO_SERVICE), service(service), device(device) {
     }
 };
 

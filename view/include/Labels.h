@@ -29,8 +29,13 @@ class TextLabel : public QLabel {
 public:
     explicit TextLabel(std::string text, const LabelSize &size, QWidget *parent = nullptr);
 
+    auto dimmed() -> void;
+
+    auto bright() -> void;
+
 private:
     std::string text;
+    const LabelSize &size;
 };
 
 class ValueLabel final : public TextLabel {

@@ -67,6 +67,8 @@ namespace Constants {
     }
 
     namespace Classes {
+        const std::string DIMMED = "dimmed";
+
         const std::string WITH_BORDERS = "with_borders";
         const std::string FRAME_WITH_BORDERS = "frame_with_borders";
         const std::string PANEL = "panel";

@@ -23,6 +23,8 @@ public:
 
     auto deviceSelected(const DeviceSelected &data) const -> void;
 
+    auto subscribedToService(const SubscribedToService &data) const -> void;
+
     auto workoutData(const WorkoutEvent &data) const -> void;
 
     auto workoutSummary(const WorkoutEvent &data) const -> void;

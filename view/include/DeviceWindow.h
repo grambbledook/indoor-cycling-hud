@@ -11,6 +11,8 @@ public:
 
     auto deviceSelected(const DeviceSelected &event) const -> void;
 
+    auto subscribedToService(const SubscribedToService &event) const -> void;
+
     auto back() -> void override;
 
     auto next() -> void override;

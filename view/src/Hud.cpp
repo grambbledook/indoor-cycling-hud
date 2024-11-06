@@ -52,6 +52,13 @@ int main(int argc, char **argv) {
         assert(deviceSelected != nullptr && "deviceSelected should not be null");
         qtAdapter->deviceSelected(*deviceSelected);
     });
+    eventBus->subscribe(EventType::SUBSCRIBED_TO_SERVICE, [qtAdapter](const Event &event) {
+        spdlog::trace("QtAdapter: SUBSCRIBED_TO_SERVICE event reveived");
+
+        const auto subscribedToService = dynamic_cast<const SubscribedToService *>(&event);
+        assert(subscribedToService != nullptr && "subscribedToService should not be null");
+        qtAdapter->subscribedToService(*subscribedToService);
+    });
     eventBus->subscribe(EventType::WORKOUT_DATA, [qtAdapter](const Event &event) {
         spdlog::trace("QtAdapter: WORKOUT_DATA event reveived");
 
@@ -86,9 +93,10 @@ int main(int argc, char **argv) {
     const auto csc = std::make_shared<CyclingCadenceAndSpeedNotificationService>(registry, model);
     const auto pwr = std::make_shared<PowerNotificationService>(registry, model);
     const auto fec = std::make_shared<FecService>(registry, model);
-    const auto settingsManager = std::make_shared<SettingsManager>(model, hrm, csc, pwr);
+    const auto settingsManager = std::make_shared<SettingsManager>(model, eventBus, hrm, csc, pwr);
     const auto reconnector = std::make_shared<Reconnector>(model, hrm, csc, pwr);
-    const auto pacer = std::make_shared<WorkoutPacer>(model, reconnector);
+    const auto workoutPacer = std::make_shared<WorkoutPacer>(model);
+    const auto reconnectPacer = std::make_shared<ReconnectPacer>(reconnector);
     const auto scanner = std::make_shared<ScannerService>(model, Scanner(BLE::Services::SUPPORTED_SERVICES_MAP));
 
     const auto startupController = std::make_shared<StartupController>(settingsManager, controllerHandler, appState);
@@ -101,10 +109,10 @@ int main(int argc, char **argv) {
         scanner, selectWorkoutWindow, appState, history
     );
     const auto workoutWindowController = std::make_shared<WorkoutWindowController>(
-        scanner, workoutWindow, model, pacer, appState, history
+        scanner, workoutWindow, model, workoutPacer, appState, history
     );
     const auto workoutSummaryWindowController = std::make_shared<WorkoutSummaryWindowController>(
-        workoutSummaryWindow, model, pacer, appState, history
+        workoutSummaryWindow, model, workoutPacer, appState, history
     );
     const auto deviceDialogController = std::make_shared<DeviceDialogController>(
         qtAdapter, deviceDialog, appState, history, model
@@ -120,7 +128,7 @@ int main(int argc, char **argv) {
         hrm, csc, pwr, fec, appState
     );
     const auto deviceReconnectionController = std::make_shared<DeviceReconnectionController>(
-        reconnector, appState
+        reconnector, reconnectPacer, appState
     );
 
     const auto viewNavigator = std::make_unique<ViewNavigator>(

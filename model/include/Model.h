@@ -15,6 +15,7 @@ template<typename A>
 struct State {
     std::shared_ptr<Device> device;
     std::vector<A> data;
+    bool active = false;
 
     std::expected<std::vector<A>, void *> getLastN(int n) {
         if (n > data.size()) {

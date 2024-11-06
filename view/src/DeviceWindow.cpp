@@ -21,6 +21,13 @@ DeviceWindow::DeviceWindow(
         }
     });
 
+    eventHandlers.insert({
+        getSubscribedToServiceType(), [this](QEvent *event) {
+            const auto device = dynamic_cast<SubscribedToServiceEvent *>(event);
+            subscribedToService(device->getEvent());
+        }
+    });
+
     heartRateMonitorPanel = new SelectDevicePanel(
         HEART_RATE,
         Constants::Icons::HEART_RATE_MONITOR,
@@ -76,7 +83,7 @@ DeviceWindow::DeviceWindow(
 }
 
 auto DeviceWindow::deviceSelected(const DeviceSelected &event) const -> void {
-    spdlog::info("SensorsWindow::deviceSelected");
+    spdlog::info("DeviceWindow::deviceSelected");
 
     if (event.service == Service::HEART_RATE) {
         heartRateMonitorPanel->deviceSelected(event);
@@ -96,6 +103,30 @@ auto DeviceWindow::deviceSelected(const DeviceSelected &event) const -> void {
 
     if (event.service == Service::BIKE_TRAINER) {
         trainerPanel->deviceSelected(event);
+    }
+}
+
+auto DeviceWindow::subscribedToService(const SubscribedToService &event) const -> void {
+    spdlog::info("DeviceWindow::subscribedToService");
+
+    if (event.service == Service::HEART_RATE) {
+        heartRateMonitorPanel->subscribedToService(event);
+    }
+
+    if (event.service == Service::CADENCE) {
+        cadencePanel->subscribedToService(event);
+    }
+
+    if (event.service == Service::SPEED) {
+        speedPanel->subscribedToService(event);
+    }
+
+    if (event.service == Service::POWER) {
+        powerPanel->subscribedToService(event);
+    }
+
+    if (event.service == Service::BIKE_TRAINER) {
+        trainerPanel->subscribedToService(event);
     }
 }
 

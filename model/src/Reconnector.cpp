@@ -41,6 +41,12 @@ auto Reconnector::registerDevice(const std::shared_ptr<Device> &device) -> void 
     reconnects[deviceId] = now.time_since_epoch().count();
 }
 
+auto Reconnector::hasSomething() -> bool {
+    std::lock_guard guard(mutex);
+
+    return !devices.empty();
+}
+
 auto Reconnector::tok() -> void {
     std::lock_guard guard(mutex);
 

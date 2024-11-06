@@ -4,6 +4,7 @@
 #include <qcoreapplication.h>
 #include <qfile.h>
 #include <QDir>
+#include <qstyle.h>
 #include <spdlog/spdlog.h>
 
 #include "Constants.h"
@@ -76,10 +77,22 @@ TextLabel::TextLabel(
     std::string text,
     const LabelSize &size,
     QWidget *parent
-) : QLabel(parent), text(std::move(text)) {
+) : QLabel(parent), text(std::move(text)), size(size) {
     setText(QString::fromStdString(this->text));
     setObjectName(size.asString());
     setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
+}
+
+auto TextLabel::dimmed() -> void {
+    setProperty("mode", Constants::Classes::DIMMED.c_str());
+    style()->unpolish(this);
+    style()->polish(this);
+}
+
+auto TextLabel::bright() -> void {
+    setProperty("mode", QVariant());
+    style()->unpolish(this);
+    style()->polish(this);
 }
 
 ValueLabel::ValueLabel(std::string text, const LabelSize &size, QWidget *parent) : TextLabel(

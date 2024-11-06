@@ -25,13 +25,18 @@ auto QtEventPublisher::deviceDiscovered(const DeviceDiscovered &data) const -> v
 }
 
 auto QtEventPublisher::deviceSelected(const DeviceSelected &data) const -> void {
-    const auto firstEvent = new DeviceSelectedEvent(data);
-    QCoreApplication::postEvent(deviceWindow.get(), firstEvent);
+    const auto event = new DeviceSelectedEvent(data);
+    QCoreApplication::postEvent(deviceWindow.get(), event);
+}
+
+auto QtEventPublisher::subscribedToService(const SubscribedToService &data) const -> void {
+    const auto event = new SubscribedToServiceEvent(data);
+    QCoreApplication::postEvent(deviceWindow.get(), event);
 }
 
 auto QtEventPublisher::workoutData(const WorkoutEvent &data) const -> void {
-    const auto firstEvent = new WorkoutEventEvent(data);
-    QCoreApplication::postEvent(workoutWindow.get(), firstEvent);
+    const auto event = new WorkoutEventEvent(data);
+    QCoreApplication::postEvent(workoutWindow.get(), event);
 }
 
 auto QtEventPublisher::workoutSummary(const WorkoutEvent &data) const -> void {

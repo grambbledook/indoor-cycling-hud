@@ -19,10 +19,19 @@ namespace StyleSheets {
         TextLabel#small {
             font-size: 16px;
         }
+        .small {
+            font-size: 16px;
+        }
         TextLabel#medium {
             font-size: 24px;
         }
+       .medium {
+            font-size: 24px;
+        }
         TextLabel#large {
+            font-size: 30px;
+        }
+        .large {
             font-size: 30px;
         }
         ButtonLabel:hover {
@@ -74,6 +83,9 @@ namespace StyleSheets {
         }
         QLabel {
             color: white;
+        }
+        TextLabel[mode="dimmed"] {
+            color: gray;
         }
         ButtonLabel#with_borders {
             border: 2px solid white;

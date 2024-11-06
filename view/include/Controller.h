@@ -15,6 +15,7 @@
 #include "SelectWorkoutWindow.h"
 #include "DeviceWindow.h"
 #include "Reconnector.h"
+#include "ReconnectPacer.h"
 #include "SettingsManager.h"
 #include "WorkoutPacer.h"
 #include "WorkoutSummaryWindow.h"
@@ -251,15 +252,17 @@ class DeviceReconnectionController final : public Controller<void *> {
 public:
     explicit DeviceReconnectionController(
         const std::shared_ptr<Reconnector> &reconnector,
+        const std::shared_ptr<ReconnectPacer> &pacer,
         const std::shared_ptr<AppState> &state
     );
 
-    auto reconnect(const std::shared_ptr<Device> device) const -> void;
+    auto reconnect(const std::shared_ptr<Device> &device) const -> void;
 
-    auto connected(const std::shared_ptr<Device> device) const -> void;
+    auto connected(const std::shared_ptr<Device> &device) const -> void;
 
 private:
     const std::shared_ptr<Reconnector> reconnector;
+    const std::shared_ptr<ReconnectPacer> pacer;
     const std::shared_ptr<AppState> state;
 };
 

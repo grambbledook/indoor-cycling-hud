@@ -7,13 +7,12 @@
 #include "Reconnector.h"
 
 
-class WorkoutPacer : public QObject {
+class WorkoutPacer final : public QObject {
     Q_OBJECT
 
 public:
     explicit WorkoutPacer(
-        const std::shared_ptr<Model> &model,
-        const std::shared_ptr<Reconnector> &reconnector
+        const std::shared_ptr<Model> &model
     );
 
     auto start() -> void;
@@ -24,7 +23,6 @@ public:
 
 private:
     std::shared_ptr<Model> model;
-    std::shared_ptr<Reconnector> reconnector;
     QTimer timer;
 };
 

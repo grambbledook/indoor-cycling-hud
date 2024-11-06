@@ -24,6 +24,8 @@ public:
 
     auto registerDevice(const std::shared_ptr<Device> &device) -> void;
 
+    auto hasSomething() -> bool;
+
     auto tok() -> void;
 
     auto handleReconnect(const std::shared_ptr<Device> &device) -> void;

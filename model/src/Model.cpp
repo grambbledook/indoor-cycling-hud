@@ -138,10 +138,20 @@ auto Model::recordData(const MeasurementEvent &event) -> void {
 
 auto Model::recordHeartData(const HrmMeasurement &event) -> void {
     buffer.heartRate = {event.hrm, system_clock::now()};
+
+    if (!hrmState.active) {
+        hrmState.active = true;
+        eventBus->publish(SubscribedToService{Service::HEART_RATE, hrmState.device});
+    }
 }
 
 auto Model::recordPowerData(const PowerMeasurement &event) -> void {
     buffer.power = {event.power, system_clock::now()};
+
+    if (!powerState.active) {
+        powerState.active = true;
+        eventBus->publish(SubscribedToService{Service::POWER, powerState.device});
+    }
 }
 
 auto Model::recordCadenceData(const CadenceMeasurement &event) -> void {
@@ -161,6 +171,11 @@ auto Model::recordCadenceData(const CadenceMeasurement &event) -> void {
 
     const auto cadence = BLE::Math::computeCadence(lcet, prevLcet, ccr, prevCcr);
     buffer.cadence = {cadence, system_clock::now()};
+
+    if (!cadenceState.active) {
+        cadenceState.active = true;
+        eventBus->publish(SubscribedToService{Service::CADENCE, cadenceState.device});
+    }
 }
 
 auto Model::recordSpeedData(const SpeedMeasurement &event) -> void {
@@ -181,6 +196,11 @@ auto Model::recordSpeedData(const SpeedMeasurement &event) -> void {
 
     const auto speed = BLE::Math::computeSpeed(lwet, prevLwet, cwr, prevCwr);
     buffer.speed = {speed, system_clock::now()};
+
+    if (!speedState.active) {
+        speedState.active = true;
+        eventBus->publish(SubscribedToService{Service::SPEED, speedState.device});
+    }
 }
 
 //

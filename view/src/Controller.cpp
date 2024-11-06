@@ -79,7 +79,6 @@ auto WorkoutSummaryWindowController::showWorkoutSummaryWindow() -> void {
 }
 
 auto DeviceDialogController::showDialog() const -> void {
-
     if (!history->empty()) {
         const auto previous = history->top();
 
@@ -179,26 +178,35 @@ void SpeedUnitController::setDistanceUnit(DistanceUnit size) const {
 
 DeviceReconnectionController::DeviceReconnectionController(
     const std::shared_ptr<Reconnector> &reconnector,
+    const std::shared_ptr<ReconnectPacer> &pacer,
     const std::shared_ptr<AppState> &state
-): reconnector(reconnector), state(state) {
+): reconnector(reconnector), pacer(pacer), state(state) {
 }
 
-auto DeviceReconnectionController::reconnect(const std::shared_ptr<Device> device) const -> void {
+auto DeviceReconnectionController::reconnect(const std::shared_ptr<Device> &device) const -> void {
     if (state->state == ApplicationState::EXITING) {
         spdlog::info("App shutdown in progress, ignoring connection loss for device [{}]", device->deviceId());
         return;
     }
 
     reconnector->registerDevice(device);
+    if (reconnector->hasSomething()) {
+        pacer->start();
+    }
 }
 
-auto DeviceReconnectionController::connected(const std::shared_ptr<Device> device) const -> void {
+auto DeviceReconnectionController::connected(const std::shared_ptr<Device> &device) const -> void {
     if (state->state == ApplicationState::EXITING) {
         spdlog::info("App shutdown in progress, ignoring reconnect for device [{}]", device->deviceId());
         return;
     }
 
     reconnector->handleReconnect(device);
+    if (!reconnector->hasSomething()) {
+        pacer->stop();
+    } else {
+        pacer->start();
+    }
 }
 
 auto ShutdownController::shutdown() const -> void {
