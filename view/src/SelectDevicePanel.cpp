@@ -48,19 +48,35 @@ SelectDevicePanel::SelectDevicePanel(
 }
 
 auto SelectDevicePanel::deviceSelected(const DeviceSelected &event) -> void {
-    const auto name = QString::fromStdString(event.device->name.value.substr(0, 10)).trimmed();
+    const auto device = event.device->name.value.substr(0, 10);
+
+    const auto name = QString::fromStdString(device).trimmed();
+    const auto tooltip = QString::fromStdString(Constants::Tooltips::DeviceInactive(device));
+
     if (selectIcon) {
-        selectIcon->setToolTip(name);
+        selectIcon->setToolTip(tooltip);
     }
     if (sensorNameLabel) {
-        sensorNameLabel->setToolTip(name);
+        sensorNameLabel->setToolTip(tooltip);
     }
-    setToolTip(name);
+    setToolTip(tooltip);
     sensorNameLabel->setText(name);
     sensorNameLabel->dimmed();
 }
 
-auto SelectDevicePanel::subscribedToService(const SubscribedToService &event) const -> void {
+auto SelectDevicePanel::subscribedToService(const SubscribedToService &event) -> void {
+    const auto device = event.device->name.value.substr(0, 10);
+
+    const auto name = QString::fromStdString(device).trimmed();
+    const auto tooltip = QString::fromStdString(Constants::Tooltips::DeviceActive(device));
+
+    if (selectIcon) {
+        selectIcon->setToolTip(tooltip);
+    }
+    if (sensorNameLabel) {
+        sensorNameLabel->setToolTip(tooltip);
+    }
+    setToolTip(tooltip);
     sensorNameLabel->bright();
 }
 

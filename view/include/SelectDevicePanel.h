@@ -23,7 +23,7 @@ public:
     );
 
     auto deviceSelected(const DeviceSelected &event) -> void;
-    auto subscribedToService(const SubscribedToService &event) const -> void;
+    auto subscribedToService(const SubscribedToService &event) -> void;
 
 public slots:
     auto handleDeviceButtonClick() const -> void;

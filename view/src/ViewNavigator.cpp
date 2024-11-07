@@ -90,7 +90,7 @@ auto ViewNavigator::nextScreen(const std::string &command, const std::vector<std
         connectToDeviceController->connectToDevice(device);
     }
 
-    if (command == Constants::States::DEVICE_STATUS_CHANGED) {
+    if (command == Constants::Commands::DEVICE_STATUS_CHANGED) {
         assert(!args.empty() && "device connection event is required");
 
         const auto event = std::any_cast<const DeviceConnectionEvent *>(args[0]);

@@ -278,11 +278,12 @@ public:
         const std::shared_ptr<FecService> &fecService,
         const std::shared_ptr<ScannerService> &scannerService,
         const std::shared_ptr<DeviceRegistry> &registry,
+        const std::shared_ptr<ReconnectPacer> &pacer,
         const std::shared_ptr<AppState> &state
     )
         : initializer(initializer), hrmNotificationService(hrmNotificationService),
           cscNotificationService(cscNotificationService), powerNotificationService(powerNotificationService),
-          fecService(fecService), scannerService(scannerService), state(state), registry(registry) {
+          fecService(fecService), scannerService(scannerService), pacer(pacer), state(state), registry(registry) {
     }
 
     auto shutdown() const -> void;
@@ -294,6 +295,7 @@ private:
     std::shared_ptr<PowerNotificationService> powerNotificationService;
     std::shared_ptr<FecService> fecService;
     std::shared_ptr<ScannerService> scannerService;
+    std::shared_ptr<ReconnectPacer> pacer;
     std::shared_ptr<AppState> state;
     std::shared_ptr<DeviceRegistry> registry;
 };

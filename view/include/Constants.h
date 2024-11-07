@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <fmt/core.h>
 
 namespace Constants {
     namespace Icons {
@@ -17,6 +18,12 @@ namespace Constants {
 
         const std::string SPEED_SENSOR = "assets/spd.png";
         const std::string SPEED_SENSOR_HOVER = "assets/spd_high.png";
+    }
+
+    namespace Workouts {
+        const std::string HUD = "Heads-up display";
+        const std::string ERG = "ERG Mode";
+        const std::string STRUCTURED = "Structured workout";
     }
 
     namespace Buttons {
@@ -93,9 +100,21 @@ namespace Constants {
         const std::string SET_SPEED_UNIT = "SET_SPEED_UNIT";
         const std::string QUIT = "QUIT";
         const std::string CONNECT_TO_DEVICE = "CONNECT_TO_DEVICE";
+        const std::string DEVICE_STATUS_CHANGED = "DEVICE_STATUS_CHANGED";
     }
 
-    namespace States {
-        const std::string DEVICE_STATUS_CHANGED = "DEVICE_STATUS_CHANGED";
+    namespace UI {
+        const int MAX_SYMBOLS = 15;
+        const int FONT_SIZE = 16;
+    }
+
+    namespace Tooltips {
+        inline auto DeviceActive(const std::string &name) -> std::string {
+            return fmt::format("{} (Active)", name);
+        }
+
+        inline auto DeviceInactive(const std::string &name) -> std::string {
+            return fmt::format("{} (Inactive)", name);
+        }
     }
 }

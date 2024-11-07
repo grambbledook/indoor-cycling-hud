@@ -119,6 +119,9 @@ namespace StyleSheets {
         QLabel {
             color: black;
         }
+        TextLabel[mode="dimmed"] {
+            color: gray;
+        }
         ButtonLabel#with_borders {
             border: 2px solid black;
         }

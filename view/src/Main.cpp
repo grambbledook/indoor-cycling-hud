@@ -14,7 +14,6 @@
 
 #include "BleDeviceServices.h"
 #include "DeviceWindow.h"
-#include "Hud.h"
 
 using namespace winrt;
 
@@ -86,7 +85,7 @@ int main(int argc, char **argv) {
         const auto bleConnectionEvent = dynamic_cast<const DeviceConnectionEvent *>(&event);
         assert(bleConnectionEvent != nullptr && "bleConnectionEvent should not be null");
 
-        controllerHandler->next(Constants::States::DEVICE_STATUS_CHANGED, bleConnectionEvent);
+        controllerHandler->next(Constants::Commands::DEVICE_STATUS_CHANGED, bleConnectionEvent);
     });
 
 
@@ -126,7 +125,7 @@ int main(int argc, char **argv) {
     );
     const auto shutdownController = std::make_shared<ShutdownController>(
         settingsManager,
-        hrm, csc, pwr, fec, scanner, registry, appState
+        hrm, csc, pwr, fec, scanner, registry, reconnectPacer, appState
     );
     const auto connectToDeviceController = std::make_shared<ConnectToDeviceController>(
         hrm, csc, pwr, fec, appState

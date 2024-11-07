@@ -18,7 +18,7 @@ SelectWorkoutWindow::SelectWorkoutWindow(
     QWidget *parent
 ): AppWindow(handler, parent) {
     const auto listWidget = new QListWidget(this);
-    const auto basicWorkout = new QListWidgetItem("Basic workout", listWidget);
+    const auto basicWorkout = new QListWidgetItem(Constants::Workouts::HUD.data(), listWidget);
     basicWorkout->setSelected(true);
 
     listWidget->addItem(basicWorkout);

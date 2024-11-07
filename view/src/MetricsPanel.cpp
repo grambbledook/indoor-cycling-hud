@@ -5,10 +5,14 @@
 #include <Labels.h>
 
 #include <QGridLayout>
+#include <spdlog/spdlog.h>
 
 #include "Constants.h"
 
 MetricsPanel::MetricsPanel(const Data::DataField &dataField, QWidget *parent): QWidget(parent), dataField(dataField) {
+    setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
+    updatePanelWidth();
+
     auto const panel_layout = new QVBoxLayout(this);
     auto const buttonLayout = new QHBoxLayout(this);
     auto const valueLayout = new QGridLayout(this);
@@ -39,8 +43,6 @@ MetricsPanel::MetricsPanel(const Data::DataField &dataField, QWidget *parent): Q
     auto const main_layout = new QVBoxLayout(this);
     main_layout->addWidget(panel);
     setLayout(main_layout);
-
-    setStyleSheet((StyleSheets::THEME_DARK + StyleSheets::SCALE_MEDIUM).data());
 }
 
 auto MetricsPanel::next() -> void {
@@ -77,4 +79,22 @@ auto MetricsPanel::updateValueLabel() const -> void {
     }
 
     valueLabel->setText(QString::fromStdString(dataField.value(*data)));
+}
+
+
+auto MetricsPanel::resizeEvent(QResizeEvent *event) -> void {
+    QWidget::resizeEvent(event);
+    updatePanelWidth();
+}
+
+auto MetricsPanel::updatePanelWidth() -> void {
+    // const QFont font = this->font();
+    // const QFontMetrics fontMetrics(font);
+    const auto textWidth = Constants::UI::FONT_SIZE * Constants::UI::MAX_SYMBOLS;
+    // const auto gaga = font.pointSizeF() * Constants::UI::MAX_SYMBOLS;
+    // spdlog::info("O KURWA {}. {}", fontMetrics.horizontalAdvance("M"), textWidth);
+    // spdlog::info("  point {}. pixel {}, ke {}", font.pointSize(), font.pixelSize(), font.pointSizeF());
+    this->setFixedWidth(textWidth);
+
+    spdlog::info("O KURWA: {}", width());
 }

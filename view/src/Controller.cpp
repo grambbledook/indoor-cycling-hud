@@ -199,6 +199,7 @@ auto ShutdownController::shutdown() const -> void {
     state->transitionTo(ApplicationState::EXITING);
 
     initializer->store();
+    pacer->stop();
     registry->stop();
     QApplication::quit();
 }
