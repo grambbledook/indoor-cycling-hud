@@ -8,7 +8,7 @@
 #include "BleDeviceServices.h"
 #include "Constants.h"
 #include "Reconnector.h"
-#include "StyleSheets.h"
+#include "AppStyleSheets.h"
 
 
 template<typename T, typename T0>

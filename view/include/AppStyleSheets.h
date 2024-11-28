@@ -2,7 +2,7 @@
 #include <string>
 
 namespace StyleSheets {
-    inline std::string SCALE_MEDIUM = R"MEDIUM(
+    const inline std::string SCALE_MEDIUM = R"MEDIUM(
         RoundPanel {
             border-radius: 10px;
         }
@@ -61,7 +61,7 @@ namespace StyleSheets {
         }
 )MEDIUM";
 
-    inline std::string THEME_DARK = R"DARK(
+    const inline std::string THEME_DARK = R"DARK(
         RoundPanel {
             background-color: rgba(0, 0, 0, 0.8);
         }
@@ -99,7 +99,7 @@ namespace StyleSheets {
         }
     )DARK";
 
-    inline std::string THEME_BRIGHT = R"BRIGHT(
+    const inline std::string THEME_BRIGHT = R"BRIGHT(
         QWidget#panel {
             background-color: rgba(255, 255, 255, 0.8);
         }

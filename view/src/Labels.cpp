@@ -8,7 +8,7 @@
 #include <spdlog/spdlog.h>
 
 #include "Constants.h"
-#include "StyleSheets.h"
+#include "AppStyleSheets.h"
 
 const LabelSize LabelSize::SMALL = LabelSize("small");
 const LabelSize LabelSize::MEDIUM = LabelSize("medium");

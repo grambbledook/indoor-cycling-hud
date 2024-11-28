@@ -8,7 +8,7 @@
 
 #include "Constants.h"
 #include "Labels.h"
-#include "StyleSheets.h"
+#include "AppStyleSheets.h"
 
 DeviceDialog::DeviceDialog(
     const std::vector<std::shared_ptr<Device> > &data,

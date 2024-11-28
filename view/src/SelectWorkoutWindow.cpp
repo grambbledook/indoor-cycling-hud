@@ -1,7 +1,7 @@
 #include "SelectWorkoutWindow.h"
 
 #include <Constants.h>
-#include "StyleSheets.h"
+#include "AppStyleSheets.h"
 
 #include <spdlog/spdlog.h>
 #include <Labels.h>

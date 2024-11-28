@@ -1,5 +1,5 @@
 #include "SelectDevicePanel.h"
-#include "StyleSheets.h"
+#include "AppStyleSheets.h"
 #include "WorkoutWindow.h"
 #include "MetricsPanel.h"
 #include <Labels.h>

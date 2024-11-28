@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-#include "StyleSheets.h"
+#include "AppStyleSheets.h"
 
 #include <iostream>
 #include <qevent.h>
