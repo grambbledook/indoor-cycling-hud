@@ -128,7 +128,7 @@ int main(int argc, char **argv) {
         hrm, csc, pwr, fec, scanner, registry, reconnectPacer, appState
     );
     const auto connectToDeviceController = std::make_shared<ConnectToDeviceController>(
-        hrm, csc, pwr, fec, appState
+        hrm, csc, pwr, fec, settingsManager, appState
     );
     const auto deviceReconnectionController = std::make_shared<DeviceReconnectionController>(
         reconnector, appState

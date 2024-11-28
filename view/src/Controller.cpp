@@ -122,18 +122,22 @@ auto ConnectToDeviceController::connectToDevice(const std::shared_ptr<Device> &d
     auto setupConnection = [this, device]() {
         if (device->services.contains(BLE::Services::HRM)) {
             hrmNotificationService->setDevice(device);
+            settingsManager->store();
         }
 
         if (device->services.contains(BLE::Services::CSC)) {
             cscNotificationService->setDevice(device);
+            settingsManager->store();
         }
 
         if (device->services.contains(BLE::Services::PWR)) {
             powerNotificationService->setDevice(device);
+            settingsManager->store();
         }
 
         if (device->services.contains(BLE::Services::FEC_BIKE_TRAINER)) {
             fecService->setDevice(device);
+            settingsManager->store();
         }
     };
 

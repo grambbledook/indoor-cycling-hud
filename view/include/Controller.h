@@ -232,12 +232,14 @@ public:
         const std::shared_ptr<CyclingCadenceAndSpeedNotificationService> &cscNotificationService,
         const std::shared_ptr<PowerNotificationService> &powerNotificationService,
         const std::shared_ptr<FecService> &fecService,
+        const std::shared_ptr<SettingsManager> &settingsManager,
         const std::shared_ptr<AppState> &state
     )
         : hrmNotificationService(hrmNotificationService),
           cscNotificationService(cscNotificationService),
           powerNotificationService(powerNotificationService),
-          fecService(fecService), state(state) {
+          fecService(fecService), settingsManager(settingsManager),
+          state(state) {
     }
 
     auto connectToDevice(const std::shared_ptr<Device> &device) const -> void;
@@ -247,6 +249,7 @@ private:
     std::shared_ptr<CyclingCadenceAndSpeedNotificationService> cscNotificationService;
     std::shared_ptr<PowerNotificationService> powerNotificationService;
     std::shared_ptr<FecService> fecService;
+    std::shared_ptr<SettingsManager> settingsManager;
     std::shared_ptr<AppState> state;
 };
 
@@ -266,7 +269,6 @@ private:
     const std::shared_ptr<Reconnector> reconnector;
     const std::shared_ptr<AppState> state;
 };
-
 
 class ShutdownController final : public Controller<void *> {
 public:
